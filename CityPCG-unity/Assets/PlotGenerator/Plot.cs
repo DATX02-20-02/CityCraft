@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
-public class Plot : MonoBehaviour
+using System;
+[Serializable]
+public class Plot
 {
-	private Vector3[] area;
+	public Vector3[] area;
 	public Plot(Vector3[] area) {
 		this.area = area;
 	}
-	public Vector3[] Area {get;}
-
 }

@@ -18,6 +18,7 @@ public class WorldGenerator : MonoBehaviour {
     [SerializeField] private GameObject plotGeneratorPrefab = null;
     [SerializeField] private GameObject buildingGeneratorPrefab = null;
     [SerializeField] private GameObject parkGeneratorPrefab = null;
+    [SerializeField] private GameObject parkingGeneratorPrefab = null;
 
     [Header("Building Generation Params")]
     [SerializeField] private int buildIntervalSize = 0;
@@ -34,6 +35,7 @@ public class WorldGenerator : MonoBehaviour {
     private PlotGenerator plotGenerator;
     private BuildingGenerator buildingGenerator;
     private ParkGenerator parkGenerator;
+    private ParkingGenerator parkingGenerator;
 
     // State properties
     public enum State {
@@ -153,6 +155,7 @@ public class WorldGenerator : MonoBehaviour {
             terrain, populationNoise, (roadNetwork) => {
                 GenerateBlocks();
                 callback(roadNetwork);
+
             }
         );
     }
@@ -176,18 +179,18 @@ public class WorldGenerator : MonoBehaviour {
                     buildingGenerator.Generate(plot, this.terrain, this.populationNoise);
                 }
                 else if (plot.type == PlotType.Park) {
-                    // GENERATE PARK HERE
+                    parkGenerator.GeneratePaths(terrain,block,plot);
+                    parkGenerator.Generate(terrain,block,plot);
                 }
 
                 plotCounter++;
                 if (buildIntervalSize <= plotCounter) {
                     plotCounter = 0;
                     yield return new WaitForSeconds(buildIntervalDelay);
-                }
             }
         }
+        }
     }
-
     private void GenerateBlocks() {
         this.blocks = blockGenerator.Generate(roadNetwork);
     }
@@ -200,6 +203,7 @@ public class WorldGenerator : MonoBehaviour {
         plotGenerator = Instantiate(plotGeneratorPrefab, transform).GetComponent<PlotGenerator>();
         buildingGenerator = Instantiate(buildingGeneratorPrefab, transform).GetComponent<BuildingGenerator>();
         parkGenerator = Instantiate(parkGeneratorPrefab, transform).GetComponent<ParkGenerator>();
+        parkingGenerator = Instantiate(parkingGeneratorPrefab,transform).GetComponent<ParkingGenerator>();
     }
 
     private void Awake() {

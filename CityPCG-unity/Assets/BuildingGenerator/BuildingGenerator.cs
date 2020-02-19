@@ -1,22 +1,55 @@
-﻿using System.Collections;
-using UnityEngine;
-
+﻿using UnityEngine;
 public class BuildingGenerator : MonoBehaviour
 {
 	public Plot plot;
-	private Mesh mesh;
+	public GameObject building;
 	
 	void Start() {
-		LineRenderer lr = new LineRenderer();
-		lr.SetPositions(plot.area);
-		lr.BakeMesh(mesh, true);
+		var b = Instantiate(building, transform);
+		var mesh = b.GetComponent<MeshFilter>().mesh;
 
-	}
-	void Update() {
-		for (var i = 0; i < plot.area.Length - 1; i++)
+		mesh.Clear();
+
+		var meshVertices = new Vector3[plot.area.Length * 2];
+		for (var i = 0; i < meshVertices.Length; i += 2)
 		{
-			Debug.DrawLine(plot.area[i], plot.area[i + 1], Color.blue, 10000);
+			meshVertices[i] = plot.area[i / 2];
 		}
-		Debug.DrawLine(plot.area[plot.area.Length - 1], plot.area[0], Color.blue, 10000);
+		
+		var up = new Vector3(0, 5, 0);
+
+		for (var i = 1; i < meshVertices.Length; i += 2)
+		{
+			meshVertices[i] = meshVertices[i - 1] + up;
+		}
+		
+		var meshTriangles = new int[plot.area.Length * 6];
+		var numVert = meshVertices.Length;
+		
+		for (var i = 0; i < numVert; i += 2)
+		{
+			var j = i * 3;
+			
+			meshTriangles[j] = i;
+			meshTriangles[j + 1] = (i + 1) % numVert;
+			meshTriangles[j + 2] = (i + 2) % numVert;
+
+			meshTriangles[j + 3] = (i + 1) % numVert;
+			meshTriangles[j + 4] = (i + 3) % numVert;
+			meshTriangles[j + 5] = (i + 2) % numVert;
+		}
+
+		foreach (var index in meshTriangles)
+		{
+			Debug.Log(index);
+		}
+		
+		mesh.vertices = meshVertices;
+		mesh.triangles = meshTriangles;
+	}
+	
+	void Update() {
+
 	} 
 }
+

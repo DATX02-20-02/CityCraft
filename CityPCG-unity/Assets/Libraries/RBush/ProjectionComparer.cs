@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace RTree
+namespace RBush
 {
 	/// <summary>
 	/// Non-generic class to produce instances of the generic class,

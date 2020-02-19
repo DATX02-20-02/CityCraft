@@ -116,3 +116,4 @@ public class BuildingGenerator : MonoBehaviour {
         return null;
     }
 }
+

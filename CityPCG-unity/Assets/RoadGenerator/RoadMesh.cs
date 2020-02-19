@@ -43,7 +43,9 @@ public class RoadMesh : MonoBehaviour {
     public float Width {
         get { return roadWidth + (sidewalkWidth * 2); }
     }
-
+    public MeshFilter RoadMeshFilter {
+        get { return roadMesh;}
+    }
     public BezierSpline Spline {
         get { return GetComponent<BezierSpline>(); }
     }

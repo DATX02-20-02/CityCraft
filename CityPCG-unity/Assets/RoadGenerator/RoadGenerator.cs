@@ -1,138 +1,79 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using RTree;
 
 public class RoadGenerator : MonoBehaviour
 {
-    public int SEGMENT_COUNT_LIMIT = 256;
-    public int HIGHWAY_SEGMENT_LENGTH = 25;
-
-    [Range(0, 0.4f)]
-    public float generationTickInterval = 0.2f;
-
-    private class RoadSegment
-    {
-        public Vector3 start;
-        public Vector3 end;
-        public int t;
-    }
-
-    private List<RoadSegment> segments;
-    private List<RoadSegment> segmentCandidates;
-    private bool isGenerating = false;
-
-    private Bounds cameraBounds;
+    private List<Node> nodes;
+    private RTree<Node> tree;
 
     void Start()
     {
-        segments = new List<RoadSegment>();
-        segmentCandidates = new List<RoadSegment>();
-    }
+        tree = new RTree<Node>();
+        nodes = new List<Node>();
 
-    RoadSegment ContinueStraight(RoadSegment previous, float angleDeviation)
-    {
-        Quaternion rotation = Quaternion.Euler(0, angleDeviation, 0);
-        Vector3 dir = (previous.end - previous.start).normalized;
-        Vector3 newDir = rotation * dir;
+        float step = 2 * Mathf.PI / 10.0f;
+        for (int i = 1; i < 2; i++) {
+            float x = Mathf.Sin(step * i) * 2;
+            float y = Mathf.Cos(step * i) * 2;
 
-        return new RoadSegment {
-            start = previous.end,
-            end = previous.end + newDir * HIGHWAY_SEGMENT_LENGTH,
-            t = previous.t + 1
-        };
-    }
+            Node node1 = new Node(new Vector3(x, 0, y));
+            Node node2 = new Node(new Vector3(x * 2, 0, y * 2));
 
+            node1.ConnectTo(node2);
 
-    IEnumerator GenerateRoad()
-    {
-        Debug.Log("Started generating Road");
-        isGenerating = true;
-
-        segments.Clear();
-        segmentCandidates.Clear();
-
-        segmentCandidates.Add(new RoadSegment {start = new Vector3(0, 0, 0), end = new Vector3(50, 0, 0), t = 0});
-        segmentCandidates.Add(new RoadSegment {start = new Vector3(0, 0, 0), end = new Vector3(-50, 0, 0), t = 0});
-
-        cameraBounds = new Bounds(Vector3.zero, new Vector3(100, 1, 100));
-
-        while (segmentCandidates.Count > 0 && segments.Count < SEGMENT_COUNT_LIMIT)
-        {
-            int min_t_index = 0;
-            int min_t = segmentCandidates[min_t_index].t;
-
-            // @optimization: get segment with smallest t using a priority queue
-            for (int i = 0; i < segmentCandidates.Count; i++)
-            {
-                RoadSegment s = segmentCandidates[i];
-                if (s.t < min_t)
-                {
-                    min_t = s.t;
-                    min_t_index = i;
-                }
-            }
-
-            RoadSegment candidate = segmentCandidates[min_t_index];
-            segmentCandidates.RemoveAt(min_t_index);
-
-            bool acceptedCandidate = true;
-            {
-
-            }
-
-            if (acceptedCandidate)
-            {
-                segments.Add(candidate);
-                cameraBounds.Encapsulate(candidate.end);
-
-                // GlobalGoals
-                {
-                    segmentCandidates.Add(ContinueStraight(candidate, Random.Range(-10f, 10f)));
-
-                    if (Random.value < 0.3f)
-                    {
-                        float branchAngle = 90 + Random.Range(-10.0f, 10.0f);
-                        branchAngle = (Random.value) < 0.5 ? branchAngle : -branchAngle;
-                        Debug.Log("Creating branch witch angle: " + branchAngle);
-
-                        segmentCandidates.Add(ContinueStraight(candidate, branchAngle));
-                    }
-                }
-            }
-
-            yield return new WaitForSeconds(generationTickInterval);
+            AddNode(node1);
+            AddNode(node2);
         }
-
-        Debug.Log("Finished generating road");
-        isGenerating = false;
     }
+
+    public void AddAgent(Agent agent) {
+        // if (_.find(this.agents, agent)) return;
+
+        // this.queue.add(agent);
+    }
+
+
+    public Node AddNode(Node node) {
+        node.added = true;
+
+        nodes.Add(node);
+        tree.Insert(node);
+
+        return node;
+    }
+
+    public void RemoveNode(Node node) {
+        this.nodes.Remove(node);
+        this.tree.Delete(node);
+    }
+
+    public void updateNodeInTree(Node node) {
+        this.tree.Delete(node);
+        this.tree.Insert(node);
+    }
+
 
     void Update()
     {
-        if (Input.GetButtonDown("Fire1"))
+        Vector3 mousePos = Util.GetPlaneMousePos(new Vector3(0, 0, 0));
+
+        Envelope searchBounds = new Envelope(mousePos.x - 0.2f, mousePos.z - 0.2f, mousePos.x + 0.2f, mousePos.z + 0.2f);
+        IEnumerable<Node> result = tree.Search(searchBounds);
+
+        Util.DebugDrawEnvelope(searchBounds);
+
+        foreach (Node n in nodes)
         {
-            if (isGenerating)
+            Util.DebugDrawCircle(n.pos, 0.2f, new Color(0, 1, 0));
+
+            Util.DebugDrawEnvelope(n.Envelope);
+
+            foreach (Node.NodeConnection c in n.connections)
             {
-                StopCoroutine("GenerateRoad");
+              Debug.DrawLine(n.pos, c.node.pos, new Color(1, 0, 0));
             }
-
-            StartCoroutine("GenerateRoad");
-        }
-
-        foreach (RoadSegment s in segments)
-        {
-            Debug.DrawLine(s.start, s.end, new Color(0, 1, 0));
-        }
-
-        foreach (RoadSegment s in segmentCandidates)
-        {
-            Debug.DrawLine(s.start, s.end, new Color(1, 0, 0));
-        }
-
-        if (isGenerating)
-        {
-            Vector3 targetCameraPosition = cameraBounds.center + Vector3.up * (Mathf.Max(cameraBounds.size.x, cameraBounds.size.z) * 0.8f);
-            Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, targetCameraPosition, 0.1f);
         }
     }
 }

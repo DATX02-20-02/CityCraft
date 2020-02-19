@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace RTree
+namespace RBush
 {
 	public interface ISpatialDatabase<T> : ISpatialIndex<T>
 	{

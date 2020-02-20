@@ -44,7 +44,7 @@ public class Util {
 
     #endregion
 
-    public static Envelope GetEnvelopeFromNodes(IEnumerable<Node> nodes) {
+    public static Envelope GetEnvelopeFromNodes(IEnumerable<Node> nodes, float padding = 0) {
         float minX = float.MaxValue;
         float minZ = float.MaxValue;
 
@@ -59,7 +59,7 @@ public class Util {
             maxZ = Mathf.Max(maxZ, node.pos.z);
         }
 
-        return new Envelope(minX, minZ, maxX, maxZ);
+        return new Envelope(minX - padding, minZ - padding, maxX + padding, maxZ + padding);
     }
 
     public static Vector3 GetPlaneMousePos(Vector3 planePos)
@@ -91,6 +91,20 @@ public class Util {
         return leastNode;
     }
 
+    public static Vector2 GetProjectedPointOnLine(Vector2 point, Vector2 from, Vector2 to) {
+        float l2 = (to - from).sqrMagnitude;
+        if (l2 == 0) return from;
+
+        float t = Mathf.Max(0, Mathf.Min(1, Vector2.Dot(point - from, to - from) / l2));
+        Vector2 proj = from + t * (to - from);
+        return proj;
+    }
+
+    public static float GetMinimumDistanceToLine(Vector2 point, Vector2 from, Vector2 to) {
+        Vector2 proj = GetProjectedPointOnLine(point, from, to);
+        return Vector2.Distance(point, proj);
+    }
+
 
 
     #region Line intersection
@@ -106,28 +120,24 @@ public class Util {
         public class Result {
             public Type type;
             public Vector2 point;
+            public float factorA;
+            public float factorB;
 
             public Result(Type type) {
                 this.type = type;
             }
 
-            public Result(Type type, Vector2 point) : this(type) {
+            public Result(Type type, Vector2 point, float factorA, float factorB) : this(type) {
                 this.point = point;
+                this.factorA = factorA;
+                this.factorB = factorB;
             }
         }
 
-        public static Result CheckIntersection(Vector2 fromA, Vector2 toA, Vector2 fromB, Vector2 toB) {
-            // x1 -> fromA.x
-            // y1 -> fromA.y
-            // x2 -> toA.x
-            // y2 -> toA.y
-            // x3 -> fromB.x
-            // y3 -> fromB.y
-            // x4 -> toB.x
-            // y4 -> toB.y
-            float denom = ((toB.y - fromB.y) * (toA.x - fromA.x)) - ((toB.x - fromB.x) * (toA.y - fromA.y));
-            float numeA = ((toB.x - fromB.x) * (fromA.y - fromB.y)) - ((toB.y - fromB.y) * (fromA.x - fromB.x));
-            float numeB = ((toA.x - fromA.x) * (fromA.y - fromB.y)) - ((toA.y - fromA.y) * (fromA.x - fromB.x));
+        public static Result RayTest(Vector2 fromA, Vector2 toA, Vector2 origin, Vector2 dir) {
+            float denom = (dir.y * (toA.x - fromA.x)) - (dir.x * (toA.y - fromA.y));
+            float numeA = (dir.x * (fromA.y - origin.y)) - (dir.y * (fromA.x - origin.x));
+            float numeB = ((toA.x - fromA.x) * (fromA.y - origin.y)) - ((toA.y - fromA.y) * (fromA.x - origin.x));
 
             if (denom == 0) {
                 if (numeA == 0 && numeB == 0) {
@@ -139,11 +149,18 @@ public class Util {
             float uA = numeA / denom;
             float uB = numeB / denom;
 
-            if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1) {
-                return new Result(Type.Intersecting, new Vector2(
-                  fromA.x + (uA * (toA.x - fromA.x)),
-                  fromA.y + (uA * (toA.y - fromA.y))
-                ));
+            if (uA >= 0 && uA <= 1 && uB >= 0) {
+                return new Result(Type.Intersecting, origin + uB * dir, uA, uB);
+            }
+
+            return new Result(Type.None);
+        }
+
+        public static Result LineTest(Vector2 fromA, Vector2 toA, Vector2 fromB, Vector2 toB) {
+            Result res = RayTest(fromA, toA, fromB, toB - fromB);
+
+            if (res.factorB <= 1) {
+                return res;
             }
 
             return new Result(Type.None);

@@ -13,6 +13,7 @@ public class RoadGenerator : MonoBehaviour
     private PriorityQueue<Agent> queue;
 
     private bool prevClick;
+    private Node prevNode;
 
     void Start()
     {
@@ -42,14 +43,20 @@ public class RoadGenerator : MonoBehaviour
 
         Node node1 = new Node(new Vector3(1.1f, 0, 1));
         Node node2 = new Node(new Vector3(1, 0, -1));
-        Node node3 = new Node(new Vector3(-0.5f, 0, 0));
+        // Node node3 = new Node(new Vector3(-0.5f, 0, 0));
 
         AddNode(node1);
         AddNode(node2);
-        AddNode(node3);
+        // AddNode(node3);
 
         ConnectNodes(node1, node2);
-        ConnectNodes(node2, node3);
+        // ConnectNodes(node2, node3);
+        //
+        Node node3 = new Node(Vector3.zero);
+        Node node4 = new Node(Vector3.zero);
+
+        AddNodeNearby(node3, 0.5f);
+        AddNodeNearby(node4, 0.5f);
 
     }
 
@@ -62,6 +69,17 @@ public class RoadGenerator : MonoBehaviour
         print("Adding agent");
     }
 
+    public IEnumerable<Node> FindNodesInRadius(Vector3 pos, float radius) {
+        Envelope searchBounds = new Envelope(
+            pos.x - radius,
+            pos.z - radius,
+            pos.x + radius,
+            pos.z + radius
+        );
+        IEnumerable<Node> result = tree.Search(searchBounds);
+
+        return result.Where(n => Vector3.Distance(pos, n.pos) < radius);
+    }
 
     public Node AddNode(Node node) {
         nodes.Add(node);
@@ -69,19 +87,15 @@ public class RoadGenerator : MonoBehaviour
 
         node.added = true;
 
+        print("now: " + this.tree.Count + " , " + nodes.Count);
         return node;
     }
 
     public Node AddNodeNearby(Node node, float radius) {
-        Envelope searchBounds = new Envelope(
-            node.pos.x - radius,
-            node.pos.z - radius,
-            node.pos.x + radius,
-            node.pos.z + radius
-        );
-        IEnumerable<Node> result = tree.Search(searchBounds);
+        IEnumerable<Node> result = FindNodesInRadius(node.pos, radius);
 
         Node closestNode = Util.GetClosestNode(node, result);
+        print(closestNode);
         if (closestNode != null && Vector3.Distance(closestNode.pos, node.pos) <= radius) {
             print("found closest");
             return closestNode;
@@ -98,10 +112,10 @@ public class RoadGenerator : MonoBehaviour
     }
 
     public void UpdateNodeInTree(Node node) {
-        print("before: " + this.tree.Count);
+        print("before: " + this.tree.Count + " , " + this.nodes.Count);
         this.tree.Delete(node);
         this.tree.Insert(node);
-        print("after: " + this.tree.Count);
+        print("after: " + this.tree.Count + " , " + this.nodes.Count);
     }
 
     public bool ConnectNodes(Node node1, Node node2, Node.ConnectionType type = Node.ConnectionType.Street) {
@@ -149,74 +163,115 @@ public class RoadGenerator : MonoBehaviour
     }
 
     public ConnectionResult ConnectNodesWithIntersect(Node node1, Node node2, float snapRadius, Node.ConnectionType type = Node.ConnectionType.Street) {
-        Envelope bBox = Util.GetEnvelopeFromNodes(new List<Node>() { node1, node2 });
+        if (Vector3.Distance(node1.pos, node2.pos) <= snapRadius) {
+            return new ConnectionResult(false, false, true, node1);
+        }
+
+        // Create bounding envelope containing both nodes, including some snapRadius margin
+        Envelope bBox = Util.GetEnvelopeFromNodes(new List<Node>() { node1, node2 }, snapRadius);
 
         IEnumerable<Node> results = tree.Search(bBox);
 
-        bool success = false;
-        bool didSnap = false;
-        bool didIntersect = false;
-        Node prevNode = node1;
+        // Sort by closest nodes
+        List<Node> sortedRes = results
+            .OrderBy(n => Vector3.Distance(node1.pos, n.pos))
+            .ToList();
+
         List<IntersectionInfo> intersections = new List<IntersectionInfo>();
 
-        foreach (Node other in results) {
+        Dictionary<Node, bool> added = new Dictionary<Node, bool>();
+        bool success = false;
+        foreach (Node other in sortedRes) {
             if (other == node1 || other == node2) continue;
 
-            foreach (Node.NodeConnection connection in other.connections) {
-                if (connection.node == node1) continue;
+            // First, check if the node is within snapRadius of the destination node
+            // If so, snap to it
+            if (Vector3.Distance(other.pos, node2.pos) <= snapRadius) {
+                ConnectionResult res = ConnectNodesWithIntersect(node1, other, snapRadius, type);
 
-                Util.LineIntersection.Result intersection = Util.LineIntersection.CheckIntersection(
-                    Util.Vector3To2(node2.pos),
-                    Util.Vector3To2(node1.pos),
+                return new ConnectionResult(false, res.didIntersect, res.didSnap, res.prevNode);
+            }
+
+            // Check nodes along the desired connection line
+            // If found, snap to that node
+            float dist = Util.GetMinimumDistanceToLine(
+                Util.Vector3To2(other.pos),
+                Util.Vector3To2(node1.pos),
+                Util.Vector3To2(node2.pos)
+            );
+            if (dist <= snapRadius && Vector3.Distance(other.pos, node1.pos) > snapRadius) {
+                success = this.ConnectNodes(node1, other, type);
+
+                return new ConnectionResult(false, false, true, other);
+            }
+
+            // This is to ensure intersection test is not performed on the same connection twice
+            // This is due to nodes having bi-directional connections
+            if (added.ContainsKey(other)) continue;
+            added[other] = true;
+
+            foreach (Node.NodeConnection connection in other.connections) {
+                if (connection.node == node1 || connection.node == node2) continue;
+                if (added.ContainsKey(connection.node)) continue;
+                added[connection.node] = true;
+
+                // Perform a ray-line intersection test
+                // This results in three scenarios:
+                // 1. No intersection and no snapping should be done.
+                // 2. The new connection line is intersecting with another connection, create intersection
+                // 3. The new connection line is almost intersecting with another connection (it is within snapRadius),
+                //    "extend" the new connection line so that it intersects with the existing connection
+                Util.LineIntersection.Result intersection = Util.LineIntersection.RayTest(
                     Util.Vector3To2(other.pos),
-                    Util.Vector3To2(connection.node.pos)
+                    Util.Vector3To2(connection.node.pos),
+                    Util.Vector3To2(node1.pos),
+                    Util.Vector3To2(node2.pos - node1.pos)
                 );
 
                 if (intersection.type == Util.LineIntersection.Type.Intersecting) {
-                    intersections.Add(new IntersectionInfo(other, connection, intersection));
+                    // Scenario #2
+                    if (intersection.factorB <= 1) {
+                        intersections.Add(new IntersectionInfo(other, connection, intersection));
+                    }
+                    // Scenario #3
+                    else {
+                        float distLine = Vector2.Distance(Util.Vector3To2(node2.pos), intersection.point);
+                        if (distLine <= snapRadius) {
+                            // The ray intersection handles the extension for us, so simply add this result
+                            intersections.Add(new IntersectionInfo(other, connection, intersection));
+                        }
+                    }
                 }
             }
         }
 
-        List<IntersectionInfo> sorted = intersections
-            .OrderBy(n => Vector2.Distance(Util.Vector3To2(prevNode.pos), n.result.point))
-            .ToList();
+        // Resolve potential intersections
+        if (intersections.Count > 0) {
+            // Multiple intersections can occur, make sure we take the closest one
+            List<IntersectionInfo> sorted = intersections
+                .OrderBy(n => Vector2.Distance(Util.Vector3To2(node1.pos), n.result.point))
+                .ToList();
 
-        foreach(IntersectionInfo info in sorted) {
-            if (Vector2.Distance(Util.Vector3To2(info.from.pos), info.result.point) < snapRadius) {
-                success = this.ConnectNodes(node1, info.from, type);
-                this.ConnectNodes(info.from, node2, type);
-                didSnap = true;
-                break;
+            // TODO: This does not need to be a for loop, since all it needs is the first element
+            foreach(IntersectionInfo info in sorted) {
+                Node n = AddNode(new Node(Util.Vector2To3(info.result.point), node1.type));
+
+                // Split the connection to include the new intersection node
+                DisconnectNodes(info.from, info.connection.node);
+                ConnectNodes(info.from, n, info.connection.type);
+                ConnectNodes(info.connection.node, n, info.connection.type);
+
+                // Connect the origin node to the new intersection node
+                ConnectNodes(node1, n, type);
+
+                return new ConnectionResult(false, true, false, n);
             }
-            else if (Vector2.Distance(Util.Vector3To2(info.connection.node.pos), info.result.point) < snapRadius) {
-                success = this.ConnectNodes(node1, info.connection.node, type);
-                this.ConnectNodes(info.connection.node, node2, type);
-                didSnap = true;
-                break;
-            }
-
-            print("adding intersection node");
-            Node n = AddNode(new Node(Util.Vector2To3(info.result.point), node1.type));
-
-            ConnectNodes(node1, n, type);
-            ConnectNodes(n, node2, type);
-
-            DisconnectNodes(info.from, info.connection.node);
-            ConnectNodes(info.from, n, info.connection.type);
-            ConnectNodes(info.connection.node, n, info.connection.type);
-
-            prevNode = n;
-
-            didIntersect = true;
         }
 
-        if (intersections.Count == 0) {
-            success = ConnectNodes(node1, node2, type);
-            return new ConnectionResult(success, didIntersect, didSnap, node2);
-        }
+        // If no intersections or no snapping are found, just connect the desired nodes
+        success = ConnectNodes(node1, node2, type);
 
-        return new ConnectionResult(success, didIntersect, didSnap, prevNode);
+        return new ConnectionResult(success, false, false, node2);
     }
 
     void DoAgentWork() {
@@ -246,21 +301,31 @@ public class RoadGenerator : MonoBehaviour
 
         bool click = Input.GetButtonDown("Fire1");
         if (click && !prevClick) {
-            print("adding node");
 
-            Node node1 = new Node(Vector3.zero);
+            Node node1 = this.prevNode;
             Node node2 = new Node(mousePos);
-            node1 = AddNodeNearby(node1, 0.1f);
-            AddNode(node2);
 
-            ConnectNodesWithIntersect(node1, node2, 0.1f);
+            if (node1 == null) {
+                 node1 = AddNodeNearby(new Node(Vector3.zero), 0.5f);
+            }
+
+
+            ConnectionResult info = ConnectNodesWithIntersect(node1, node2, 0.5f);
+            print(info.success + " , " + info.didIntersect + " , " + info.didSnap);
+
+            if (info.success && !info.didIntersect && !info.didSnap) {
+                AddNode(node2);
+                print("adding node");
+            }
+
+            prevNode = info.prevNode;
         }
         prevClick = click;
 
         DoAgentWork();
 
 
-        Envelope searchBounds = new Envelope(mousePos.x - 0.01f, mousePos.z - 0.01f, mousePos.x + 0.01f, mousePos.z + 0.01f);
+        Envelope searchBounds = new Envelope(mousePos.x - 0.05f, mousePos.z - 0.05f, mousePos.x + 0.05f, mousePos.z + 0.05f);
         IEnumerable<Node> result = tree.Search(searchBounds);
 
         int count = 0;
@@ -272,31 +337,34 @@ public class RoadGenerator : MonoBehaviour
 
         Util.DebugDrawEnvelope(searchBounds, new Color(1, 1, 1, 0.1f));
 
+        int idx = 0;
         foreach (Node n in nodes)
         {
-            Util.DebugDrawCircle(n.pos, 0.025f, n.hovering ? new Color(0, 1, 0) : new Color(0, 1, 1));
+            Util.DebugDrawCircle(n.pos, 0.025f + idx / 100.0f, n.hovering ? new Color(0, 1, 0) : new Color(0, 1, 1));
 
             Util.DebugDrawEnvelope(n.Envelope, new Color(0, 0, 1, 0.1f));
 
             Vector2 mousePos2 = Util.Vector3To2(mousePos);
-            Debug.DrawLine(Vector3.zero, mousePos);
+            Debug.DrawLine(this.prevNode != null ? this.prevNode.pos : Vector3.zero, mousePos);
 
             foreach (Node.NodeConnection c in n.connections)
             {
                 Debug.DrawLine(n.pos, c.node.pos, new Color(1, 0, 0));
 
-                Util.LineIntersection.Result res = Util.LineIntersection.CheckIntersection(
-                    Util.Vector3To2(n.pos),
-                    Util.Vector3To2(c.node.pos),
-                    Vector2.zero, mousePos2
-                );
+                // Util.LineIntersection.Result intersection = Util.LineIntersection.RayTest(
+                //     Util.Vector3To2(n.pos),
+                //     Util.Vector3To2(c.node.pos),
+                //     Vector2.zero,
+                //     Util.Vector3To2(mousePos)
+                // );
 
-
-                if (res.type == Util.LineIntersection.Type.Intersecting){
-                    Util.DebugDrawCircle(new Vector3(res.point.x, 0, res.point.y), 0.01f, new Color(1, 0, 1));
-                }
+                // if (intersection.type == Util.LineIntersection.Type.Intersecting) {
+                //     Util.DebugDrawCircle(Util.Vector2To3(intersection.point), 0.02f, new Color(1, 0, 1));
+                //     print(intersection.factorB);
+                // }
             }
 
+            idx++;
             n.hovering = false;
         }
     }

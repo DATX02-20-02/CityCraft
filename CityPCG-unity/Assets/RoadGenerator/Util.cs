@@ -95,7 +95,10 @@ public class Util {
         float l2 = (to - from).sqrMagnitude;
         if (l2 == 0) return from;
 
-        float t = Mathf.Max(0, Mathf.Min(1, Vector2.Dot(point - from, to - from) / l2));
+        // float t = Mathf.Max(0, Mathf.Min(1, Vector2.Dot(point - from, to - from) / l2));
+        float t = Vector2.Dot(point - from, to - from) / l2;
+        if (t < 0 || t > 1) return Vector2.negativeInfinity;
+
         Vector2 proj = from + t * (to - from);
         return proj;
     }
@@ -109,6 +112,9 @@ public class Util {
 
     #region Line intersection
 
+    // Original implementation from Paul Salaets in the Node.JS package "line-intersect"
+    // https://github.com/psalaets/line-intersect
+    // Ported to C# and modified to also include ray-line intersection
     public class LineIntersection {
         public enum Type {
             None,

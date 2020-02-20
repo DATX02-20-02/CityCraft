@@ -212,8 +212,6 @@ public class RoadGenerator : MonoBehaviour
 
             foreach (Node.NodeConnection connection in other.connections) {
                 if (connection.node == node1 || connection.node == node2) continue;
-                if (added.ContainsKey(connection.node)) continue;
-                added[connection.node] = true;
 
                 // Perform a ray-line intersection test
                 // This results in three scenarios:
@@ -306,11 +304,11 @@ public class RoadGenerator : MonoBehaviour
             Node node2 = new Node(mousePos);
 
             if (node1 == null) {
-                 node1 = AddNodeNearby(new Node(Vector3.zero), 0.5f);
+                 node1 = AddNodeNearby(new Node(Vector3.zero), 0.2f);
             }
 
 
-            ConnectionResult info = ConnectNodesWithIntersect(node1, node2, 0.5f);
+            ConnectionResult info = ConnectNodesWithIntersect(node1, node2, 0.2f);
             print(info.success + " , " + info.didIntersect + " , " + info.didSnap);
 
             if (info.success && !info.didIntersect && !info.didSnap) {

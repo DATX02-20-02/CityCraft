@@ -25,7 +25,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9182401937566038333}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -2.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -43,3 +43,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3be9453b46e63b3dbabb473d26677ca5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  plot:
+    area:
+    - {x: 0, y: 0, z: 0}
+    - {x: 0, y: 0, z: 25}
+    - {x: 25, y: 0, z: 0}
+    - {x: 25, y: 25, z: 0}
+  tree: {fileID: 192044, guid: 19682540d8a014522a319b1cf788aee2, type: 3}
+  bush: {fileID: 100000, guid: a51a4aef6f4c94a459aefc81d0a0f414, type: 3}
+  rock: {fileID: 110990, guid: 840372b642cf0714da46d91731e60c92, type: 3}

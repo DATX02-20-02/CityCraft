@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2663700008211637056}
+  - component: {fileID: -7889922274085798087}
   m_Layer: 0
   m_Name: City Generator
   m_TagString: Untagged
@@ -30,3 +31,29 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-7889922274085798087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5156807774796926740}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e02f2a802eade983fa41a7d4386cc8ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  terrainGeneratorPrefab: {fileID: 3803538401388743391, guid: f6194860a1ee1a5cb83135cd2f5f103a,
+    type: 3}
+  populationGeneratorPrefab: {fileID: 8225219102891626338, guid: 863a1a24e7d88ae0c947c5004deec939,
+    type: 3}
+  roadGeneratorPrefab: {fileID: 2272230315305385615, guid: db767af0a873d57de940006e8ba6ff87,
+    type: 3}
+  blockGeneratorPrefab: {fileID: 8969300723017752845, guid: e955d989aadf07bb89bdbc2c9a450294,
+    type: 3}
+  plotGeneratorPrefab: {fileID: 83576912329849916, guid: 1bc11a39b9ada17119cb80f4d1520089,
+    type: 3}
+  buildingGeneratorPrefab: {fileID: 1765607083662276006, guid: fa4dc189d22e6801fb12d974f0bcf130,
+    type: 3}
+  parkGeneratorPrefab: {fileID: 9182401937566038333, guid: 260a0700a5adccf9794839ae765ed5c6,
+    type: 3}

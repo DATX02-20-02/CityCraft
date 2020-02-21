@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class CityGenerator : MonoBehaviour {
 
-    [SerializeField] private GameObject terrainGeneratorPrefab;
-    [SerializeField] private GameObject populationGeneratorPrefab;
-    [SerializeField] private GameObject roadGeneratorPrefab;
-    [SerializeField] private GameObject blockGeneratorPrefab;
-    [SerializeField] private GameObject plotGeneratorPrefab;
-    [SerializeField] private GameObject buildingGeneratorPrefab;
-    [SerializeField] private GameObject parkGeneratorPrefab;
+    [SerializeField] private GameObject terrainGeneratorPrefab = null;
+    [SerializeField] private GameObject populationGeneratorPrefab = null;
+    [SerializeField] private GameObject roadGeneratorPrefab = null;
+    [SerializeField] private GameObject blockGeneratorPrefab = null;
+    [SerializeField] private GameObject plotGeneratorPrefab = null;
+    [SerializeField] private GameObject buildingGeneratorPrefab = null;
+    [SerializeField] private GameObject parkGeneratorPrefab = null;
 
     private TerrainGenerator terrainGenerator;
     private PopulationGenerator populationGenerator;
@@ -21,10 +21,17 @@ public class CityGenerator : MonoBehaviour {
     private ParkGenerator parkGenerator;
 
 
-    private void Start() {
-        Debug.Log("City generator started...");
+    public void Undo() {}
+    public void GenerateTerrain() {}
+    public void GenerateRoads() {}
+    public void GenerateStreets() {}
+    public void GenerateBuildings() {}
 
-        // Spawn all generators
+    private void Start() {
+        SpawnGenerators();
+    }
+
+    private void SpawnGenerators() {
         terrainGenerator    = Instantiate(terrainGeneratorPrefab, transform).GetComponent<TerrainGenerator>();
         populationGenerator = Instantiate(populationGeneratorPrefab, transform).GetComponent<PopulationGenerator>();
         roadGenerator       = Instantiate(roadGeneratorPrefab, transform).GetComponent<RoadGenerator>();

@@ -52,3 +52,9 @@ MonoBehaviour:
   tree: {fileID: 192044, guid: 19682540d8a014522a319b1cf788aee2, type: 3}
   bush: {fileID: 100000, guid: a51a4aef6f4c94a459aefc81d0a0f414, type: 3}
   rock: {fileID: 110990, guid: 840372b642cf0714da46d91731e60c92, type: 3}
+  ball: {fileID: 0}
+  bushes:
+  - {fileID: 100000, guid: d5250e0ad00303e4f92371864d4b783f, type: 3}
+  - {fileID: 100000, guid: b9116b54da5ef114ca329209da8b42b8, type: 3}
+  - {fileID: 100000, guid: 5aa10efbe58081a4b9cad6a2ea5d8d1a, type: 3}
+  - {fileID: 100000, guid: c06e931c728bd6a4294831a23c63683a, type: 3}

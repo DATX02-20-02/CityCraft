@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 
 public class ParkGenerator : MonoBehaviour {
-	public Plot plot;
-	public GameObject tree;
-	public GameObject bush;
-	public GameObject rock;
-	public GameObject ball;
+	[Range(0, 1000)]
+	public int count = 10;
 
+	public Plot plot;
+
+	public GameObject tree;
+	public GameObject rock;
+	public GameObject[] bushes;
+
+	
 	void Start() {
 		Coordinates(plot.area);
 	}
@@ -16,7 +20,8 @@ public class ParkGenerator : MonoBehaviour {
 		int[] triangulated = triangulator.Triangulate();
 		Triangle[] triangles = ParkGenerator.FromTriangulator(area, triangulated);
 
-		int count = 1000;
+		float seed = Random.Range(0, 10000.0f);
+
 		int accumulator = count;
 		foreach (Triangle triangle in triangles)
 		{
@@ -24,17 +29,16 @@ public class ParkGenerator : MonoBehaviour {
 			for (int i = 0; i < Mathf.Min(accumulator, amount); i++)
 			{
 				Vector3 point = triangle.RandomPoint();
-				NoiseEvaluate(point.x, point.z);
+				NoiseEvaluate(point.x, point.z, seed);
 			}
 			accumulator -= amount;
 		}
 	}
-	void NoiseEvaluate(float x, float y) 
+	void NoiseEvaluate(float x, float y, float seed) 
 	{
 		float place = 0f;
-		float OffsetX = Random.Range(0f, 9999f);
-        float OffsetY = Random.Range(0f, 9999f);
-		float z = Mathf.PerlinNoise(OffsetX * x, OffsetY * y);
+		float perlinScale = 0.05f;
+		float z = Mathf.PerlinNoise(x * perlinScale + seed, y * perlinScale + seed);
 		float scale = 1;
 		if (z >= 0.5 && z < 1) // Generate Tree 
 		{
@@ -42,17 +46,20 @@ public class ParkGenerator : MonoBehaviour {
 			InitMesh(tree, x, y, scale);
 			
 		}
-		else if (z >= 0.3 && z < 0.5) // Generate Bush 
+		else if (z >= 0 && z < 0.5) // Generate Bush 
 		{
-			scale = Random.Range(0.10f, 0.20f);
+            if (Random.Range(0, 1.0f) < 0.2f)
+			{
+				scale = Random.Range(0.01f, 0.02f);
 
-			InitMesh(bush, x, y, scale);
-		}
-		else if (z >= 0 && z < 0.3) // Generate Rock 
-		{
-			scale = Random.Range(0.01f, 0.02f);
-
-			InitMesh(rock, x, y, scale, UnityEngine.Random.rotation);
+				InitMesh(rock, x, y, scale, UnityEngine.Random.rotation);
+			}
+            else
+			{
+				scale = Random.Range(0.10f, 0.20f);
+				GameObject bush = bushes[(int)Random.Range(0, bushes.Length) % bushes.Length];
+				InitMesh(bush, x, y, scale);
+			}
 		}
 	}
 

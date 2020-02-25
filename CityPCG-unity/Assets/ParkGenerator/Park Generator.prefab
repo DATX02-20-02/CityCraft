@@ -43,16 +43,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3be9453b46e63b3dbabb473d26677ca5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  count: 173
   plot:
     area:
-    - {x: 0, y: 0, z: 0}
-    - {x: 0, y: 0, z: 25}
-    - {x: 25, y: 0, z: 0}
-    - {x: 25, y: 25, z: 0}
+    - {x: 10, y: 0, z: 10}
+    - {x: 5, y: 0, z: 10}
+    - {x: 15, y: 0, z: 0}
+    - {x: 8, y: 17, z: 0}
   tree: {fileID: 192044, guid: 19682540d8a014522a319b1cf788aee2, type: 3}
-  bush: {fileID: 100000, guid: a51a4aef6f4c94a459aefc81d0a0f414, type: 3}
   rock: {fileID: 110990, guid: 840372b642cf0714da46d91731e60c92, type: 3}
-  ball: {fileID: 0}
   bushes:
   - {fileID: 100000, guid: d5250e0ad00303e4f92371864d4b783f, type: 3}
   - {fileID: 100000, guid: b9116b54da5ef114ca329209da8b42b8, type: 3}

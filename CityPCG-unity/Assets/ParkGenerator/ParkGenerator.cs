@@ -10,8 +10,7 @@ public class ParkGenerator : MonoBehaviour {
 	[SerializeField] private int layerMask;
 	[SerializeField] private int layerMasked;
 	public Plot plot;
-
-
+	
 	// Coordinates calls the Triangulator function in order to divide polygons into triangles
 	void Coordinates(Vector3[] area) {
 		Triangulator triangulator = new Triangulator(area);
@@ -36,7 +35,7 @@ public class ParkGenerator : MonoBehaviour {
 		float z = Mathf.PerlinNoise(x * perlinScale + seed, y * perlinScale + seed);
 		float scale = 1;
 		if (z >= 0.5 && z < 1) {
-			scale = Random.Range(0.7f, 1.1f);
+			scale = Random.Range(0.4f, 0.6f);
 			GameObject tree = trees[(int)Random.Range(0, trees.Length) % trees.Length];
 			tree.layer = 2;
 			layerMask = 1 << 2;
@@ -70,7 +69,7 @@ public class ParkGenerator : MonoBehaviour {
 		obj.transform.rotation = rotation;
 		Rigidbody body = obj.AddComponent<Rigidbody>();
 		body.isKinematic = true;
-		float treeRadius = 3f;
+		float treeRadius = 6f;
 		float miscRadius = 0.5f;
 		if(obj.layer == 1 ) {
 			Collider[] miscCollisions = Physics.OverlapSphere(obj.transform.position, miscRadius, layerMasked);
@@ -92,7 +91,7 @@ public class ParkGenerator : MonoBehaviour {
 			if (treeCollisions.Length > 1) {
 				Destroy(obj);
 			}
-			else {
+/*			else {
 				segments = 50;
 				obj.AddComponent<LineRenderer>();
 				line = obj.GetComponent<LineRenderer>();
@@ -100,7 +99,7 @@ public class ParkGenerator : MonoBehaviour {
         		line.useWorldSpace = false;
         		CreatePoints (treeRadius,segments);
 			}
-			
+*/	
 
 		}
 

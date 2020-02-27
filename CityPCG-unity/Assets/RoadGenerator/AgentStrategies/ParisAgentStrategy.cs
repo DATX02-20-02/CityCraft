@@ -61,7 +61,8 @@ public class ParisAgentStrategy : IAgentStrategy {
             Vector3 newDir = Vector3.Lerp(dir, agent.dir, 0.2f);
             agent.SetAngle(Mathf.Atan2(newDir.z, newDir.x));
 
-            if (agentData.stopAtRoad && (!info.success)) {
+            float distance = Vector3.Distance(agent.pos, center);
+            if ((distance > radius || agentData.stopAtRoad) && (!info.success)) {
                 agent.Terminate();
             }
         }
@@ -74,7 +75,6 @@ public class ParisAgentStrategy : IAgentStrategy {
             agent.PlaceNode(agent.pos, this.nodeType, this.connectionType, out RoadGenerator.ConnectionResult info);
             if (info != null)   {
                 if (info.didSnap || info.didIntersect) {
-                    Debug.Log("terminate");
                     agent.Terminate();
                 }
             }

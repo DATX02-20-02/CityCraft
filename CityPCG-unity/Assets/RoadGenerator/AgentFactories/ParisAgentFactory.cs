@@ -20,18 +20,31 @@ public class ParisAgentFactory : IAgentFactory {
         // }
         //
         float[] rings = new float[] { 2, 3.5f, 5 };
+        Vector2[] directions = new Vector2[] {
+            new Vector2(1, 0),
+            new Vector2(0, 1),
+            new Vector2(-1, 0),
+            new Vector2(0, -1)
+        };
 
         int priority = 0;
         foreach (float radius in rings) {
-            Agent agent1 = new Agent(
-                generator,
-                new Vector3(0, 0, 0),
-                new Vector3(1, 0, 0),
-                new ParisAgentStrategy(new Vector3(0, 0, 0), radius, false),
-                priority++
-            );
-            generator.AddAgent(agent1);
+            foreach (Vector2 dir in directions) {
+                for (int reverse = -1; reverse <= 1; reverse += 2) {
+                    float angleIncrement = (10 * Mathf.PI) / 180 * reverse;
+                    Agent agent = new Agent(
+                        generator,
+                        origin,
+                        new Vector3(0, 0, 0),
+                        new ParisAgentStrategy(origin, radius, false, angleIncrement),
+                        priority
+                    );
+                    agent.SetAngle(Mathf.Atan2(dir.y, dir.x));
+                    generator.AddAgent(agent);
+                }
+            }
         }
+        priority++;
 
         int max = (int) Mathf.Floor(Random.Range(3, 7));
         for (int i = 0; i < max; i++) {
@@ -41,9 +54,9 @@ public class ParisAgentFactory : IAgentFactory {
 
             Agent ag = new Agent(
                 generator,
-                new Vector3(0, 0, 0),
+                origin,
                 dir,
-                new ParisAgentStrategy(new Vector3(0, 0, 0), 5, true),
+                new ParisAgentStrategy(origin, 5, true),
                 priority
             );
             ag.stepSize = 1f;

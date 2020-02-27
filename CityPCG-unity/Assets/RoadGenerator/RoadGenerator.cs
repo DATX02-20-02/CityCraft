@@ -20,7 +20,7 @@ public class RoadGenerator : MonoBehaviour
     private Node prevNode;
     private int increment;
 
-    private List<Vector3> debugPoints = new List<Vector3>();
+    public List<Vector3> debugPoints = new List<Vector3>();
 
     private bool areAgentsWorking = false;
 
@@ -49,6 +49,7 @@ public class RoadGenerator : MonoBehaviour
 
         IAgentFactory generator = new ParisAgentFactory();
         generator.Create(this, new Vector3(0, 0, 0));
+        generator.Create(this, new Vector3(20, 0, 0));
 
         // Node node1 = new Node(new Vector3(-5, 0, 0));
         // Node node2 = new Node(new Vector3(0, 0, 0.5f));
@@ -410,7 +411,8 @@ public class RoadGenerator : MonoBehaviour
 
         int iterations = 0;
         while (this.queue.Count > 0 && iterations < maxAgentQueueIterations) {
-            Agent agent = this.queue.Dequeue();
+            Agent agent = this.queue.Peek();
+            if (agent.requeue) this.queue.Dequeue();
 
             if (!agent.started) {
                 agent.Start();
@@ -422,7 +424,11 @@ public class RoadGenerator : MonoBehaviour
             Util.DebugDrawCircle(agent.pos, 0.2f, new Color(0, 1, 0));
 
             if (agent.terminated) {
-                // this.queue.Dequeue();
+                if (agent.strategy is StreetAgentStrategy)
+                    debugPoints.Add(agent.pos);
+
+                if (!agent.requeue)
+                    this.queue.Dequeue();
             }
             else {
                 this.queue.Enqueue(agent);
@@ -488,7 +494,7 @@ public class RoadGenerator : MonoBehaviour
         int idx = 0;
         foreach (Node n in nodes)
         {
-            Util.DebugDrawCircle(n.pos, 0.025f, n.hovering ? new Color(0, 1, 0) : new Color(0, 1, 1), 3);
+            // Util.DebugDrawCircle(n.pos, 0.025f, n.hovering ? new Color(0, 1, 0) : new Color(0, 1, 1), 3);
 
             // Util.DebugDrawEnvelope(n.Envelope, new Color(0, 0, 1, 0.1f));
 
@@ -501,7 +507,11 @@ public class RoadGenerator : MonoBehaviour
             {
                 if (visited.ContainsKey(c.node)) continue;
 
-                Debug.DrawLine(n.pos, c.node.pos, new Color(1, 0, 0));
+                var color = new Color(1, 0, 0);
+                if (c.type == Node.ConnectionType.Street)
+                    color = new Color(0, 1, 0);
+
+                Debug.DrawLine(n.pos, c.node.pos, color);
 
                 // Util.LineIntersection.Result intersection = Util.LineIntersection.RayTest(
                 //     Util.Vector3To2(n.pos),
@@ -526,9 +536,9 @@ public class RoadGenerator : MonoBehaviour
             n.hovering = false;
         }
 
-        // foreach (Vector3 p in debugPoints){
-        //     Util.DebugDrawCircle(p, 0.03f, new Color(1, 0.5f, 0));
-        // }
+        foreach (Vector3 p in debugPoints){
+            Util.DebugDrawCircle(p, 0.03f, new Color(1, 0.5f, 0));
+        }
     }
 
     void OnGUI()

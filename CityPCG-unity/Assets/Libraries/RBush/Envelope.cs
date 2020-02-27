@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace RBush
 {
@@ -53,14 +54,36 @@ namespace RBush
 		public bool Equals(Envelope other) =>
 			this == other;
 
-		public static bool operator ==(Envelope left, Envelope right) =>
-			left.MinX == right.MinX &&
-			left.MinY == right.MinY &&
-			left.MaxX == right.MaxX &&
-			left.MaxY == right.MaxY;
+		private int CombineHashCodes(int h1, int h2)
+		{
+			return (((h1 << 5) + h1) ^ h2);
+		}
 
-		public static bool operator !=(Envelope left, Envelope right) =>
-			!(left == right);
+		public override int GetHashCode() {
+			int hash = this.MinX.GetHashCode();
+			hash = CombineHashCodes(hash, this.MinY.GetHashCode());
+			hash = CombineHashCodes(hash, this.MaxX.GetHashCode());
+			hash = CombineHashCodes(hash, this.MaxY.GetHashCode());
+			return hash;
+		}
+
+		public override bool Equals(Object obj) {
+			//Check for null and compare run-time types.
+			if ((obj == null) || ! this.GetType().Equals(obj.GetType()))
+			{
+				return false;
+			}
+			else {
+				Envelope e = (Envelope) obj;
+				return MinX == e.MinX &&
+					MinY == e.MinY &&
+					MaxX == e.MaxX &&
+					MaxY == e.MaxY;
+			}
+		}
+
+		public static bool operator ==(Envelope left, Envelope right) => left.Equals(right);
+		public static bool operator !=(Envelope left, Envelope right) => !left.Equals(right);
 
 		public static Envelope InfiniteBounds { get; } =
 			new Envelope(

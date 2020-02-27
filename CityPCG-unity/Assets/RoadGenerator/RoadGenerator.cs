@@ -30,85 +30,9 @@ public class RoadGenerator : MonoBehaviour
         nodes = new List<Node>();
         queue = new PriorityQueue<Agent>();
 
-        Node n = null;
-        float step = 2 * Mathf.PI / 10.0f;
-        // for (int i = 1; i < 2; i++) {
-        //     float x = Mathf.Sin(step * i) * 2;
-        //     float y = Mathf.Cos(step * i) * 2;
-
-        //     Node node1 = new Node(new Vector3(x, 0, y));
-        //     Node node2 = new Node(new Vector3(x * 2, 0, y * 2));
-
-        //     node1.ConnectTo(node2);
-
-        //     AddNode(node1);
-        //     AddNode(node2);
-
-        //     n = node2;
-        // }
-
         IAgentFactory generator = new ParisAgentFactory();
         generator.Create(this, new Vector3(0, 0, 0));
         generator.Create(this, new Vector3(20, 0, 0));
-
-        // Node node1 = new Node(new Vector3(-5, 0, 0));
-        // Node node2 = new Node(new Vector3(0, 0, 0.5f));
-        // Node node3 = new Node(new Vector3(0, 0, 0));
-        // Node node4 = new Node(new Vector3(0, 0, -0.5f));
-
-        // // Node nodea = new Node(new Vector3(1.2f, 0, 2));
-        // // Node nodeb = new Node(new Vector3(1.2f, 0, 0.2f));
-
-        // AddNode(node1);
-        // AddNode(node2);
-        // AddNode(node3);
-        // AddNode(node4);
-        // // AddNode(nodea);
-        // // AddNode(nodeb);
-
-        // ConnectNodes(node1, node2);
-        // ConnectNodes(node3, node1);
-        // ConnectNodes(node4, node1);
-        // // ConnectNodes(nodea, nodeb);
-
-
-        // List<Vector3> sequence = new List<Vector3>() {
-        //     new Vector3(-3.8f, 0, -0.2f)
-        // };
-
-        // Node prevNode = null;
-
-        // foreach (Vector3 vec in sequence){
-        //     print(vec);
-        //     Node n1 = prevNode;
-        //     Node n2 = new Node(vec);
-
-        //     debugPoints.Add(vec);
-
-        //     if (n1 == null) {
-        //         n1 = AddNodeNearby(new Node(new Vector3(0.2f, 0, -1.4f)), 0.2f);
-        //     }
-
-        //     ConnectionResult info = ConnectNodesWithIntersect(n1, n2, 0.5f);
-        //     print(info.success + " , " + info.didIntersect + " , " + info.didSnap);
-
-        //     if (info.success && !info.didIntersect && !info.didSnap) {
-        //         AddNode(n2);
-        //     }
-
-        //     prevNode = info.prevNode;
-        //     print("prev" + prevNode.pos);
-        // }
-
-        // this.prevNode = prevNode;
-
-        //
-        // Node node3 = new Node(Vector3.zero);
-        // Node node4 = new Node(Vector3.zero);
-
-        // AddNodeNearby(node3, 0.5f);
-        // AddNodeNearby(node4, 0.5f);
-
     }
 
     public void AddAgent(Agent agent) {
@@ -419,9 +343,8 @@ public class RoadGenerator : MonoBehaviour
                 agent.started = true;
             }
 
-            agent.Work();
 
-            Util.DebugDrawCircle(agent.pos, 0.2f, new Color(0, 1, 0));
+            agent.Work();
 
             if (agent.terminated) {
                 if (!agent.requeue)

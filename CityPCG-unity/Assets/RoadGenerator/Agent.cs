@@ -20,6 +20,7 @@ public class Agent : IComparable
     public float priority = 0;
     public bool terminated = false;
     public bool started = false;
+    public bool requeue = true;
 
     public RoadGenerator generator;
     public IAgentStrategy strategy;
@@ -46,6 +47,7 @@ public class Agent : IComparable
             other.priority
         );
 
+        ag.requeue = other.requeue;
         ag.angle = other.angle;
         ag.stepCount = other.stepCount;
         ag.maxStepCount = other.maxStepCount;
@@ -97,7 +99,7 @@ public class Agent : IComparable
             return node;
         }
         else if (connectionType != Node.ConnectionType.None) {
-            info = this.generator.ConnectNodesWithIntersect(this.prevNode, node, this.snapRadius);
+            info = this.generator.ConnectNodesWithIntersect(this.prevNode, node, this.snapRadius, connectionType);
 
             if (info.success && !info.didIntersect && !info.didSnap) {
                 this.generator.AddNode(node);

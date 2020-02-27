@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor.Formats.Fbx.Exporter;
+#endif
 
 // What? Handles all user interaction.
 // Why? The user needs control over how the city models are generated.
@@ -49,8 +51,10 @@ public class App : MonoBehaviour {
     }
 
     public void ExportModelToFBX() {
+        #if UNITY_EDITOR
         string filePath = Path.Combine(Application.persistentDataPath, "city.fbx");
         ModelExporter.ExportObject(filePath, worldMesh);
+        #endif
     }
 
     private void NextMenu() {

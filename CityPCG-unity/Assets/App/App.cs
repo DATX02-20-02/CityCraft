@@ -10,41 +10,41 @@ using UnityEditor.Formats.Fbx.Exporter;
 public class App : MonoBehaviour {
 
     [SerializeField] private GameObject worldMesh = null;
-    [SerializeField] private CityGenerator cityGenerator = null;
+    [SerializeField] private WorldGenerator worldGenerator = null;
     [SerializeField] private GameObject[] menuPanels = null;
 
     private int currentMenuPanel = 0;
 
 
     public void Undo() {
-        cityGenerator.Undo();
+        worldGenerator.Undo();
         PrevMenu();
     }
 
     public void GenerateTerrain() {
         Debug.Log("Generating terrain...");
-        cityGenerator.GenerateTerrain();
+        worldGenerator.GenerateTerrain();
         Debug.Log("Terrain generated.");
         NextMenu();
     }
 
     public void GenerateRoads() {
         Debug.Log("Generating roads...");
-        cityGenerator.GenerateRoads();
+        worldGenerator.GenerateRoads();
         Debug.Log("Roads generated.");
         NextMenu();
     }
 
     public void GenerateStreets() {
         Debug.Log("Generating streets...");
-        cityGenerator.GenerateStreets();
+        worldGenerator.GenerateStreets();
         Debug.Log("Streets generated.");
         NextMenu();
     }
 
     public void GenerateBuildings() {
         Debug.Log("Generating buildings...");
-        cityGenerator.GenerateBuildings();
+        worldGenerator.GenerateBuildings();
         Debug.Log("Buildings generated.");
     }
 

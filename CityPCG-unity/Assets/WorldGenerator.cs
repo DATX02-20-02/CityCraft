@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CityGenerator : MonoBehaviour {
+// What? Generates the world, including terrain, roads, and cities.
+// Why? The many generators need a pipeline that handles the IO between generators.
+// How? Splits the workload into many subgenerators, and only manages their inputs/outputs.
+public class WorldGenerator : MonoBehaviour {
 
     [SerializeField] private GameObject terrainGeneratorPrefab = null;
     [SerializeField] private GameObject populationGeneratorPrefab = null;
@@ -27,10 +30,6 @@ public class CityGenerator : MonoBehaviour {
     public void GenerateStreets() {}
     public void GenerateBuildings() {}
 
-    private void Start() {
-        SpawnGenerators();
-    }
-
     private void SpawnGenerators() {
         terrainGenerator    = Instantiate(terrainGeneratorPrefab, transform).GetComponent<TerrainGenerator>();
         populationGenerator = Instantiate(populationGeneratorPrefab, transform).GetComponent<PopulationGenerator>();
@@ -39,5 +38,9 @@ public class CityGenerator : MonoBehaviour {
         plotGenerator       = Instantiate(plotGeneratorPrefab, transform).GetComponent<PlotGenerator>();
         buildingGenerator   = Instantiate(buildingGeneratorPrefab, transform).GetComponent<BuildingGenerator>();
         parkGenerator       = Instantiate(parkGeneratorPrefab, transform).GetComponent<ParkGenerator>();
+    }
+
+    private void Start() {
+        SpawnGenerators();
     }
 }

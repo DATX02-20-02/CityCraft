@@ -32,6 +32,11 @@ public class Node : ISpatialData
         Street
     };
 
+    public override string ToString() {
+        return "Node " + this.id;
+    }
+
+    public int id = 0;
     public Vector3 pos;
     public float width;
     public float height;

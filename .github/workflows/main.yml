@@ -1,0 +1,95 @@
+name: Unity Actions
+
+on:
+  pull_request: {}
+  push: { branches: [master] }
+
+env:
+  UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+
+jobs:
+  build:
+    name: Build project
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          lfs: true
+
+      - uses: actions/cache@v1.1.0
+        with:
+          path: CityPCG-unity/Library
+          key: Library
+
+      # - name: Run tests
+      #   uses: webbertakken/unity-test-runner@v1.3
+      #   with:
+      #     unityVersion: 2019.3.1f1
+      #     projectPath: CityPCG-unity
+
+      - name: Build project
+        uses: webbertakken/unity-builder@v0.10
+        with:
+          unityVersion: 2019.3.1f1
+          targetPlatform: StandaloneLinux64
+          projectPath: CityPCG-unity
+
+      - name: Upload build
+        uses: actions/upload-artifact@v1
+        with:
+          name: Build
+          path: build
+
+      - name: Generate solution
+        uses: webbertakken/unity-builder@v0.10
+        with:
+          unityVersion: 2019.3.1f1
+          targetPlatform: StandaloneLinux64
+          projectPath: CityPCG-unity
+          buildMethod: UnityEditor.SyncVS.SyncSolution
+
+      # - name: Lint solution (gendarme)
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt install -f -y mono-devel gendarme
+      #     gendarme CityPCG-unity/Library/ScriptAssemblies/Assembly-CSharp.dll
+
+      # - name: Lint solution (resharper)
+      #   run: |
+      #     sudo apt install -f -y mono-devel
+      #     # Debug
+      #     #find / -iname UnityEditor.dll
+      #     # ls /opt/Unity/Editor/Data/NetStandard/compat/2.0.0/shims/netstandard/
+      #     # cat CityPCG-unity/Assembly-CSharp.csproj
+      #     # sudo ls /opt/Unity/Editor/Data/Managed/UnityEngine
+
+      #     # UnityEngine.dll
+      #     mkdir -p /opt/Unity/Editor/Data/Managed/UnityEngine
+      #     cp CityPCG-unity/Library/PlayerDataCache/Linux64/Data/Managed/UnityEngine.dll /opt/Unity/Editor/Data/Managed/UnityEngine
+
+      #     # UnityEditor.dll (bork)
+      #     #mkdir -p /opt/Unity/Editor/Data/Managed/
+      #     #cp CityPCG-unity/Library/PlayerDataCache/Linux64/Data/UnityEditor.dll /opt/Unity/Editor/Data/Managed
+
+      #     # Other .dll files
+      #     sudo mkdir -p /github/workspace/CityPCG-unity/Library/ScriptAssemblies/
+      #     sudo cp -R CityPCG-unity/Library/ScriptAssemblies/* /github/workspace/CityPCG-unity/Library/ScriptAssemblies/
+
+      #     # Debug
+      #     sudo ls /github/workspace/CityPCG-unity/Library/ScriptAssemblies/
+      #     sudo ls /opt/Unity/Editor/Data/
+      #     sudo ls /opt/Unity/Editor/Data/Managed
+      #     sudo ls /opt/Unity/Editor/Data/Managed/UnityEngine
+
+      #     # Download Resharper
+      #     # wget https://github.com/JetBrains/resharper-unity/releases/download/192-eap7-rtm-2019.2.0/JetBrains.Unity.2019.2.0.72.nupkg
+      #     wget https://download.jetbrains.com/resharper/ReSharperUltimate.2019.3.3/JetBrains.ReSharper.CommandLineTools.Unix.2019.3.3.tar.gz > /dev/null
+      #     tar -xvf JetBrains.ReSharper.CommandLineTools.Unix.2019.3.3.tar.gz > /dev/null
+
+      #     # Error if there were any issues reported
+      #     ./inspectcode.sh --output=linter_output.xml --debug=True CityPCG-unity/CityPCG-unity.sln
+      #     echo "Lint report:"
+      #     sudo cat linter_output.xml
+      #     [ $(sudo cat linter_output.xml | grep "<Issue TypeId=" | wc -l) = "0" ]

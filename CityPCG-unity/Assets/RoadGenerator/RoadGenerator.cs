@@ -6,7 +6,11 @@ using RBush;
 
 public class RoadGenerator : MonoBehaviour
 {
-    public const int MAX_AGENT_QUEUE_ITERATIONS = 10;
+    [Range(0, 100)]
+    public int maxAgentQueueIterations = 1;
+
+    [Range(0, 0.4f)]
+    public float generationTickInterval = 0.2f;
 
     private List<Node> nodes;
     private RBush<Node> tree;
@@ -17,6 +21,8 @@ public class RoadGenerator : MonoBehaviour
     private int increment;
 
     private List<Vector3> debugPoints = new List<Vector3>();
+
+    private bool areAgentsWorking = false;
 
     void Start()
     {
@@ -41,59 +47,59 @@ public class RoadGenerator : MonoBehaviour
         //     n = node2;
         // }
 
-        // var generator = new ParisCityGenerator();
-        // generator.Generate(this, new Vector3(0, 0, 0));
+        IAgentFactory generator = new ParisAgentFactory();
+        generator.Create(this, new Vector3(0, 0, 0));
 
-        Node node1 = new Node(new Vector3(-5, 0, 0));
-        Node node2 = new Node(new Vector3(0, 0, 0.5f));
-        Node node3 = new Node(new Vector3(0, 0, 0));
-        Node node4 = new Node(new Vector3(0, 0, -0.5f));
+        // Node node1 = new Node(new Vector3(-5, 0, 0));
+        // Node node2 = new Node(new Vector3(0, 0, 0.5f));
+        // Node node3 = new Node(new Vector3(0, 0, 0));
+        // Node node4 = new Node(new Vector3(0, 0, -0.5f));
 
-        // Node nodea = new Node(new Vector3(1.2f, 0, 2));
-        // Node nodeb = new Node(new Vector3(1.2f, 0, 0.2f));
+        // // Node nodea = new Node(new Vector3(1.2f, 0, 2));
+        // // Node nodeb = new Node(new Vector3(1.2f, 0, 0.2f));
 
-        AddNode(node1);
-        AddNode(node2);
-        AddNode(node3);
-        AddNode(node4);
-        // AddNode(nodea);
-        // AddNode(nodeb);
+        // AddNode(node1);
+        // AddNode(node2);
+        // AddNode(node3);
+        // AddNode(node4);
+        // // AddNode(nodea);
+        // // AddNode(nodeb);
 
-        ConnectNodes(node1, node2);
-        ConnectNodes(node3, node1);
-        ConnectNodes(node4, node1);
-        // ConnectNodes(nodea, nodeb);
+        // ConnectNodes(node1, node2);
+        // ConnectNodes(node3, node1);
+        // ConnectNodes(node4, node1);
+        // // ConnectNodes(nodea, nodeb);
 
 
-        List<Vector3> sequence = new List<Vector3>() {
-            new Vector3(-3.8f, 0, -0.2f)
-        };
+        // List<Vector3> sequence = new List<Vector3>() {
+        //     new Vector3(-3.8f, 0, -0.2f)
+        // };
 
-        Node prevNode = null;
+        // Node prevNode = null;
 
-        foreach (Vector3 vec in sequence){
-            print(vec);
-            Node n1 = prevNode;
-            Node n2 = new Node(vec);
+        // foreach (Vector3 vec in sequence){
+        //     print(vec);
+        //     Node n1 = prevNode;
+        //     Node n2 = new Node(vec);
 
-            debugPoints.Add(vec);
+        //     debugPoints.Add(vec);
 
-            if (n1 == null) {
-                n1 = AddNodeNearby(new Node(new Vector3(0.2f, 0, -1.4f)), 0.2f);
-            }
+        //     if (n1 == null) {
+        //         n1 = AddNodeNearby(new Node(new Vector3(0.2f, 0, -1.4f)), 0.2f);
+        //     }
 
-            ConnectionResult info = ConnectNodesWithIntersect(n1, n2, 0.5f);
-            print(info.success + " , " + info.didIntersect + " , " + info.didSnap);
+        //     ConnectionResult info = ConnectNodesWithIntersect(n1, n2, 0.5f);
+        //     print(info.success + " , " + info.didIntersect + " , " + info.didSnap);
 
-            if (info.success && !info.didIntersect && !info.didSnap) {
-                AddNode(n2);
-            }
+        //     if (info.success && !info.didIntersect && !info.didSnap) {
+        //         AddNode(n2);
+        //     }
 
-            prevNode = info.prevNode;
-            print("prev" + prevNode.pos);
-        }
+        //     prevNode = info.prevNode;
+        //     print("prev" + prevNode.pos);
+        // }
 
-        this.prevNode = prevNode;
+        // this.prevNode = prevNode;
 
         //
         // Node node3 = new Node(Vector3.zero);
@@ -109,7 +115,6 @@ public class RoadGenerator : MonoBehaviour
 
         // this.queue.add(agent);
         this.queue.Enqueue(agent);
-        agent.Start();
     }
 
     public IEnumerable<Node> FindNodesInRadius(Vector3 pos, float radius) {
@@ -138,7 +143,6 @@ public class RoadGenerator : MonoBehaviour
         IEnumerable<Node> result = FindNodesInRadius(node.pos, radius);
 
         Node closestNode = Util.GetClosestNode(node, result);
-        print(closestNode);
         if (closestNode != null && Vector3.Distance(closestNode.pos, node.pos) <= radius) {
             return closestNode;
         }
@@ -277,7 +281,6 @@ public class RoadGenerator : MonoBehaviour
 
                     float distProj = Vector2.Distance(proj, Util.Vector3To2(node2.pos));
                     if (distProj <= snapRadius) {
-                        debugPoints.Add(Util.Vector2To3(proj));
                         intersections.Add(new IntersectionInfo(other, connection, proj, true));
                         didIntersect = true;
                     }
@@ -400,25 +403,36 @@ public class RoadGenerator : MonoBehaviour
         return new ConnectionResult(success, false, false, node2);
     }
 
-    void DoAgentWork() {
-        if (this.queue.Count == 0) return;
+    IEnumerator DoAgentWork() {
+        if (this.queue.Count == 0) yield break;
+
+        areAgentsWorking = true;
 
         int iterations = 0;
-        while (this.queue.Count > 0 && iterations < MAX_AGENT_QUEUE_ITERATIONS) {
-            Agent agent = this.queue.Peek();
+        while (this.queue.Count > 0 && iterations < maxAgentQueueIterations) {
+            Agent agent = this.queue.Dequeue();
+
+            if (!agent.started) {
+                agent.Start();
+                agent.started = true;
+            }
+
             agent.Work();
 
             Util.DebugDrawCircle(agent.pos, 0.2f, new Color(0, 1, 0));
 
-            print("Do work on agent with priority " + agent.priority);
-
-            if (agent.dead) {
-                print("Agent with priority " + agent.priority + " just died");
-                this.queue.Dequeue();
+            if (agent.terminated) {
+                // this.queue.Dequeue();
+            }
+            else {
+                this.queue.Enqueue(agent);
             }
 
             iterations++;
         }
+
+        yield return new WaitForSeconds(generationTickInterval);
+        areAgentsWorking = false;
     }
 
     void Update()
@@ -437,43 +451,56 @@ public class RoadGenerator : MonoBehaviour
 
 
             ConnectionResult info = ConnectNodesWithIntersect(node1, node2, 0.2f);
-            print(info.success + " , " + info.didIntersect + " , " + info.didSnap);
 
             if (info.success && !info.didIntersect && !info.didSnap) {
                 AddNode(node2);
             }
 
             prevNode = info.prevNode;
-            print(mousePos);
         }
         prevClick = click;
 
-        DoAgentWork();
+        if (!areAgentsWorking){
+            StartCoroutine("DoAgentWork");
+        }
 
 
-        Envelope searchBounds = new Envelope(mousePos.x - 0.05f, mousePos.z - 0.05f, mousePos.x + 0.05f, mousePos.z + 0.05f);
+        float padding = 1f;
+        Envelope searchBounds = new Envelope(mousePos.x - padding, mousePos.z - padding, mousePos.x + padding, mousePos.z + padding);
         IEnumerable<Node> result = tree.Search(searchBounds);
 
         int count = 0;
         foreach (Node n in result) {
             n.hovering = true;
             count++;
+
+
+            foreach (Node.NodeConnection c in n.connections)
+            {
+                Debug.DrawLine(n.pos, c.node.pos, new Color(1, 0, 0));
+            }
         }
 
         Util.DebugDrawEnvelope(searchBounds, new Color(1, 1, 1, 0.1f));
 
+        Dictionary<Node, bool> visited = new Dictionary<Node, bool>();
+
         int idx = 0;
         foreach (Node n in nodes)
         {
-            Util.DebugDrawCircle(n.pos, 0.025f, n.hovering ? new Color(0, 1, 0) : new Color(0, 1, 1));
+            Util.DebugDrawCircle(n.pos, 0.025f, n.hovering ? new Color(0, 1, 0) : new Color(0, 1, 1), 3);
 
-            Util.DebugDrawEnvelope(n.Envelope, new Color(0, 0, 1, 0.1f));
+            // Util.DebugDrawEnvelope(n.Envelope, new Color(0, 0, 1, 0.1f));
 
-            Vector2 mousePos2 = Util.Vector3To2(mousePos);
-            Debug.DrawLine(this.prevNode != null ? this.prevNode.pos : Vector3.zero, mousePos);
+            // Vector2 mousePos2 = Util.Vector3To2(mousePos);
+            // Debug.DrawLine(this.prevNode != null ? this.prevNode.pos : Vector3.zero, mousePos);
+            //
+            visited[n] = true;
 
             foreach (Node.NodeConnection c in n.connections)
             {
+                if (visited.ContainsKey(c.node)) continue;
+
                 Debug.DrawLine(n.pos, c.node.pos, new Color(1, 0, 0));
 
                 // Util.LineIntersection.Result intersection = Util.LineIntersection.RayTest(
@@ -487,21 +514,21 @@ public class RoadGenerator : MonoBehaviour
                 //     Util.DebugDrawCircle(Util.Vector2To3(intersection.point), 0.02f, new Color(1, 0, 1));
                 //     print(intersection.factorB);
                 // }
-                Vector2 proj = Util.GetProjectedPointOnLine(
-                    Util.Vector3To2(mousePos),
-                    Util.Vector3To2(c.node.pos),
-                    Util.Vector3To2(n.pos)
-                );
-                Util.DebugDrawCircle(Util.Vector2To3(proj), 0.02f, new Color(1, 0, 1));
+                // Vector2 proj = Util.GetProjectedPointOnLine(
+                //     Util.Vector3To2(mousePos),
+                //     Util.Vector3To2(c.node.pos),
+                //     Util.Vector3To2(n.pos)
+                // );
+                // Util.DebugDrawCircle(Util.Vector2To3(proj), 0.02f, new Color(1, 0, 1));
             }
 
             idx++;
             n.hovering = false;
         }
 
-        foreach (Vector3 p in debugPoints){
-            Util.DebugDrawCircle(p, 0.03f, new Color(1, 0.5f, 0));
-        }
+        // foreach (Vector3 p in debugPoints){
+        //     Util.DebugDrawCircle(p, 0.03f, new Color(1, 0.5f, 0));
+        // }
     }
 
     void OnGUI()

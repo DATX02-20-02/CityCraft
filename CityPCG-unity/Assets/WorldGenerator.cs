@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -30,7 +30,7 @@ public class WorldGenerator : MonoBehaviour {
     public void GenerateStreets() {}
     public void GenerateBuildings() {}
 
-    private void SpawnGenerators() {
+    private void InstantiateGenerators() {
         terrainGenerator    = Instantiate(terrainGeneratorPrefab, transform).GetComponent<TerrainGenerator>();
         populationGenerator = Instantiate(populationGeneratorPrefab, transform).GetComponent<PopulationGenerator>();
         roadGenerator       = Instantiate(roadGeneratorPrefab, transform).GetComponent<RoadGenerator>();
@@ -41,6 +41,6 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     private void Start() {
-        SpawnGenerators();
+        InstantiateGenerators();
     }
 }

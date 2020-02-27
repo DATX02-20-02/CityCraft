@@ -424,9 +424,6 @@ public class RoadGenerator : MonoBehaviour
             Util.DebugDrawCircle(agent.pos, 0.2f, new Color(0, 1, 0));
 
             if (agent.terminated) {
-                if (agent.strategy is StreetAgentStrategy)
-                    debugPoints.Add(agent.pos);
-
                 if (!agent.requeue)
                     this.queue.Dequeue();
             }

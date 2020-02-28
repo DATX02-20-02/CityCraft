@@ -12,13 +12,13 @@ namespace VisualDebugging.Example {
         }
 
         public void Run() {
-            ExampleAlgorithm.FindClosestPairOfPoints( GeneratePoints() );
+            ExampleAlgorithm.FindClosestPairOfPoints(GeneratePoints());
         }
 
         Vector3[] GeneratePoints() {
-            Random.InitState( seed );
+            Random.InitState(seed);
             Vector3[] points = new Vector3[numPoints];
-            for (int i = 0; i < numPoints; i++) {
+            for(int i = 0; i < numPoints; i++) {
                 points[i] = Random.insideUnitSphere * radius;
             }
             return points;

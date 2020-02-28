@@ -15,7 +15,7 @@ namespace RBush {
         /// <param name="projection">Projection to use when determining the key of an element</param>
         /// <returns>A comparer which will compare elements by projecting each element to its key, and comparing keys</returns>
         public static ProjectionComparer<TSource, TKey> Create<TSource, TKey>(Func<TSource, TKey> projection) {
-            return new ProjectionComparer<TSource, TKey>( projection );
+            return new ProjectionComparer<TSource, TKey>(projection);
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace RBush {
         public static ProjectionComparer<TSource, TKey> Create<TSource, TKey>
             (TSource ignored,
              Func<TSource, TKey> projection) {
-            return new ProjectionComparer<TSource, TKey>( projection );
+            return new ProjectionComparer<TSource, TKey>(projection);
         }
 
     }
@@ -47,7 +47,7 @@ namespace RBush {
         /// <param name="projection">Projection to use when determining the key of an element</param>
         /// <returns>A comparer which will compare elements by projecting each element to its key, and comparing keys</returns>        
         public static ProjectionComparer<TSource, TKey> Create<TKey>(Func<TSource, TKey> projection) {
-            return new ProjectionComparer<TSource, TKey>( projection );
+            return new ProjectionComparer<TSource, TKey>(projection);
         }
     }
 
@@ -67,7 +67,7 @@ namespace RBush {
         /// </summary>
         /// <param name="projection">Projection to use during comparisons</param>
         public ProjectionComparer(Func<TSource, TKey> projection)
-            : this( projection, null ) {
+            : this(projection, null) {
         }
 
         /// <summary>
@@ -89,16 +89,16 @@ namespace RBush {
         /// </summary>
         public int Compare(TSource x, TSource y) {
             // Don't want to project from nullity
-            if (x == null && y == null) {
+            if(x == null && y == null) {
                 return 0;
             }
-            if (x == null) {
+            if(x == null) {
                 return -1;
             }
-            if (y == null) {
+            if(y == null) {
                 return 1;
             }
-            return comparer.Compare( projection( x ), projection( y ) );
+            return comparer.Compare(projection(x), projection(y));
         }
     }
 }

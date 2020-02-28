@@ -12,7 +12,7 @@ namespace VisualDebugging.Internal {
         public Vector3[] lineSegments;
 
         public LineArtist(IEnumerable<Vector3> lineSegments) {
-            artistType = typeof( LineArtist ).ToString();
+            artistType = typeof(LineArtist).ToString();
             this.lineSegments = lineSegments.ToArray();
 
         }

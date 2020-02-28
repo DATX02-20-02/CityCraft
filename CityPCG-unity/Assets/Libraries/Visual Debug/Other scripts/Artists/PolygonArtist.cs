@@ -12,7 +12,7 @@ namespace VisualDebugging.Internal {
         public Vector3[] points;
 
         public PolygonArtist(IEnumerable<Vector3> points) {
-            artistType = typeof( PolygonArtist ).ToString();
+            artistType = typeof(PolygonArtist).ToString();
             this.points = points.ToArray();
         }
 

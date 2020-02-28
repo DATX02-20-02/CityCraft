@@ -10,10 +10,10 @@ public abstract class IAgentStrategy {
     }
 
     public virtual int CompareTo(Agent agentA, Agent agentB) {
-        var i = agentA.priority.CompareTo( agentB.priority );
+        var i = agentA.priority.CompareTo(agentB.priority);
 
-        if (i == 0) {
-            return agentA.stepCount.CompareTo( agentB.stepCount );
+        if(i == 0) {
+            return agentA.stepCount.CompareTo(agentB.stepCount);
         }
         return i;
     }

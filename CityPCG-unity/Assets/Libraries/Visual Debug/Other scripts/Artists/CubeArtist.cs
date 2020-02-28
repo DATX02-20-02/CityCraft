@@ -13,7 +13,7 @@ namespace VisualDebugging.Internal {
         public float size;
 
         public CubeArtist(Vector3 centre, float size) {
-            artistType = typeof( CubeArtist ).ToString();
+            artistType = typeof(CubeArtist).ToString();
             this.centre = centre;
             this.size = size;
         }

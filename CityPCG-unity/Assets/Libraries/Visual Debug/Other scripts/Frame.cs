@@ -19,11 +19,11 @@ namespace VisualDebugging.Internal {
         public void Draw(int currentFrameIndex) {
             bool isCurrentFrame = currentFrameIndex == myFrameIndex;
             bool showFrame = isCurrentFrame || (keepInBackground && currentFrameIndex > myFrameIndex);
-            if (showFrame) {
-                if (artists != null) {
-                    foreach (SceneArtist artist in artists) {
-                        if (isCurrentFrame || artist.showWhenInBackground) {
-                            artist.Draw( isCurrentFrame );
+            if(showFrame) {
+                if(artists != null) {
+                    foreach(SceneArtist artist in artists) {
+                        if(isCurrentFrame || artist.showWhenInBackground) {
+                            artist.Draw(isCurrentFrame);
                         }
                     }
                 }
@@ -32,10 +32,10 @@ namespace VisualDebugging.Internal {
         }
 
         public void AddArtist(SceneArtist artist) {
-            if (artists == null) {
+            if(artists == null) {
                 artists = new List<SceneArtist>();
             }
-            artists.Add( artist );
+            artists.Add(artist);
         }
     }
 }

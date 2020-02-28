@@ -13,7 +13,7 @@ namespace VisualDebugging.Internal {
         public float heightOffset;
 
         public LabelArist(Vector3 position, string text, bool centreAlign, int fontSize, float heightOffset) {
-            artistType = typeof( LabelArist ).ToString();
+            artistType = typeof(LabelArist).ToString();
             this.position = position;
             this.text = text;
             this.centreAlign = centreAlign;

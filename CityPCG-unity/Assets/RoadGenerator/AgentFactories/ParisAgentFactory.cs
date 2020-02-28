@@ -28,41 +28,41 @@ public class ParisAgentFactory : IAgentFactory {
         };
 
         int priority = 0;
-        foreach (float radius in rings) {
-            foreach (Vector2 dir in directions) {
-                for (int reverse = -1; reverse <= 1; reverse += 2) {
+        foreach(float radius in rings) {
+            foreach(Vector2 dir in directions) {
+                for(int reverse = -1; reverse <= 1; reverse += 2) {
                     float angleIncrement = (10 * Mathf.PI) / 180 * reverse;
                     Agent agent = new Agent(
                         generator,
                         origin,
-                        new Vector3( 0, 0, 0 ),
-                        new ParisAgentStrategy( origin, radius, false, angleIncrement ),
+                        new Vector3(0, 0, 0),
+                        new ParisAgentStrategy(origin, radius, false, angleIncrement),
                         priority
                     );
-                    agent.SetAngle( Mathf.Atan2( dir.y, dir.x ) );
-                    generator.AddAgent( agent );
+                    agent.SetAngle(Mathf.Atan2(dir.y, dir.x));
+                    generator.AddAgent(agent);
                 }
             }
         }
         priority++;
 
-        int max = (int)Mathf.Floor( Random.Range( 3, 7 ) );
-        for (int i = 0; i < max; i++) {
+        int max = (int)Mathf.Floor(Random.Range(3, 7));
+        for(int i = 0; i < max; i++) {
             float rad = (Mathf.PI * 2) / max;
 
-            Vector3 dir = new Vector3( Mathf.Cos( rad * i ), 0, Mathf.Sin( rad * i ) );
+            Vector3 dir = new Vector3(Mathf.Cos(rad * i), 0, Mathf.Sin(rad * i));
 
             Agent ag = new Agent(
                 generator,
                 origin,
                 dir,
-                new ParisAgentStrategy( origin, 5, true ),
+                new ParisAgentStrategy(origin, 5, true),
                 priority
             );
             ag.stepSize = 1f;
             ag.snapRadius = 0.2f;
             ag.maxStepCount = 20;
-            generator.AddAgent( ag );
+            generator.AddAgent(ag);
         }
     }
 }

@@ -5,8 +5,10 @@
            The city roads needs to adjust to the landscape not the other way around*/
 // How : Perlin Noise is the main tool to generate the landscape. 
 
+
 public class TerrainGenerator : MonoBehaviour
 {
+    [SerializeField] private Terrain terrain = null;
     private int depth = 50;
     private int width = 256;
     private int height = 256;
@@ -16,22 +18,27 @@ public class TerrainGenerator : MonoBehaviour
     private float frequency; // UNUSED
 
 
-    // Unity's base Start command. UNUSED FOR NOW
-    void Start (){ 
-    }
-    
-    // Unity's base Update command. Allows random generation of terrain noise. ONLY FOR DEBUGGING
-    void Update() {
-        Terrain terrain = GetComponent<Terrain>();
-        terrain.terrainData = GenerateTerrain(terrain.terrainData);
+    public void GenerateTerrain() {
+        terrain.gameObject.SetActive(true);
+        Debug.Log("Hello");
+        offsetX = Random.Range(0f,10000f);
+        offsetY = Random.Range(0f,10000f);
+        terrain.terrainData = BuildTerrain(terrain.terrainData);
         
-        if (Input.GetKey("u")){ // Press U to generate new terrain.
-            offsetX = Random.Range(0f,10000f);
-            offsetY = Random.Range(0f,10000f);
-        }
     }
+
     
-    private TerrainData GenerateTerrain(TerrainData terrainData){
+    /*
+    void Start (){ 
+    
+    }
+    */
+    /*
+    void Update (){
+
+    }
+    */
+    private TerrainData BuildTerrain(TerrainData terrainData){
         terrainData.heightmapResolution = width + 1;
         terrainData.size = new Vector3(width, depth, height);
         terrainData.SetHeights(0,0,GenerateHeights());
@@ -69,5 +76,9 @@ public class TerrainGenerator : MonoBehaviour
     // Helper function for generating perlin noise. Takes in x & y coords, constant con to multiply the noise and amp to amplify the coord values.
     private float PerlinFunc(float x, float y, float con, float amp){
         return con*Mathf.PerlinNoise(amp*x,amp*y);
+    }
+
+    private void Awake (){
+        terrain.gameObject.SetActive(false);
     }
 }

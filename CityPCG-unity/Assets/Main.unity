@@ -352,7 +352,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 761301374}
   m_LocalRotation: {x: 0.18841854, y: -0.33194047, z: -0.34071732, w: 0.85920066}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.12, y: -3.34, z: 0.89}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 436743796}
@@ -560,13 +560,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1971479977}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.1778671, y: 0.3755244, z: -0.07367496, w: 0.9065962}
+  m_LocalPosition: {x: -40, y: 100, z: -40}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 22.2, y: 45, z: 0}
 --- !u!1001 &69592967819174799
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -579,11 +579,6 @@ PrefabInstance:
       propertyPath: worldMesh
       value: 
       objectReference: {fileID: 436743795}
-    - target: {fileID: 69592967819174802, guid: e68ae49e932553a0d9bebe34e1e15001,
-        type: 3}
-      propertyPath: cityGenerator
-      value: 
-      objectReference: {fileID: 9354996}
     - target: {fileID: 69592967819174802, guid: e68ae49e932553a0d9bebe34e1e15001,
         type: 3}
       propertyPath: worldGenerator

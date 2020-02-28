@@ -6,9 +6,11 @@ using UnityEngine;
 using UnityEditor.Formats.Fbx.Exporter;
 #endif
 
-// What? Handles all user interaction.
-// Why? The user needs control over how the city models are generated.
-// How? Listens to events from Unity UI and enables/disables such UI elements.
+/*
+  What? Handles all user interaction.
+  Why? The user needs control over how the city models are generated.
+  How? Listens to events from Unity UI and enables/disables such UI elements.
+*/
 public class App : MonoBehaviour {
 
     [SerializeField] private GameObject worldMesh = null;

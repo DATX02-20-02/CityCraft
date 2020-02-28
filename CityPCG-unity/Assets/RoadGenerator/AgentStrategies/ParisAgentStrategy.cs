@@ -56,7 +56,7 @@ public class ParisAgentStrategy : IAgentStrategy {
             Vector3 oldPos = agent.pos;
             agent.pos += agent.dir * agent.stepSize;
 
-            Node n = agent.PlaceNode(agent.pos, this.nodeType, this.connectionType, out RoadGenerator.ConnectionResult info);
+            Node n = agent.PlaceNode(agent.pos, this.nodeType, this.connectionType, out ConnectionResult info);
             Vector3 dir = n.pos - oldPos;
             Vector3 newDir = Vector3.Lerp(dir, agent.dir, 0.2f);
             agent.SetAngle(Mathf.Atan2(newDir.z, newDir.x));
@@ -72,7 +72,7 @@ public class ParisAgentStrategy : IAgentStrategy {
             float randRadius = agent.stepCount == 0 ? 0 : Random.Range(-1.0f, 1.0f) * 0.1f;
             agent.pos = this.center + new Vector3(Mathf.Cos(agent.angle), 0, Mathf.Sin(agent.angle)) * (this.radius + randRadius);
 
-            agent.PlaceNode(agent.pos, this.nodeType, this.connectionType, out RoadGenerator.ConnectionResult info);
+            agent.PlaceNode(agent.pos, this.nodeType, this.connectionType, out ConnectionResult info);
             if(info != null) {
                 if(info.didSnap || info.didIntersect) {
                     agent.Terminate();

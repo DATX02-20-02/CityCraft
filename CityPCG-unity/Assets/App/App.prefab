@@ -1459,7 +1459,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   worldMesh: {fileID: 0}
-  cityGenerator: {fileID: 0}
+  worldGenerator: {fileID: 0}
   menuPanels:
   - {fileID: 513031459}
   - {fileID: 1829377441}

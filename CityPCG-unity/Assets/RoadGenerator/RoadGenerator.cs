@@ -28,6 +28,10 @@ public class RoadGenerator : MonoBehaviour {
     private bool areAgentsWorking = false;
 
     void Start() {
+        // Generate();
+    }
+
+    public void Generate() {
         tree = new RBush<Node>();
         nodes = new List<Node>();
         queue = new PriorityQueue<Agent>();
@@ -398,6 +402,9 @@ public class RoadGenerator : MonoBehaviour {
     }
 
     void Update() {
+        if (tree == null)
+            return;
+
         Vector3 mousePos = Util.GetPlaneMousePos( new Vector3( 0, 0, 0 ) );
 
         bool click = Input.GetButtonDown( "Fire1" );
@@ -494,6 +501,9 @@ public class RoadGenerator : MonoBehaviour {
     }
 
     void OnGUI() {
+        if (tree == null)
+            return;
+
         GUI.Label( new Rect( 10, 10, 100, 20 ), "node count: " + nodes.Count );
         GUI.Label( new Rect( 10, 40, 100, 20 ), "tree count: " + tree.Count );
     }

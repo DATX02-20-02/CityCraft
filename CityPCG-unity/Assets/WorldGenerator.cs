@@ -24,20 +24,20 @@ public class WorldGenerator : MonoBehaviour {
     private ParkGenerator parkGenerator;
 
 
-    public void Undo() {}
-    public void GenerateTerrain() {}
-    public void GenerateRoads() {}
-    public void GenerateStreets() {}
-    public void GenerateBuildings() {}
+    public void Undo() { }
+    public void GenerateTerrain() { }
+    public void GenerateRoads() { }
+    public void GenerateStreets() { }
+    public void GenerateBuildings() { }
 
     private void InstantiateGenerators() {
-        terrainGenerator    = Instantiate(terrainGeneratorPrefab, transform).GetComponent<TerrainGenerator>();
-        populationGenerator = Instantiate(populationGeneratorPrefab, transform).GetComponent<PopulationGenerator>();
-        roadGenerator       = Instantiate(roadGeneratorPrefab, transform).GetComponent<RoadGenerator>();
-        blockGenerator      = Instantiate(blockGeneratorPrefab, transform).GetComponent<BlockGenerator>();
-        plotGenerator       = Instantiate(plotGeneratorPrefab, transform).GetComponent<PlotGenerator>();
-        buildingGenerator   = Instantiate(buildingGeneratorPrefab, transform).GetComponent<BuildingGenerator>();
-        parkGenerator       = Instantiate(parkGeneratorPrefab, transform).GetComponent<ParkGenerator>();
+        terrainGenerator = Instantiate( terrainGeneratorPrefab, transform ).GetComponent<TerrainGenerator>();
+        populationGenerator = Instantiate( populationGeneratorPrefab, transform ).GetComponent<PopulationGenerator>();
+        roadGenerator = Instantiate( roadGeneratorPrefab, transform ).GetComponent<RoadGenerator>();
+        blockGenerator = Instantiate( blockGeneratorPrefab, transform ).GetComponent<BlockGenerator>();
+        plotGenerator = Instantiate( plotGeneratorPrefab, transform ).GetComponent<PlotGenerator>();
+        buildingGenerator = Instantiate( buildingGeneratorPrefab, transform ).GetComponent<BuildingGenerator>();
+        parkGenerator = Instantiate( parkGeneratorPrefab, transform ).GetComponent<ParkGenerator>();
     }
 
     private void Start() {

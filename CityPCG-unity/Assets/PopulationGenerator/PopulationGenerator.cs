@@ -42,6 +42,7 @@ public class PopulationGenerator : MonoBehaviour {
         for (int x = 0; x < this.textureWidth; x++) {
             for (int y = 0; y < this.textureHeight; y++) {
                 float value = 0;
+                float maxMagnitude = 0;
 
                 foreach (Layer layer in layers) {
                     float nx = x / (float) this.textureWidth * layer.scale + layer.offset.x + seed;
@@ -49,9 +50,10 @@ public class PopulationGenerator : MonoBehaviour {
 
                     float pvalue = Mathf.Pow(2 * Mathf.PerlinNoise(nx, ny) * layer.magnitude, layer.exponent) / 2;
                     value += pvalue;
+                    maxMagnitude += layer.magnitude;
                 }
 
-                value = Mathf.Clamp(value / layers.Length, 0, 1);
+                value = Mathf.Clamp(value / maxMagnitude, 0, 1);
 
                 int index = x + y * this.textureWidth;
 

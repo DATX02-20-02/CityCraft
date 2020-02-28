@@ -44,7 +44,7 @@ public class StreetAgentStrategy : IAgentStrategy {
         agent.SetAngle(agent.angle + Random.Range(-1.0f, 1.0f) * 0);
         agent.pos += agent.dir * (agent.stepSize + this.stepVariance);
 
-        agent.PlaceNode(agent.pos, this.nodeType, this.connectionType, out RoadGenerator.ConnectionResult info);
+        agent.PlaceNode(agent.pos, this.nodeType, this.connectionType, out ConnectionResult info);
 
         if(!info.success) agent.Terminate();
     }

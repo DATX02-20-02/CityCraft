@@ -87,7 +87,7 @@ public class Agent : IComparable {
         this.dir = new Vector3(Mathf.Cos(this.angle), 0, Mathf.Sin(this.angle)).normalized;
     }
 
-    public Node PlaceNode(Vector3 pos, Node.NodeType nodeType, Node.ConnectionType connectionType, out RoadGenerator.ConnectionResult info) {
+    public Node PlaceNode(Vector3 pos, Node.NodeType nodeType, Node.ConnectionType connectionType, out ConnectionResult info) {
         Node node = new Node(pos, nodeType);
 
         info = null;
@@ -111,7 +111,7 @@ public class Agent : IComparable {
     }
 
     public Node PlaceNode(Vector3 pos, Node.NodeType nodeType, Node.ConnectionType connectionType) {
-        return PlaceNode(pos, nodeType, connectionType, out RoadGenerator.ConnectionResult info);
+        return PlaceNode(pos, nodeType, connectionType, out ConnectionResult info);
     }
 
     public void Start() {

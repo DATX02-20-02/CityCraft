@@ -89,62 +89,46 @@ public class Node : ISpatialData {
         nodes.AddRange(this.connections.Select(c => c.node));
         nodes.Add(this);
 
-        envelope = Util.GetEnvelopeFromNodes(nodes);
+        envelope = GetEnvelopeFromNodes(nodes);
         return envelope;
     }
 
     public ref readonly Envelope Envelope {
         get { return ref envelope; }
     }
+
+    public static Envelope GetEnvelopeFromNodes(IEnumerable<Node> nodes, float padding = 0) {
+        float minX = float.MaxValue;
+        float minZ = float.MaxValue;
+
+        float maxX = float.MinValue;
+        float maxZ = float.MinValue;
+
+        foreach(Node node in nodes) {
+            minX = Mathf.Min(minX, node.pos.x);
+            minZ = Mathf.Min(minZ, node.pos.z);
+
+            maxX = Mathf.Max(maxX, node.pos.x);
+            maxZ = Mathf.Max(maxZ, node.pos.z);
+        }
+
+        return new Envelope(minX - padding, minZ - padding, maxX + padding, maxZ + padding);
+    }
+
+    public static Node GetClosestNode(Node node, IEnumerable<Node> nodes) {
+        float leastDistance = float.MaxValue;
+        Node leastNode = null;
+
+        foreach(Node n in nodes) {
+            if(n == node) continue;
+
+            float dist = Vector3.Distance(n.pos, node.pos);
+            if(dist < leastDistance) {
+                leastNode = n;
+                leastDistance = dist;
+            }
+        }
+
+        return leastNode;
+    }
 }
-
-/*
-class Node {
-
-
-  constructor(x, y, type = Node.NodeTypes.MAIN) {
-  }
-
-  connect(node, type = Node.ConnectionTypes.STREET) {
-    if (_.find(this.connections, n => n.node == node)) return false;
-
-    this.connections.push({ node, type });
-    node.connections.push({ node: this, type });
-
-    return true;
-  }
-
-  disconnect(node) {
-    let idx = _.findIndex(this.connections, n => n.node == node);
-    if (idx >= 0) this.connections.splice(idx, 1);
-
-    idx = _.findIndex(node.connections, n => n.node == this);
-    if (idx >= 0) node.connections.splice(idx, 1);
-  }
-
-  getBoundingBox() {
-    return getBoundingBoxFromNodes([
-      this,
-      ..._.map(this.connections, n => n.node)
-    ]);
-  }
-  // jsQuad methods
-  QTsetParent(parent) {
-    this.QTparent = parent;
-  }
-  QTgetParent() {
-    return this.QTparent;
-  }
-  QTenclosed(xMin, yMin, xMax, yMax) {
-    const box = this.getBoundingBox();
-    var x0 = box.x,
-      x1 = box.x + box.w;
-    var y0 = box.y,
-      y1 = box.y + box.h;
-    return x0 >= xMin && x1 <= xMax && y0 >= yMin && y1 <= yMax;
-  }
-}
-
-export default Node;
-
-*/

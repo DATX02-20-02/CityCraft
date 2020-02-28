@@ -1,12 +1,15 @@
+// #define DEBUG_AGENT_WORK
+
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using RBush;
+using VisualDebugging;
 
 public class RoadGenerator : MonoBehaviour
 {
-    [Range(0, 100)]
+    [Range(0, 1000)]
     public int maxAgentQueueIterations = 1;
 
     [Range(0, 0.4f)]
@@ -15,6 +18,7 @@ public class RoadGenerator : MonoBehaviour
     private List<Node> nodes;
     private RBush<Node> tree;
     private PriorityQueue<Agent> queue;
+    private int prevQueueCount = 0;
 
     private bool prevClick;
     private Node prevNode;
@@ -331,12 +335,21 @@ public class RoadGenerator : MonoBehaviour
     IEnumerator DoAgentWork() {
         if (this.queue.Count == 0) yield break;
 
+#if DEBUG_AGENT_WORK
+        if (prevQueueCount == 0) {
+            VisualDebug.Initialize();
+            VisualDebug.BeginFrame("Start", true);
+        }
+#endif
+
         areAgentsWorking = true;
 
         int iterations = 0;
         while (this.queue.Count > 0 && iterations < maxAgentQueueIterations) {
             Agent agent = this.queue.Peek();
             if (agent.requeue) this.queue.Dequeue();
+
+            Vector3 oldPos = agent.pos;
 
             if (!agent.started) {
                 agent.Start();
@@ -349,13 +362,38 @@ public class RoadGenerator : MonoBehaviour
             if (agent.terminated) {
                 if (!agent.requeue)
                     this.queue.Dequeue();
+
             }
             else {
-                this.queue.Enqueue(agent);
+                if (agent.requeue)
+                    this.queue.Enqueue(agent);
             }
+
+#if DEBUG_AGENT_WORK
+            if (agent.terminated) {
+                VisualDebug.BeginFrame("Agent terminated", true);
+                VisualDebug.SetColour(Colours.lightRed);
+            }
+            else {
+                VisualDebug.BeginFrame("Agent work", true);
+                VisualDebug.SetColour(Colours.lightGreen, Colours.veryDarkGrey);
+            }
+            VisualDebug.DrawPoint(agent.pos, .05f);
+
+            VisualDebug.SetColour(Colours.lightGreen, Colours.veryDarkGrey);
+            VisualDebug.DrawLineSegment(agent.pos, oldPos);
+#endif
 
             iterations++;
         }
+
+#if DEBUG_AGENT_WORK
+        if (this.queue.Count == 0) {
+            VisualDebug.Save();
+        }
+#endif
+
+        prevQueueCount = this.queue.Count;
 
         yield return new WaitForSeconds(generationTickInterval);
         areAgentsWorking = false;

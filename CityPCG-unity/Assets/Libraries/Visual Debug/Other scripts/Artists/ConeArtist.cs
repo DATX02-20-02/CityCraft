@@ -15,9 +15,9 @@ namespace VisualDebugging.Internal {
         public float size;
 
         public ConeArtist(Vector3 position, Vector3 up, float size) {
-            artistType = typeof( ConeArtist ).ToString();
+            artistType = typeof(ConeArtist).ToString();
             this.position = position - up * 0.7f * size;
-            rotation = Quaternion.LookRotation( up );
+            rotation = Quaternion.LookRotation(up);
             this.size = size;
         }
 

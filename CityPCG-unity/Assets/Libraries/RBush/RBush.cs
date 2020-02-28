@@ -17,13 +17,13 @@ namespace RBush {
         public Node Root { get; private set; }
         public ref readonly Envelope Envelope => ref Root.Envelope;
 
-        public RBush() : this( DefaultMaxEntries ) { }
+        public RBush() : this(DefaultMaxEntries) { }
         public RBush(int maxEntries)
-            : this( maxEntries, EqualityComparer<T>.Default ) { }
+            : this(maxEntries, EqualityComparer<T>.Default) { }
         public RBush(int maxEntries, EqualityComparer<T> comparer) {
             this.comparer = comparer;
-            this.maxEntries = Math.Max( MinimumMaxEntries, maxEntries );
-            this.minEntries = Math.Max( MinimumMinEntries, (int)Math.Ceiling( this.maxEntries * DefaultFillFactor ) );
+            this.maxEntries = Math.Max(MinimumMaxEntries, maxEntries);
+            this.minEntries = Math.Max(MinimumMinEntries, (int)Math.Ceiling(this.maxEntries * DefaultFillFactor));
 
             this.Clear();
         }
@@ -31,82 +31,82 @@ namespace RBush {
         public int Count { get; private set; }
 
         public void Clear() {
-            this.Root = new Node( new List<ISpatialData>(), 1 );
+            this.Root = new Node(new List<ISpatialData>(), 1);
             this.Count = 0;
         }
 
-        public IReadOnlyList<T> Search() => GetAllChildren( new List<T>(), this.Root );
+        public IReadOnlyList<T> Search() => GetAllChildren(new List<T>(), this.Root);
 
         public IReadOnlyList<T> Search(in Envelope boundingBox) =>
-            DoSearch( boundingBox );
+            DoSearch(boundingBox);
 
         public void Insert(T item) {
-            Insert( item, this.Root.Height );
+            Insert(item, this.Root.Height);
             this.Count++;
         }
 
         public void BulkLoad(IEnumerable<T> items) {
             var data = items.Cast<ISpatialData>().ToList();
-            if (data.Count == 0) return;
+            if(data.Count == 0) return;
 
-            if (this.Root.IsLeaf &&
+            if(this.Root.IsLeaf &&
                 this.Root.children.Count + data.Count < maxEntries) {
-                foreach (var i in data)
-                    Insert( (T)i );
+                foreach(var i in data)
+                    Insert((T)i);
                 return;
             }
 
-            if (data.Count < this.minEntries) {
-                foreach (var i in data)
-                    Insert( (T)i );
+            if(data.Count < this.minEntries) {
+                foreach(var i in data)
+                    Insert((T)i);
                 return;
             }
 
-            var dataRoot = BuildTree( data );
+            var dataRoot = BuildTree(data);
             this.Count += data.Count;
 
-            if (this.Root.children.Count == 0)
+            if(this.Root.children.Count == 0)
                 this.Root = dataRoot;
-            else if (this.Root.Height == dataRoot.Height) {
-                if (this.Root.children.Count + dataRoot.children.Count <= this.maxEntries) {
-                    foreach (var isd in dataRoot.children)
-                        this.Root.Add( isd );
+            else if(this.Root.Height == dataRoot.Height) {
+                if(this.Root.children.Count + dataRoot.children.Count <= this.maxEntries) {
+                    foreach(var isd in dataRoot.children)
+                        this.Root.Add(isd);
                 }
                 else
-                    SplitRoot( dataRoot );
+                    SplitRoot(dataRoot);
             }
             else {
-                if (this.Root.Height < dataRoot.Height) {
+                if(this.Root.Height < dataRoot.Height) {
                     var tmp = this.Root;
                     this.Root = dataRoot;
                     dataRoot = tmp;
                 }
 
-                this.Insert( dataRoot, this.Root.Height - dataRoot.Height );
+                this.Insert(dataRoot, this.Root.Height - dataRoot.Height);
             }
         }
 
         public void Delete(T item) {
-            var candidates = DoPathSearch( item.Envelope );
+            var candidates = DoPathSearch(item.Envelope);
 
-            foreach (var c in candidates
-                .Where( c => {
-                    if (c.Peek() is T _item)
-                        return comparer.Equals( item, _item );
+            foreach(var c in candidates
+                .Where(c => {
+                    if(c.Peek() is T _item)
+                        return comparer.Equals(item, _item);
                     return false;
-                } )) {
+                })) {
                 var path = c.Pop();
-                if (!path.IsEmpty)
-                    (path.Peek() as Node).Remove( item );
+                if(!path.IsEmpty)
+                    (path.Peek() as Node).Remove(item);
                 Count--;
-                while (!path.IsEmpty) {
-                    path = path.Pop( out var e );
+                while(!path.IsEmpty) {
+                    path = path.Pop(out var e);
                     var n = e as Node;
 
-                    if (n.children.Count != 0)
+                    if(n.children.Count != 0)
                         n.ResetEnvelope();
-                    else if (!path.IsEmpty)
-                        (path.Peek() as Node).Remove( n );
+                    else if(!path.IsEmpty)
+                        (path.Peek() as Node).Remove(n);
                 }
             }
         }

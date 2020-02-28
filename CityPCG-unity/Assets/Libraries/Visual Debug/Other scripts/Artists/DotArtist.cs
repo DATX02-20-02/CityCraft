@@ -11,7 +11,7 @@ namespace VisualDebugging.Internal {
         public float radius;
 
         public DotArtist(IEnumerable<Vector3> points, float radius, bool drawWireframe = false) {
-            this.artistType = typeof( DotArtist ).ToString();
+            this.artistType = typeof(DotArtist).ToString();
             this.points = points.ToArray();
             this.radius = radius;
         }

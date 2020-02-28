@@ -22,12 +22,12 @@ namespace VisualDebugging {
         public const string black = "000000FF";
 
         public static Color HexStringToColour(string hex) {
-            if (hex[0] != '#') {
+            if(hex[0] != '#') {
                 hex = "#" + hex;
             }
 
             Color col = Color.white;
-            ColorUtility.TryParseHtmlString( hex, out col );
+            ColorUtility.TryParseHtmlString(hex, out col);
             return col;
         }
     }

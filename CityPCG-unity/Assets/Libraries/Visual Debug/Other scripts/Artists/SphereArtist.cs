@@ -13,7 +13,7 @@ namespace VisualDebugging.Internal {
         public bool drawWireframe;
 
         public SphereArtist(IEnumerable<Vector3> points, float radius, bool drawWireframe = false) {
-            this.artistType = typeof( SphereArtist ).ToString();
+            this.artistType = typeof(SphereArtist).ToString();
             this.points = points.ToArray();
             this.radius = radius;
             this.drawWireframe = drawWireframe;

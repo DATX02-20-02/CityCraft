@@ -34,7 +34,7 @@ public class Agent : IComparable {
         this.strategy = strategy;
         this.priority = priority;
 
-        this.SetDirection( dir );
+        this.SetDirection(dir);
     }
 
     public static Agent Clone(Agent other) {
@@ -65,43 +65,43 @@ public class Agent : IComparable {
 
     // Required for priority queue
     public int CompareTo(object obj) {
-        if (obj == null) return 1;
+        if(obj == null) return 1;
 
         Agent agent = obj as Agent;
-        if (agent != null) {
-            return this.strategy.CompareTo( this, agent );
+        if(agent != null) {
+            return this.strategy.CompareTo(this, agent);
         }
         else {
-            throw new ArgumentException( "Object is not an Agent" );
+            throw new ArgumentException("Object is not an Agent");
         }
     }
 
     public void SetDirection(Vector3 dir) {
         this.dir = dir.normalized;
 
-        this.angle = Mathf.Atan2( this.dir.z, this.dir.x );
+        this.angle = Mathf.Atan2(this.dir.z, this.dir.x);
     }
 
     public void SetAngle(float angle) {
         this.angle = angle;
-        this.dir = new Vector3( Mathf.Cos( this.angle ), 0, Mathf.Sin( this.angle ) ).normalized;
+        this.dir = new Vector3(Mathf.Cos(this.angle), 0, Mathf.Sin(this.angle)).normalized;
     }
 
     public Node PlaceNode(Vector3 pos, Node.NodeType nodeType, Node.ConnectionType connectionType, out RoadGenerator.ConnectionResult info) {
-        Node node = new Node( pos, nodeType );
+        Node node = new Node(pos, nodeType);
 
         info = null;
-        if (this.prevNode == null) {
-            this.generator.AddNode( node );
+        if(this.prevNode == null) {
+            this.generator.AddNode(node);
             this.prevNode = node;
 
             return node;
         }
-        else if (connectionType != Node.ConnectionType.None) {
-            info = this.generator.ConnectNodesWithIntersect( this.prevNode, node, this.snapRadius, connectionType );
+        else if(connectionType != Node.ConnectionType.None) {
+            info = this.generator.ConnectNodesWithIntersect(this.prevNode, node, this.snapRadius, connectionType);
 
-            if (info.success && !info.didIntersect && !info.didSnap) {
-                this.generator.AddNode( node );
+            if(info.success && !info.didIntersect && !info.didSnap) {
+                this.generator.AddNode(node);
             }
             this.prevNode = info.prevNode;
             return info.prevNode;
@@ -111,25 +111,25 @@ public class Agent : IComparable {
     }
 
     public Node PlaceNode(Vector3 pos, Node.NodeType nodeType, Node.ConnectionType connectionType) {
-        return PlaceNode( pos, nodeType, connectionType, out RoadGenerator.ConnectionResult info );
+        return PlaceNode(pos, nodeType, connectionType, out RoadGenerator.ConnectionResult info);
     }
 
     public void Start() {
-        if (this.strategy != null) {
-            this.strategy.Start( this );
+        if(this.strategy != null) {
+            this.strategy.Start(this);
         }
     }
 
     public void Work() {
-        if (this.strategy == null) return;
+        if(this.strategy == null) return;
 
-        this.strategy.Work( this );
+        this.strategy.Work(this);
 
         this.stepCount++;
-        if (this.strategy.ShouldDie( this, this.prevNode ))
+        if(this.strategy.ShouldDie(this, this.prevNode))
             this.Terminate();
 
-        if (!this.terminated) this.strategy.Branch( this, this.prevNode );
+        if(!this.terminated) this.strategy.Branch(this, this.prevNode);
     }
 
     public void Terminate() {

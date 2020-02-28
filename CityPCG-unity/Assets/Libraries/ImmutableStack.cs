@@ -54,14 +54,14 @@ public class ImmutableStack<T> : IImmutableStack<T> {
     }
 
     public T Peek() {
-        if (IsEmpty)
-            throw new InvalidOperationException( "Stack is empty." );
+        if(IsEmpty)
+            throw new InvalidOperationException("Stack is empty.");
         return head;
     }
 
     public ImmutableStack<T> Pop() {
-        if (IsEmpty)
-            throw new InvalidOperationException( "Stack is empty." );
+        if(IsEmpty)
+            throw new InvalidOperationException("Stack is empty.");
         return tail;
     }
 
@@ -75,18 +75,18 @@ public class ImmutableStack<T> : IImmutableStack<T> {
     }
 
     public ImmutableStack<T> Push(T value) {
-        return new ImmutableStack<T>( value, this );
+        return new ImmutableStack<T>(value, this);
     }
 
     IImmutableStack<T> IImmutableStack<T>.Push(T value) {
-        return Push( value );
+        return Push(value);
     }
     #endregion
 
     #region IEnumerable<T> implementation
 
     public IEnumerator<T> GetEnumerator() {
-        return new Enumerator( this );
+        return new Enumerator(this);
     }
 
     struct Enumerator : IEnumerator<T> {
@@ -100,10 +100,10 @@ public class ImmutableStack<T> : IImmutableStack<T> {
         #region IEnumerator implementation
 
         bool IEnumerator.MoveNext() {
-            if (current == null) {
+            if(current == null) {
                 current = this.start;
             }
-            else if (!current.IsEmpty) {
+            else if(!current.IsEmpty) {
                 current = current.Pop();
             }
 
@@ -128,7 +128,7 @@ public class ImmutableStack<T> : IImmutableStack<T> {
 
         public T Current {
             get {
-                return current != null ? current.Peek() : default( T );
+                return current != null ? current.Peek() : default(T);
             }
         }
         #endregion
@@ -149,23 +149,23 @@ public static class ImmutableStack {
     }
 
     public static ImmutableStack<T> Create<T>(T item) {
-        return Create<T>().Push( item );
+        return Create<T>().Push(item);
     }
 
     public static ImmutableStack<T> Create<T>(IEnumerable<T> items) {
         var result = ImmutableStack<T>.Empty;
-        foreach (var item in items)
-            result = result.Push( item );
+        foreach(var item in items)
+            result = result.Push(item);
         return result;
     }
 
     public static ImmutableStack<T> Create<T>(params T[] items) {
-        return Create( (IEnumerable<T>)items );
+        return Create((IEnumerable<T>)items);
     }
 
     public static IImmutableStack<T> Pop<T>(this IImmutableStack<T> stack, out T value) {
-        if (stack == null)
-            throw new ArgumentNullException( "stack" );
+        if(stack == null)
+            throw new ArgumentNullException("stack");
         value = stack.Peek();
         return stack.Pop();
     }

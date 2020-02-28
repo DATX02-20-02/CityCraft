@@ -1,11 +1,9 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace VisualDebugging
-{
-    public static class Colours
-    {
+namespace VisualDebugging {
+    public static class Colours {
 
         public const string lightRed = "F94040FF";
         public const string darkRed = "870C0CFF";
@@ -23,15 +21,13 @@ namespace VisualDebugging
         public const string white = "FFFFFFFF";
         public const string black = "000000FF";
 
-        public static Color HexStringToColour(string hex)
-        {
-            if (hex[0] != '#')
-            {
+        public static Color HexStringToColour(string hex) {
+            if (hex[0] != '#') {
                 hex = "#" + hex;
             }
 
             Color col = Color.white;
-            ColorUtility.TryParseHtmlString(hex, out col);
+            ColorUtility.TryParseHtmlString( hex, out col );
             return col;
         }
     }

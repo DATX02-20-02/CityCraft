@@ -27,10 +27,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public interface IImmutableStack<T> : IEnumerable<T>, IEnumerable
-{
-    bool IsEmpty
-    {
+public interface IImmutableStack<T> : IEnumerable<T>, IEnumerable {
+    bool IsEmpty {
         get;
     }
 

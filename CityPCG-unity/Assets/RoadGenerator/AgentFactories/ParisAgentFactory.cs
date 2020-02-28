@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 public class ParisAgentFactory : IAgentFactory {
-    public ParisAgentFactory() {}
+    public ParisAgentFactory() { }
 
     public void Create(RoadGenerator generator, Vector3 origin) {
         // for (int i = 0; i < 20; i++) {
@@ -35,34 +35,34 @@ public class ParisAgentFactory : IAgentFactory {
                     Agent agent = new Agent(
                         generator,
                         origin,
-                        new Vector3(0, 0, 0),
-                        new ParisAgentStrategy(origin, radius, false, angleIncrement),
+                        new Vector3( 0, 0, 0 ),
+                        new ParisAgentStrategy( origin, radius, false, angleIncrement ),
                         priority
                     );
-                    agent.SetAngle(Mathf.Atan2(dir.y, dir.x));
-                    generator.AddAgent(agent);
+                    agent.SetAngle( Mathf.Atan2( dir.y, dir.x ) );
+                    generator.AddAgent( agent );
                 }
             }
         }
         priority++;
 
-        int max = (int) Mathf.Floor(Random.Range(3, 7));
+        int max = (int)Mathf.Floor( Random.Range( 3, 7 ) );
         for (int i = 0; i < max; i++) {
             float rad = (Mathf.PI * 2) / max;
 
-            Vector3 dir = new Vector3(Mathf.Cos(rad * i), 0, Mathf.Sin(rad * i));
+            Vector3 dir = new Vector3( Mathf.Cos( rad * i ), 0, Mathf.Sin( rad * i ) );
 
             Agent ag = new Agent(
                 generator,
                 origin,
                 dir,
-                new ParisAgentStrategy(origin, 5, true),
+                new ParisAgentStrategy( origin, 5, true ),
                 priority
             );
             ag.stepSize = 1f;
             ag.snapRadius = 0.2f;
             ag.maxStepCount = 20;
-            generator.AddAgent(ag);
+            generator.AddAgent( ag );
         }
     }
 }

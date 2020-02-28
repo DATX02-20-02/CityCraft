@@ -1,22 +1,19 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace VisualDebugging.Internal
-{
-    public class LabelArist : SceneArtist
-    {
+namespace VisualDebugging.Internal {
+    public class LabelArist : SceneArtist {
         public Vector3 position;
         public string text;
         public bool centreAlign;
         public int fontSize;
         public float heightOffset;
 
-        public LabelArist(Vector3 position, string text, bool centreAlign, int fontSize, float heightOffset)
-        {
-            artistType = typeof(LabelArist).ToString();
+        public LabelArist(Vector3 position, string text, bool centreAlign, int fontSize, float heightOffset) {
+            artistType = typeof( LabelArist ).ToString();
             this.position = position;
             this.text = text;
             this.centreAlign = centreAlign;
@@ -24,8 +21,7 @@ namespace VisualDebugging.Internal
             this.heightOffset = heightOffset;
         }
 
-        public override void Draw(bool isActive)
-        {
+        public override void Draw(bool isActive) {
 
 #if UNITY_EDITOR
 			base.Draw(isActive);

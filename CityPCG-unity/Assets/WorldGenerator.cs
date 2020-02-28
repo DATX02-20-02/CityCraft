@@ -25,7 +25,11 @@ public class WorldGenerator : MonoBehaviour {
 
 
     public void Undo() { }
-    public void GenerateTerrain() { }
+
+    public void GenerateTerrain() {
+        terrainGenerator.GenerateTerrain();
+    }
+
     public void GenerateRoads() { }
     public void GenerateStreets() { }
     public void GenerateBuildings() { }

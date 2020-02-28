@@ -28,27 +28,27 @@ public class App : MonoBehaviour {
     }
 
     public void GenerateTerrain() {
-        Debug.Log( "Generating terrain..." );
+        Debug.Log("Generating terrain...");
         worldGenerator.GenerateTerrain();
-        Debug.Log( "Terrain generated." );
+        Debug.Log("Terrain generated.");
     }
 
     public void GenerateRoads() {
-        Debug.Log( "Generating roads..." );
+        Debug.Log("Generating roads...");
         worldGenerator.GenerateRoads();
-        Debug.Log( "Roads generated." );
+        Debug.Log("Roads generated.");
     }
 
     public void GenerateStreets() {
-        Debug.Log( "Generating streets..." );
+        Debug.Log("Generating streets...");
         worldGenerator.GenerateStreets();
-        Debug.Log( "Streets generated." );
+        Debug.Log("Streets generated.");
     }
 
     public void GenerateBuildings() {
-        Debug.Log( "Generating buildings..." );
+        Debug.Log("Generating buildings...");
         worldGenerator.GenerateBuildings();
-        Debug.Log( "Buildings generated." );
+        Debug.Log("Buildings generated.");
     }
 
     public void ExportModelToFBX() {
@@ -59,14 +59,14 @@ public class App : MonoBehaviour {
     }
 
     private void NextMenu() {
-        menuPanels[currentMenuPanel].SetActive( false );
-        currentMenuPanel = Mathf.Min( menuPanels.Length, currentMenuPanel + 1 );
-        menuPanels[currentMenuPanel].SetActive( true );
+        menuPanels[currentMenuPanel].SetActive(false);
+        currentMenuPanel = Mathf.Min(menuPanels.Length, currentMenuPanel + 1);
+        menuPanels[currentMenuPanel].SetActive(true);
     }
 
     private void PrevMenu() {
-        menuPanels[currentMenuPanel].SetActive( false );
-        currentMenuPanel = Mathf.Max( 0, currentMenuPanel - 1 );
-        menuPanels[currentMenuPanel].SetActive( true );
+        menuPanels[currentMenuPanel].SetActive(false);
+        currentMenuPanel = Mathf.Max(0, currentMenuPanel - 1);
+        menuPanels[currentMenuPanel].SetActive(true);
     }
 }

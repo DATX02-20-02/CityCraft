@@ -18,6 +18,10 @@ public class App : MonoBehaviour {
     private int currentMenuPanel = 0;
 
 
+    public void Next() {
+        NextMenu();
+    }
+
     public void Undo() {
         worldGenerator.Undo();
         PrevMenu();
@@ -27,21 +31,18 @@ public class App : MonoBehaviour {
         Debug.Log( "Generating terrain..." );
         worldGenerator.GenerateTerrain();
         Debug.Log( "Terrain generated." );
-        NextMenu();
     }
 
     public void GenerateRoads() {
         Debug.Log( "Generating roads..." );
         worldGenerator.GenerateRoads();
         Debug.Log( "Roads generated." );
-        NextMenu();
     }
 
     public void GenerateStreets() {
         Debug.Log( "Generating streets..." );
         worldGenerator.GenerateStreets();
         Debug.Log( "Streets generated." );
-        NextMenu();
     }
 
     public void GenerateBuildings() {

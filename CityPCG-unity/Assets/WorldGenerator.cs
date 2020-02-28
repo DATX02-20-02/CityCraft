@@ -30,7 +30,10 @@ public class WorldGenerator : MonoBehaviour {
         terrainGenerator.GenerateTerrain();
     }
 
-    public void GenerateRoads() { }
+    public void GenerateRoads() {
+        roadGenerator.Generate();
+    }
+
     public void GenerateStreets() { }
     public void GenerateBuildings() { }
 

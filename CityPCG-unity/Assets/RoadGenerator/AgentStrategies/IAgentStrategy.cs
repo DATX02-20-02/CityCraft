@@ -1,7 +1,7 @@
 
 public abstract class IAgentStrategy {
-    public virtual void Start(Agent agent) {}
-    public virtual void Branch(Agent agent, Node node) {}
+    public virtual void Start(Agent agent) { }
+    public virtual void Branch(Agent agent, Node node) { }
 
     public abstract void Work(Agent agent);
 
@@ -10,10 +10,10 @@ public abstract class IAgentStrategy {
     }
 
     public virtual int CompareTo(Agent agentA, Agent agentB) {
-        var i = agentA.priority.CompareTo(agentB.priority);
+        var i = agentA.priority.CompareTo( agentB.priority );
 
         if (i == 0) {
-            return agentA.stepCount.CompareTo(agentB.stepCount);
+            return agentA.stepCount.CompareTo( agentB.stepCount );
         }
         return i;
     }

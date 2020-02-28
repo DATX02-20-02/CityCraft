@@ -1,29 +1,25 @@
-﻿
+
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-namespace VisualDebugging.Internal
-{
+namespace VisualDebugging.Internal {
 
-    public class SphereArtist : SceneArtist
-    {
+    public class SphereArtist : SceneArtist {
         public Vector3[] points;
         public float radius;
         public bool drawWireframe;
 
-        public SphereArtist( IEnumerable<Vector3> points, float radius, bool drawWireframe = false )
-        {
-            this.artistType = typeof(SphereArtist).ToString();
+        public SphereArtist(IEnumerable<Vector3> points, float radius, bool drawWireframe = false) {
+            this.artistType = typeof( SphereArtist ).ToString();
             this.points = points.ToArray();
             this.radius = radius;
             this.drawWireframe = drawWireframe;
         }
 
-        public override void Draw( bool isActive )
-        {
+        public override void Draw(bool isActive) {
 #if UNITY_EDITOR
             base.Draw(isActive);
 

@@ -1,12 +1,10 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace VisualDebugging.Internal
-{
+namespace VisualDebugging.Internal {
     [System.Serializable]
-    public class DebugData
-    {
+    public class DebugData {
         public const int defaultFontSize = 18;
 
         public List<Frame> frames;
@@ -15,8 +13,7 @@ namespace VisualDebugging.Internal
         public int currentFontSize;
         public bool dontShowNextElementWhenFrameIsInBackground;
 
-        public DebugData()
-        {
+        public DebugData() {
             frames = new List<Frame>();
             currentActiveColour = Color.white;
             currentBackgroundColour = currentActiveColour;

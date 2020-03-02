@@ -1,7 +1,8 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-public class StreetAgentStrategy : IAgentStrategy {
-    public Node.ConnectionType connectionType = Node.ConnectionType.Street;
+public class StreetAgentStrategy : AgentStrategy {
+    public ConnectionType connectionType = ConnectionType.Street;
     public Node.NodeType nodeType = Node.NodeType.Street;
 
     private float stepVariance;
@@ -33,7 +34,7 @@ public class StreetAgentStrategy : IAgentStrategy {
         }
 
         if(agent.prevNode == null) {
-            Node node = agent.generator.AddNodeNearby(new Node(agent.pos), agent.snapRadius);
+            Node node = agent.network.AddNodeNearby(new Node(agent.pos), agent.snapRadius);
             agent.prevNode = node;
         };
     }
@@ -49,7 +50,9 @@ public class StreetAgentStrategy : IAgentStrategy {
         if(!info.success) agent.Terminate();
     }
 
-    public override void Branch(Agent agent, Node node) {
+    public override List<Agent> Branch(Agent agent, Node node) {
+        List<Agent> newAgents = new List<Agent>();
+
         if(Random.Range(0.0f, 1.0f) <= 0.8f
             && agent.branchCount <= agent.maxBranchCount
             && agent.stepCount < agent.maxStepCount - 1
@@ -71,8 +74,10 @@ public class StreetAgentStrategy : IAgentStrategy {
             AgentData data = AgentData.Copy(agent.data);
             ag.data = data;
 
-            agent.generator.AddAgent(ag);
+            newAgents.Add(ag);
         }
+
+        return newAgents;
     }
 
     public override bool ShouldDie(Agent agent, Node node) {

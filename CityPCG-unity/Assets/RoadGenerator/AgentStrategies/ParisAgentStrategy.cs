@@ -1,7 +1,8 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-public class ParisAgentStrategy : IAgentStrategy {
-    public Node.ConnectionType connectionType = Node.ConnectionType.Main;
+public class ParisAgentStrategy : AgentStrategy {
+    public ConnectionType connectionType = ConnectionType.Main;
     public Node.NodeType nodeType = Node.NodeType.Main;
 
     private Vector3 center;
@@ -42,7 +43,7 @@ public class ParisAgentStrategy : IAgentStrategy {
 
             if(!this.straight) pos = center + agent.dir * radius;
 
-            Node node = agent.generator.AddNodeNearby(new Node(pos), agent.snapRadius);
+            Node node = agent.network.AddNodeNearby(new Node(pos), agent.snapRadius);
             agent.prevNode = node;
         };
     }
@@ -81,7 +82,9 @@ public class ParisAgentStrategy : IAgentStrategy {
         }
     }
 
-    public override void Branch(Agent agent, Node node) {
+    public override List<Agent> Branch(Agent agent, Node node) {
+        List<Agent> newAgents = new List<Agent>();
+
         bool didBranch = false;
         float revert = Mathf.Sign(Random.Range(-1.0f, 1.0f));
         float distance = Vector3.Distance(agent.pos, center);
@@ -100,34 +103,25 @@ public class ParisAgentStrategy : IAgentStrategy {
                     )
                 );
 
-                // ag.stepSize = 0.5f;
-                // ag.snapRadius = 0.1f;
-
                 AgentData data = AgentData.Copy(agent.data);
                 data.stopAtRoad = true;
                 ag.data = data;
 
-                agent.generator.AddAgent(ag);
+                newAgents.Add(ag);
                 didBranch = true;
             }
         }
 
         if(!didBranch) {
-            foreach(Node.NodeConnection c in node.connections) {
+            foreach(NodeConnection c in node.connections) {
                 if(Random.Range(0.0f, 1.0f) <= 0.5f) {
                     Vector3 dir = c.node.pos - node.pos;
                     Vector3 perp = Vector3.Cross(dir, Vector3.up);
 
-                    // agent.generator.debugPoints.Add(agent.pos);
                     Agent ag = new Agent(
-                        agent.generator,
+                        agent.network,
                         node.pos,
                         perp * revert,
-                        // Vector3.Lerp(
-                        //     new Vector3(-agent.dir.z * revert, 0, agent.dir.x * revert),
-                        //     agent.dir,
-                        //     0 * Random.Range(-0.4f, 0.4f)
-                        // ),
                         new StreetAgentStrategy(),
                         10
                     );
@@ -136,13 +130,15 @@ public class ParisAgentStrategy : IAgentStrategy {
                     ag.maxBranchCount = 20;
                     ag.maxStepCount = 10;
                     ag.prevNode = node;
-                    agent.generator.AddAgent(ag);
+                    newAgents.Add(ag);
                     break;
                 }
             }
 
 
         }
+
+        return newAgents;
     }
 
     public override bool ShouldDie(Agent agent, Node node) {

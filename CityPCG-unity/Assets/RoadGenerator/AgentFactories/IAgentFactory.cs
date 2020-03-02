@@ -1,5 +1,5 @@
 using UnityEngine;
 
 public interface IAgentFactory {
-    void Create(RoadGenerator generator, Vector3 origin);
+    void Create(RoadGenerator generator, RoadNetwork network, Vector3 origin);
 }

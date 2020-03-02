@@ -1,7 +1,10 @@
+using System.Collections.Generic;
 
-public abstract class IAgentStrategy {
+public abstract class AgentStrategy {
     public virtual void Start(Agent agent) { }
-    public virtual void Branch(Agent agent, Node node) { }
+    public virtual List<Agent> Branch(Agent agent, Node node) {
+        return new List<Agent>();
+    }
 
     public abstract void Work(Agent agent);
 

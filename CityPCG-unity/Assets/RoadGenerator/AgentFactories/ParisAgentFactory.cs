@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class ParisAgentFactory : IAgentFactory {
 
-    public void Create(RoadGenerator generator, Vector3 origin) {
+    public void Create(RoadGenerator generator, RoadNetwork network, Vector3 origin) {
         float[] rings = new float[] { 2, 3.5f, 5 };
         Vector2[] directions = new Vector2[] {
             new Vector2(1, 0),
@@ -18,7 +18,7 @@ public class ParisAgentFactory : IAgentFactory {
                 for(int reverse = -1; reverse <= 1; reverse += 2) {
                     float angleIncrement = (10 * Mathf.PI) / 180 * reverse;
                     Agent agent = new Agent(
-                        generator,
+                        network,
                         origin,
                         new Vector3(0, 0, 0),
                         new ParisAgentStrategy(origin, radius, false, angleIncrement),
@@ -38,7 +38,7 @@ public class ParisAgentFactory : IAgentFactory {
             Vector3 dir = new Vector3(Mathf.Cos(rad * i), 0, Mathf.Sin(rad * i));
 
             Agent ag = new Agent(
-                generator,
+                network,
                 origin,
                 dir,
                 new ParisAgentStrategy(origin, 5, true),

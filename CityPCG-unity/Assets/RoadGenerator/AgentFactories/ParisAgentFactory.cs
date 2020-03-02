@@ -24,7 +24,7 @@ public class ParisAgentFactory : IAgentFactory {
                         new ParisAgentStrategy(origin, radius, false, angleIncrement),
                         priority
                     );
-                    agent.SetAngle(Mathf.Atan2(dir.y, dir.x));
+                    agent.Angle = Mathf.Atan2(dir.y, dir.x);
                     generator.AddAgent(agent);
                 }
             }
@@ -44,9 +44,12 @@ public class ParisAgentFactory : IAgentFactory {
                 new ParisAgentStrategy(origin, 5, true),
                 priority
             );
-            ag.stepSize = 1f;
-            ag.snapRadius = 0.2f;
-            ag.maxStepCount = 20;
+            AgentConfiguration config = ag.config;
+
+            config.stepSize = 1f;
+            config.snapRadius = 0.2f;
+            config.maxStepCount = 20;
+
             generator.AddAgent(ag);
         }
     }

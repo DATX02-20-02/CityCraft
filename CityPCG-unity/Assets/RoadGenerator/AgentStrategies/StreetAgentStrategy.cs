@@ -23,7 +23,7 @@ public class StreetAgentStrategy : AgentStrategy {
     }
 
     public override int CompareTo(Agent agentA, Agent agentB) {
-        return agentA.priority.CompareTo(agentB.priority);
+        return agentA.Priority.CompareTo(agentB.Priority);
     }
 
     public override void Start(Agent agent) {
@@ -33,19 +33,20 @@ public class StreetAgentStrategy : AgentStrategy {
             agent.data = data;
         }
 
-        if(agent.prevNode == null) {
-            Node node = agent.network.AddNodeNearby(new Node(agent.pos), agent.snapRadius);
-            agent.prevNode = node;
+        if(agent.PreviousNode == null) {
+            Node node = agent.network.AddNodeNearby(new Node(agent.Position), agent.config.snapRadius);
+            agent.PreviousNode = node;
         };
     }
 
     public override void Work(Agent agent) {
         AgentData agentData = (AgentData)agent.data;
+        AgentConfiguration config = agent.config;
 
-        agent.SetAngle(agent.angle + Random.Range(-1.0f, 1.0f) * 0);
-        agent.pos += agent.dir * (agent.stepSize + this.stepVariance);
+        agent.Angle += Random.Range(-1.0f, 1.0f) * 0;
+        agent.Position += agent.Direction * (config.stepSize + this.stepVariance);
 
-        agent.PlaceNode(agent.pos, this.nodeType, this.connectionType, out ConnectionResult info);
+        agent.PlaceNode(agent.Position, this.nodeType, this.connectionType, out ConnectionResult info);
 
         if(!info.success) agent.Terminate();
     }
@@ -54,18 +55,16 @@ public class StreetAgentStrategy : AgentStrategy {
         List<Agent> newAgents = new List<Agent>();
 
         if(Random.Range(0.0f, 1.0f) <= 0.8f
-            && agent.branchCount <= agent.maxBranchCount
-            && agent.stepCount < agent.maxStepCount - 1
+            && agent.BranchCount <= agent.config.maxBranchCount
+            && agent.StepCount < agent.config.maxStepCount - 1
         ) {
             float revert = Mathf.Sign(Random.Range(-1.0f, 1.0f));
 
             Agent ag = Agent.Clone(agent);
-            ag.SetDirection(
-                Vector3.Lerp(
-                    new Vector3(-agent.dir.z * revert, 0, agent.dir.x * revert),
-                    agent.dir,
-                    Random.Range(-0.4f, 0.4f) * 0
-                )
+            ag.Direction = Vector3.Lerp(
+                new Vector3(-agent.Direction.z * revert, 0, agent.Direction.x * revert),
+                agent.Direction,
+                Random.Range(-0.4f, 0.4f) * 0
             );
 
             // ag.stepSize = 0.5f;
@@ -81,6 +80,6 @@ public class StreetAgentStrategy : AgentStrategy {
     }
 
     public override bool ShouldDie(Agent agent, Node node) {
-        return agent.maxStepCount > 0 && agent.stepCount > agent.maxStepCount;
+        return agent.config.maxStepCount > 0 && agent.StepCount > agent.config.maxStepCount;
     }
 }

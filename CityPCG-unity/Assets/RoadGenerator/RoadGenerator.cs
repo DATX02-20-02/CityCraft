@@ -64,13 +64,14 @@ public class RoadGenerator : MonoBehaviour {
         int iterations = 0;
         while(this.queue.Count > 0 && iterations < maxAgentQueueIterations) {
             Agent agent = this.queue.Peek();
-            if(agent.requeue) this.queue.Dequeue();
+            AgentConfiguration config = agent.config;
 
-            Vector3 oldPos = agent.pos;
+            if(config.requeue) this.queue.Dequeue();
 
-            if(!agent.started) {
+            Vector3 oldPos = agent.Position;
+
+            if(!agent.IsStarted) {
                 agent.Start();
-                agent.started = true;
             }
 
 
@@ -79,13 +80,13 @@ public class RoadGenerator : MonoBehaviour {
                 this.AddAgent(newAgent);
             }
 
-            if(agent.terminated) {
-                if(!agent.requeue)
+            if(agent.IsTerminated) {
+                if(!config.requeue)
                     this.queue.Dequeue();
 
             }
             else {
-                if(agent.requeue)
+                if(config.requeue)
                     this.queue.Enqueue(agent);
             }
 
@@ -98,10 +99,10 @@ public class RoadGenerator : MonoBehaviour {
                 VisualDebug.BeginFrame("Agent work", true);
                 VisualDebug.SetColour(Colours.lightGreen, Colours.veryDarkGrey);
             }
-            VisualDebug.DrawPoint(agent.pos, .05f);
+            VisualDebug.DrawPoint(agent.Position, .05f);
 
             VisualDebug.SetColour(Colours.lightGreen, Colours.veryDarkGrey);
-            VisualDebug.DrawLineSegment(agent.pos, oldPos);
+            VisualDebug.DrawLineSegment(agent.Position, oldPos);
 #endif
 
             iterations++;
@@ -119,7 +120,7 @@ public class RoadGenerator : MonoBehaviour {
         areAgentsWorking = false;
     }
 
-    private void OnGUI() {
+    private void ODirection() {
         GUI.Label(new Rect(10, 10, 100, 20), "node count: " + network.Nodes.Count);
         GUI.Label(new Rect(10, 40, 100, 20), "tree count: " + network.Tree.Count);
     }

@@ -9,14 +9,14 @@ public abstract class AgentStrategy {
     public abstract void Work(Agent agent);
 
     public virtual bool ShouldDie(Agent agent, Node node) {
-        return agent.maxStepCount > 0 && agent.stepCount > agent.maxStepCount;
+        return agent.config.maxStepCount > 0 && agent.StepCount > agent.config.maxStepCount;
     }
 
     public virtual int CompareTo(Agent agentA, Agent agentB) {
-        var i = agentA.priority.CompareTo(agentB.priority);
+        var i = agentA.Priority.CompareTo(agentB.Priority);
 
         if(i == 0) {
-            return agentA.stepCount.CompareTo(agentB.stepCount);
+            return agentA.StepCount.CompareTo(agentB.StepCount);
         }
         return i;
     }

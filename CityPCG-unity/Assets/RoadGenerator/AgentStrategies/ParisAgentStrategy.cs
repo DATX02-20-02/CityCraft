@@ -38,42 +38,47 @@ public class ParisAgentStrategy : AgentStrategy {
             agent.data = data;
         }
 
-        if(agent.prevNode == null) {
-            Vector3 pos = agent.pos;
+        if(agent.PreviousNode == null) {
+            Vector3 pos = agent.Position;
 
-            if(!this.straight) pos = center + agent.dir * radius;
+            if(!this.straight) pos = center + agent.Direction * radius;
 
-            Node node = agent.network.AddNodeNearby(new Node(pos), agent.snapRadius);
-            agent.prevNode = node;
+            Node node = agent.network.AddNodeNearby(new Node(pos), agent.config.snapRadius);
+            agent.PreviousNode = node;
         };
     }
 
     public override void Work(Agent agent) {
         AgentData agentData = (AgentData)agent.data;
+        AgentConfiguration config = agent.config;
 
         if(this.straight) {
-            agent.SetAngle(agent.angle + Random.Range(-1.0f, 1.0f) * ((10.0f * Mathf.PI) / 180));
+            agent.Angle += Random.Range(-1.0f, 1.0f) * ((10.0f * Mathf.PI) / 180);
 
-            Vector3 oldPos = agent.pos;
-            agent.pos += agent.dir * agent.stepSize;
+            Vector3 oldPos = agent.Position;
+            agent.Position += agent.Direction * config.stepSize;
 
-            Node n = agent.PlaceNode(agent.pos, this.nodeType, this.connectionType, out ConnectionResult info);
+            Node n = agent.PlaceNode(agent.Position, this.nodeType, this.connectionType, out ConnectionResult info);
             Vector3 dir = n.pos - oldPos;
-            Vector3 newDir = Vector3.Lerp(dir, agent.dir, 0.2f);
-            agent.SetAngle(Mathf.Atan2(newDir.z, newDir.x));
+            Vector3 newDir = Vector3.Lerp(dir, agent.Direction, 0.2f);
+            agent.Angle = Mathf.Atan2(newDir.z, newDir.x);
 
-            float distance = Vector3.Distance(agent.pos, center);
+            float distance = Vector3.Distance(agent.Position, center);
             if((distance > radius || agentData.stopAtRoad) && (!info.success)) {
                 agent.Terminate();
             }
         }
         else {
-            agent.SetAngle(agent.angle + this.angleIncrement);
+            agent.Angle += this.angleIncrement;
 
-            float randRadius = agent.stepCount == 0 ? 0 : Random.Range(-1.0f, 1.0f) * 0.1f;
-            agent.pos = this.center + new Vector3(Mathf.Cos(agent.angle), 0, Mathf.Sin(agent.angle)) * (this.radius + randRadius);
+            float randRadius = agent.StepCount == 0 ? 0 : Random.Range(-1.0f, 1.0f) * 0.1f;
+            agent.Position = this.center + new Vector3(
+                Mathf.Cos(agent.Angle),
+                0,
+                Mathf.Sin(agent.Angle)
+            ) * (this.radius + randRadius);
 
-            agent.PlaceNode(agent.pos, this.nodeType, this.connectionType, out ConnectionResult info);
+            agent.PlaceNode(agent.Position, this.nodeType, this.connectionType, out ConnectionResult info);
             if(info != null) {
                 if(info.didSnap || info.didIntersect) {
                     agent.Terminate();
@@ -87,20 +92,18 @@ public class ParisAgentStrategy : AgentStrategy {
 
         bool didBranch = false;
         float revert = Mathf.Sign(Random.Range(-1.0f, 1.0f));
-        float distance = Vector3.Distance(agent.pos, center);
+        float distance = Vector3.Distance(agent.Position, center);
 
         if((this.straight && distance >= radius)) {
             if(Random.Range(0.0f, 1.0f) < 0.1f
-                && agent.branchCount < agent.maxBranchCount
-                && agent.stepCount < agent.maxStepCount - 3
+                && agent.BranchCount < agent.config.maxBranchCount
+                && agent.StepCount < agent.config.maxStepCount - 3
             ) {
                 Agent ag = Agent.Clone(agent);
-                ag.SetDirection(
-                    Vector3.Lerp(
-                        new Vector3(-agent.dir.z * revert, 0, agent.dir.x * revert),
-                        agent.dir,
-                        Random.Range(-0.4f, 0.4f)
-                    )
+                ag.Direction = Vector3.Lerp(
+                    new Vector3(-agent.Direction.z * revert, 0, agent.Direction.x * revert),
+                    agent.Direction,
+                    Random.Range(-0.4f, 0.4f)
                 );
 
                 AgentData data = AgentData.Copy(agent.data);
@@ -114,7 +117,7 @@ public class ParisAgentStrategy : AgentStrategy {
 
         if(!didBranch) {
             foreach(NodeConnection c in node.connections) {
-                if(Random.Range(0.0f, 1.0f) <= 0.5f) {
+                if(Random.Range(0.0f, 1.0f) <= 0.2f) {
                     Vector3 dir = c.node.pos - node.pos;
                     Vector3 perp = Vector3.Cross(dir, Vector3.up);
 
@@ -125,12 +128,16 @@ public class ParisAgentStrategy : AgentStrategy {
                         new StreetAgentStrategy(),
                         10
                     );
-                    ag.stepSize = 0.3f;
-                    ag.snapRadius = 0.15f;
-                    ag.maxBranchCount = 20;
-                    ag.maxStepCount = 10;
-                    ag.prevNode = node;
+
+                    ag.config.stepSize = 0.3f;
+                    ag.config.snapRadius = 0.15f;
+                    ag.config.maxBranchCount = 5;
+                    ag.config.maxStepCount = 20;
+
+                    ag.PreviousNode = node;
+
                     newAgents.Add(ag);
+
                     break;
                 }
             }
@@ -142,6 +149,6 @@ public class ParisAgentStrategy : AgentStrategy {
     }
 
     public override bool ShouldDie(Agent agent, Node node) {
-        return agent.maxStepCount > 0 && agent.stepCount > agent.maxStepCount;
+        return agent.config.maxStepCount > 0 && agent.StepCount > agent.config.maxStepCount;
     }
 }

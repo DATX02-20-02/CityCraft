@@ -6,26 +6,77 @@ using UnityEngine;
 public interface IAgentData {
 }
 
-public class Agent : IComparable {
-    public Vector3 pos;
-    public Vector3 dir;
-    public float stepSize = 0.5f;
-    public int stepCount = 0;
-    public int maxStepCount = 40;
-    public int branchCount = 0;
-    public int maxBranchCount = 4;
-    public float snapRadius = 0.2f;
-    public float angle = 0;
-    public float priority = 0;
-    public bool terminated = false;
-    public bool started = false;
-    public bool requeue = true;
+public struct AgentConfiguration {
+    public float stepSize;
+    public float snapRadius;
 
+    public int maxStepCount;
+    public int maxBranchCount;
+
+    public bool requeue;
+}
+
+public class Agent : IComparable {
+    public AgentConfiguration config;
     public RoadNetwork network;
-    public AgentStrategy strategy;
     public IAgentData data;
 
-    public Node prevNode;
+    private float priority = 0;
+
+    private bool terminated = false;
+    private bool started = false;
+
+    private int stepCount = 0;
+    private int branchCount = 0;
+
+    private Vector3 pos;
+    private Vector3 dir;
+    private AgentStrategy strategy;
+    private Node prevNode;
+
+    public Vector3 Position {
+        get { return pos; }
+        set { this.pos = value; }
+    }
+
+    public Vector3 Direction {
+        get { return dir; }
+        set { this.dir = value; }
+    }
+
+    public float Angle {
+        get {
+            return Mathf.Atan2(this.dir.z, this.dir.x);
+        }
+        set {
+            this.dir = new Vector3(Mathf.Cos(value), 0, Mathf.Sin(value)).normalized;
+        }
+    }
+
+    public float Priority {
+        get { return this.priority; }
+    }
+
+    public float StepCount {
+        get { return this.stepCount; }
+    }
+
+    public float BranchCount {
+        get { return this.branchCount; }
+    }
+
+    public Node PreviousNode {
+        get { return this.prevNode; }
+        set { this.prevNode = value; }
+    }
+
+    public bool IsTerminated {
+        get { return this.terminated; }
+    }
+
+    public bool IsStarted {
+        get { return this.started; }
+    }
 
     public Agent(RoadNetwork network, Vector3 pos, Vector3 dir, AgentStrategy strategy, float priority = 0) {
         this.network = network;
@@ -34,7 +85,7 @@ public class Agent : IComparable {
         this.strategy = strategy;
         this.priority = priority;
 
-        this.SetDirection(dir);
+        SetDefaultConfig();
     }
 
     public static Agent Clone(Agent other) {
@@ -46,21 +97,28 @@ public class Agent : IComparable {
             other.priority
         );
 
-        ag.requeue = other.requeue;
-        ag.angle = other.angle;
+        ag.config = other.config;
+
         ag.stepCount = other.stepCount;
-        ag.maxStepCount = other.maxStepCount;
-        ag.stepSize = other.stepSize;
-
         ag.branchCount = other.branchCount;
-        ag.maxBranchCount = other.maxBranchCount;
-
-        ag.snapRadius = other.snapRadius;
 
         ag.prevNode = other.prevNode;
+
         ag.data = other.data;
 
         return ag;
+    }
+
+    public void SetDefaultConfig() {
+        config = new AgentConfiguration();
+
+        config.stepSize = 0.5f;
+        config.snapRadius = 0.2f;
+
+        config.maxStepCount = 40;
+        config.maxBranchCount = 4;
+
+        config.requeue = true;
     }
 
     // Required for priority queue
@@ -76,17 +134,6 @@ public class Agent : IComparable {
         }
     }
 
-    public void SetDirection(Vector3 dir) {
-        this.dir = dir.normalized;
-
-        this.angle = Mathf.Atan2(this.dir.z, this.dir.x);
-    }
-
-    public void SetAngle(float angle) {
-        this.angle = angle;
-        this.dir = new Vector3(Mathf.Cos(this.angle), 0, Mathf.Sin(this.angle)).normalized;
-    }
-
     public Node PlaceNode(Vector3 pos, Node.NodeType nodeType, ConnectionType connectionType, out ConnectionResult info) {
         Node node = new Node(pos, nodeType);
 
@@ -98,7 +145,7 @@ public class Agent : IComparable {
             return node;
         }
         else if(connectionType != ConnectionType.None) {
-            info = this.network.ConnectNodesWithIntersect(this.prevNode, node, this.snapRadius, connectionType);
+            info = this.network.ConnectNodesWithIntersect(this.prevNode, node, config.snapRadius, connectionType);
 
             if(info.success && !info.didIntersect && !info.didSnap) {
                 this.network.AddNode(node);
@@ -116,6 +163,7 @@ public class Agent : IComparable {
 
     public void Start() {
         if(this.strategy != null) {
+            this.started = true;
             this.strategy.Start(this);
         }
     }
@@ -133,6 +181,9 @@ public class Agent : IComparable {
 
         if(!this.terminated) {
              newAgents = this.strategy.Branch(this, this.prevNode);
+             foreach (Agent newAgent in newAgents){
+                 newAgent.branchCount = this.branchCount + 1;
+             }
         }
 
         return newAgents;

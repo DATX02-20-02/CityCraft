@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ParisAgentStrategy : AgentStrategy {
-    public ConnectionType connectionType = ConnectionType.Main;
-    public Node.NodeType nodeType = Node.NodeType.Main;
+    private ConnectionType connectionType = ConnectionType.Main;
+    private Node.NodeType nodeType = Node.NodeType.Main;
 
     private Vector3 center;
     private float radius;
@@ -32,10 +32,10 @@ public class ParisAgentStrategy : AgentStrategy {
 
     public override void Start(Agent agent) {
         // Initialize agent data
-        if(agent.data == null) {
+        if(agent.Data == null) {
             AgentData data;
             data.stopAtRoad = false;
-            agent.data = data;
+            agent.Data = data;
         }
 
         if(agent.PreviousNode == null) {
@@ -43,17 +43,17 @@ public class ParisAgentStrategy : AgentStrategy {
 
             if(!this.straight) pos = center + agent.Direction * radius;
 
-            Node node = agent.network.AddNodeNearby(new Node(pos), agent.config.snapRadius);
+            Node node = agent.Network.AddNodeNearby(new Node(pos), agent.config.snapRadius);
             agent.PreviousNode = node;
         };
     }
 
     public override void Work(Agent agent) {
-        AgentData agentData = (AgentData)agent.data;
+        AgentData agentData = (AgentData)agent.Data;
         AgentConfiguration config = agent.config;
 
         if(this.straight) {
-            agent.Angle += Random.Range(-1.0f, 1.0f) * ((10.0f * Mathf.PI) / 180);
+            agent.Angle += Random.Range(-1.0f, 1.0f) * 10.0f * Mathf.Deg2Rad;
 
             Vector3 oldPos = agent.Position;
             agent.Position += agent.Direction * config.stepSize;
@@ -106,9 +106,9 @@ public class ParisAgentStrategy : AgentStrategy {
                     Random.Range(-0.4f, 0.4f)
                 );
 
-                AgentData data = AgentData.Copy(agent.data);
+                AgentData data = AgentData.Copy(agent.Data);
                 data.stopAtRoad = true;
-                ag.data = data;
+                ag.Data = data;
 
                 newAgents.Add(ag);
                 didBranch = true;
@@ -122,7 +122,7 @@ public class ParisAgentStrategy : AgentStrategy {
                     Vector3 perp = Vector3.Cross(dir, Vector3.up);
 
                     Agent ag = new Agent(
-                        agent.network,
+                        agent.Network,
                         node.pos,
                         perp * revert,
                         new StreetAgentStrategy(),

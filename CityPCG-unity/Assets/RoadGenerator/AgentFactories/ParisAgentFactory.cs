@@ -44,11 +44,10 @@ public class ParisAgentFactory : IAgentFactory {
                 new ParisAgentStrategy(origin, 5, true),
                 priority
             );
-            AgentConfiguration config = ag.config;
 
-            config.stepSize = 1f;
-            config.snapRadius = 0.2f;
-            config.maxStepCount = 20;
+            ag.config.stepSize = 1f;
+            ag.config.snapRadius = 0.2f;
+            ag.config.maxStepCount = 20;
 
             generator.AddAgent(ag);
         }

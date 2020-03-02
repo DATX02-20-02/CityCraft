@@ -18,21 +18,31 @@ public struct AgentConfiguration {
 
 public class Agent : IComparable {
     public AgentConfiguration config;
-    public RoadNetwork network;
-    public IAgentData data;
+
+    private RoadNetwork network;
+    private IAgentData data;
+    private AgentStrategy strategy;
+
+    private Vector3 pos;
+    private Vector3 dir;
 
     private float priority = 0;
+    private int stepCount = 0;
+    private int branchCount = 0;
 
     private bool terminated = false;
     private bool started = false;
 
-    private int stepCount = 0;
-    private int branchCount = 0;
-
-    private Vector3 pos;
-    private Vector3 dir;
-    private AgentStrategy strategy;
     private Node prevNode;
+
+    public RoadNetwork Network {
+        get { return this.network; }
+    }
+
+    public IAgentData Data {
+        get { return this.data; }
+        set { this.data = value; }
+    }
 
     public Vector3 Position {
         get { return pos; }
@@ -110,15 +120,15 @@ public class Agent : IComparable {
     }
 
     public void SetDefaultConfig() {
-        config = new AgentConfiguration();
+        this.config = new AgentConfiguration();
 
-        config.stepSize = 0.5f;
-        config.snapRadius = 0.2f;
+        this.config.stepSize = 0.5f;
+        this.config.snapRadius = 0.2f;
 
-        config.maxStepCount = 40;
-        config.maxBranchCount = 4;
+        this.config.maxStepCount = 40;
+        this.config.maxBranchCount = 4;
 
-        config.requeue = true;
+        this.config.requeue = true;
     }
 
     // Required for priority queue

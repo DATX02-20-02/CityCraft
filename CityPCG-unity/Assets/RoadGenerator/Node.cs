@@ -67,46 +67,11 @@ public class Node : ISpatialData {
         nodes.AddRange(this.connections.Select(c => c.node));
         nodes.Add(this);
 
-        envelope = GetEnvelopeFromNodes(nodes);
+        envelope = RoadNetwork.GetEnvelopeFromNodes(nodes);
         return envelope;
     }
 
     public ref readonly Envelope Envelope {
         get { return ref envelope; }
-    }
-
-    public static Envelope GetEnvelopeFromNodes(IEnumerable<Node> nodes, float padding = 0) {
-        float minX = float.MaxValue;
-        float minZ = float.MaxValue;
-
-        float maxX = float.MinValue;
-        float maxZ = float.MinValue;
-
-        foreach(Node node in nodes) {
-            minX = Mathf.Min(minX, node.pos.x);
-            minZ = Mathf.Min(minZ, node.pos.z);
-
-            maxX = Mathf.Max(maxX, node.pos.x);
-            maxZ = Mathf.Max(maxZ, node.pos.z);
-        }
-
-        return new Envelope(minX - padding, minZ - padding, maxX + padding, maxZ + padding);
-    }
-
-    public static Node GetClosestNode(Node node, IEnumerable<Node> nodes) {
-        float leastDistance = float.MaxValue;
-        Node leastNode = null;
-
-        foreach(Node n in nodes) {
-            if(n == node) continue;
-
-            float dist = Vector3.Distance(n.pos, node.pos);
-            if(dist < leastDistance) {
-                leastNode = n;
-                leastDistance = dist;
-            }
-        }
-
-        return leastNode;
     }
 }

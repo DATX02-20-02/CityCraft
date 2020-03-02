@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class StreetAgentStrategy : AgentStrategy {
-    public ConnectionType connectionType = ConnectionType.Street;
-    public Node.NodeType nodeType = Node.NodeType.Street;
+    private ConnectionType connectionType = ConnectionType.Street;
+    private Node.NodeType nodeType = Node.NodeType.Street;
 
     private float stepVariance;
 
@@ -28,19 +28,19 @@ public class StreetAgentStrategy : AgentStrategy {
 
     public override void Start(Agent agent) {
         // Initialize agent data
-        if(agent.data == null) {
+        if(agent.Data == null) {
             AgentData data;
-            agent.data = data;
+            agent.Data = data;
         }
 
         if(agent.PreviousNode == null) {
-            Node node = agent.network.AddNodeNearby(new Node(agent.Position), agent.config.snapRadius);
+            Node node = agent.Network.AddNodeNearby(new Node(agent.Position), agent.config.snapRadius);
             agent.PreviousNode = node;
         };
     }
 
     public override void Work(Agent agent) {
-        AgentData agentData = (AgentData)agent.data;
+        AgentData agentData = (AgentData)agent.Data;
         AgentConfiguration config = agent.config;
 
         agent.Angle += Random.Range(-1.0f, 1.0f) * 0;
@@ -70,8 +70,8 @@ public class StreetAgentStrategy : AgentStrategy {
             // ag.stepSize = 0.5f;
             // ag.snapRadius = 0.1f;
 
-            AgentData data = AgentData.Copy(agent.data);
-            ag.data = data;
+            AgentData data = AgentData.Copy(agent.Data);
+            ag.Data = data;
 
             newAgents.Add(ag);
         }

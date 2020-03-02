@@ -49,7 +49,7 @@ public class RoadNetwork {
     public Node AddNodeNearby(Node node, float radius) {
         IEnumerable<Node> result = FindNodesInRadius(node.pos, radius);
 
-        Node closestNode = Node.GetClosestNode(node, result);
+        Node closestNode = GetClosestNode(node, result);
         if(closestNode != null && Vector3.Distance(closestNode.pos, node.pos) <= radius) {
             return closestNode;
         }
@@ -93,7 +93,7 @@ public class RoadNetwork {
         }
 
         // Create bounding envelope containing both nodes, including some snapRadius margin
-        Envelope bBox = Node.GetEnvelopeFromNodes(new List<Node>() { node1, node2 }, snapRadius);
+        Envelope bBox = GetEnvelopeFromNodes(new List<Node>() { node1, node2 }, snapRadius);
 
         List<Node> nearestNodes = tree.Search(bBox).ToList();
         nearestNodes.Remove(node1);
@@ -200,7 +200,7 @@ public class RoadNetwork {
         }
         // If no nodes were found along the line, try finding one near the end node
         if(!didSnap) {
-            Node closestNode = Node.GetClosestNode(finalNode, nearestNodes);
+            Node closestNode = GetClosestNode(finalNode, nearestNodes);
             if(closestNode != null && Vector3.Distance(closestNode.pos, finalNode.pos) <= snapRadius) {
                 if(Vector3.Distance(node1.pos, finalNode.pos) > Vector3.Distance(node1.pos, closestNode.pos)) {
                     finalNode = closestNode;
@@ -301,5 +301,40 @@ public class RoadNetwork {
             idx++;
             n.hovering = false;
         }
+    }
+
+    public static Envelope GetEnvelopeFromNodes(IEnumerable<Node> nodes, float padding = 0) {
+        float minX = float.MaxValue;
+        float minZ = float.MaxValue;
+
+        float maxX = float.MinValue;
+        float maxZ = float.MinValue;
+
+        foreach(Node node in nodes) {
+            minX = Mathf.Min(minX, node.pos.x);
+            minZ = Mathf.Min(minZ, node.pos.z);
+
+            maxX = Mathf.Max(maxX, node.pos.x);
+            maxZ = Mathf.Max(maxZ, node.pos.z);
+        }
+
+        return new Envelope(minX - padding, minZ - padding, maxX + padding, maxZ + padding);
+    }
+
+    public static Node GetClosestNode(Node node, IEnumerable<Node> nodes) {
+        float leastDistance = float.MaxValue;
+        Node leastNode = null;
+
+        foreach(Node n in nodes) {
+            if(n == node) continue;
+
+            float dist = Vector3.Distance(n.pos, node.pos);
+            if(dist < leastDistance) {
+                leastNode = n;
+                leastDistance = dist;
+            }
+        }
+
+        return leastNode;
     }
 }

@@ -21,14 +21,14 @@ public class Agent : IComparable {
     public bool started = false;
     public bool requeue = true;
 
-    public RoadGenerator generator;
-    public IAgentStrategy strategy;
+    public RoadNetwork network;
+    public AgentStrategy strategy;
     public IAgentData data;
 
     public Node prevNode;
 
-    public Agent(RoadGenerator generator, Vector3 pos, Vector3 dir, IAgentStrategy strategy, float priority = 0) {
-        this.generator = generator;
+    public Agent(RoadNetwork network, Vector3 pos, Vector3 dir, AgentStrategy strategy, float priority = 0) {
+        this.network = network;
         this.pos = pos;
         this.dir = dir;
         this.strategy = strategy;
@@ -39,7 +39,7 @@ public class Agent : IComparable {
 
     public static Agent Clone(Agent other) {
         Agent ag = new Agent(
-            other.generator,
+            other.network,
             other.pos,
             other.dir,
             other.strategy,
@@ -87,21 +87,21 @@ public class Agent : IComparable {
         this.dir = new Vector3(Mathf.Cos(this.angle), 0, Mathf.Sin(this.angle)).normalized;
     }
 
-    public Node PlaceNode(Vector3 pos, Node.NodeType nodeType, Node.ConnectionType connectionType, out ConnectionResult info) {
+    public Node PlaceNode(Vector3 pos, Node.NodeType nodeType, ConnectionType connectionType, out ConnectionResult info) {
         Node node = new Node(pos, nodeType);
 
         info = null;
         if(this.prevNode == null) {
-            this.generator.AddNode(node);
+            this.network.AddNode(node);
             this.prevNode = node;
 
             return node;
         }
-        else if(connectionType != Node.ConnectionType.None) {
-            info = this.generator.ConnectNodesWithIntersect(this.prevNode, node, this.snapRadius, connectionType);
+        else if(connectionType != ConnectionType.None) {
+            info = this.network.ConnectNodesWithIntersect(this.prevNode, node, this.snapRadius, connectionType);
 
             if(info.success && !info.didIntersect && !info.didSnap) {
-                this.generator.AddNode(node);
+                this.network.AddNode(node);
             }
             this.prevNode = info.prevNode;
             return info.prevNode;
@@ -110,7 +110,7 @@ public class Agent : IComparable {
         return null;
     }
 
-    public Node PlaceNode(Vector3 pos, Node.NodeType nodeType, Node.ConnectionType connectionType) {
+    public Node PlaceNode(Vector3 pos, Node.NodeType nodeType, ConnectionType connectionType) {
         return PlaceNode(pos, nodeType, connectionType, out ConnectionResult info);
     }
 
@@ -120,8 +120,10 @@ public class Agent : IComparable {
         }
     }
 
-    public void Work() {
-        if(this.strategy == null) return;
+    public List<Agent> Work() {
+        List<Agent> newAgents = new List<Agent>();
+
+        if(this.strategy == null) return newAgents;
 
         this.strategy.Work(this);
 
@@ -129,7 +131,11 @@ public class Agent : IComparable {
         if(this.strategy.ShouldDie(this, this.prevNode))
             this.Terminate();
 
-        if(!this.terminated) this.strategy.Branch(this, this.prevNode);
+        if(!this.terminated) {
+             newAgents = this.strategy.Branch(this, this.prevNode);
+        }
+
+        return newAgents;
     }
 
     public void Terminate() {

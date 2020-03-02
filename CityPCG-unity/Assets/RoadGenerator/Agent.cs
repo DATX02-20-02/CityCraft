@@ -190,10 +190,10 @@ public class Agent : IComparable {
             this.Terminate();
 
         if(!this.terminated) {
-             newAgents = this.strategy.Branch(this, this.prevNode);
-             foreach (Agent newAgent in newAgents){
-                 newAgent.branchCount = this.branchCount + 1;
-             }
+            newAgents = this.strategy.Branch(this, this.prevNode);
+            foreach (Agent newAgent in newAgents){
+                newAgent.branchCount = this.branchCount + 1;
+            }
         }
 
         return newAgents;

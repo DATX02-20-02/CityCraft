@@ -76,7 +76,6 @@ public class RoadGenerator : MonoBehaviour {
                 agent.Start();
             }
 
-
             List<Agent> newAgents = agent.Work();
             foreach (Agent newAgent in newAgents) {
                 this.AddAgent(newAgent);

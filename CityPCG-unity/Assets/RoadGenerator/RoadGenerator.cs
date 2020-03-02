@@ -23,7 +23,7 @@ public class RoadGenerator : MonoBehaviour {
 
     private RoadNetwork network;
 
-    private PriorityQueue<Agent> queue;
+    private PriorityQueue<Agent> queue = new PriorityQueue<Agent>();
     private int prevQueueCount = 0;
 
     private bool prevClick;
@@ -35,6 +35,8 @@ public class RoadGenerator : MonoBehaviour {
 
     // Generates a complete road network.
     public void Generate() {
+        prevQueueCount = 0;
+
         network = new RoadNetwork();
         queue = new PriorityQueue<Agent>();
 
@@ -126,15 +128,15 @@ public class RoadGenerator : MonoBehaviour {
     }
 
     private void Start() {
-        Generate();
     }
 
     private void Update() {
-        if(!areAgentsWorking) {
+        if(this.queue != null && !areAgentsWorking) {
             StartCoroutine("DoAgentWork");
         }
 
-        network.DrawDebug();
+        if (this.network != null)
+            this.network.DrawDebug();
 
         foreach(Vector3 p in debugPoints) {
             DrawUtil.DebugDrawCircle(p, 0.03f, new Color(1, 0.5f, 0));

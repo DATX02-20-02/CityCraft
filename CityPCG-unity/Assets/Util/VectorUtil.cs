@@ -12,6 +12,10 @@ public class VectorUtil {
         return new Vector3(vec.x, 0, vec.y);
     }
 
+    public static Vector2 IntPointToVector2(IntPoint point) {
+        return new Vector2(point.X, point.Y);
+    }
+
     public static Vector2 GetProjectedPointOnLine(Vector2 point, Vector2 from, Vector2 to) {
         float l2 = (to - from).sqrMagnitude;
         if (l2 == 0) return from;

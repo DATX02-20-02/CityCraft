@@ -13,6 +13,18 @@ using UnityEngine;
   3. Insets all found polygons and returns them.
 */
 public class BlockGenerator : MonoBehaviour {
+    [Range(-2, 2)]
+    public float offset = 0.2f;
+
+    [Range(0, (int)1E5)]
+    public int scale = 1024;
+
+    [SerializeField]
+    List<Vector2> polygon = new List<Vector2>() {
+        new Vector2(0, 0),
+        new Vector2(1, 0),
+        new Vector2(0, 1),
+    };
 
     [SerializeField] private float minBlockArea = 0.0f;
     [SerializeField] private float maxBlockArea = 0.0f;
@@ -130,6 +142,40 @@ public class BlockGenerator : MonoBehaviour {
                 Debug.DrawLine(v, v + 0.5f * Vector3.up, Color.yellow, 0.1f);
             }
             Log("Block area: " + BlockArea(this.blocks[debugBlock]));
+        }
+
+        List<IntPoint> s = new List<IntPoint>();
+        foreach (Vector2 vec in polygon) {
+            Vector2 scaled = vec * scale;
+            s.Add(new IntPoint((int) scaled.x, (int) scaled.y));
+        }
+
+        List<List<IntPoint>> polygons = Clipper.SimplifyPolygon(
+            s,
+            PolyFillType.pftEvenOdd
+        );
+
+        foreach (List<IntPoint> simplePoly in polygons) {
+            List<List<IntPoint>> solution = new List<List<IntPoint>>();
+            ClipperOffset co = new ClipperOffset();
+            co.AddPath(simplePoly, JoinType.jtRound, EndType.etClosedPolygon);
+            co.Execute(ref solution, offset * scale);
+
+            for (int i = 0; i < simplePoly.Count; i++) {
+                Vector2 p1 = VectorUtil.IntPointToVector2(simplePoly[i]) / scale;
+                Vector2 p2 = VectorUtil.IntPointToVector2(simplePoly[(i + 1) % simplePoly.Count]) / scale;
+
+                Debug.DrawLine(VectorUtil.Vector2To3(p1), VectorUtil.Vector2To3(p2), new Color(0, 1, 0));
+            }
+
+            foreach (List<IntPoint> poly in solution) {
+                for (int i = 0; i < poly.Count; i++) {
+                    Vector2 p1 = VectorUtil.IntPointToVector2(poly[i]) / scale;
+                    Vector2 p2 = VectorUtil.IntPointToVector2(poly[(i + 1) % poly.Count]) / scale;
+
+                    Debug.DrawLine(VectorUtil.Vector2To3(p1), VectorUtil.Vector2To3(p2), new Color(1, 0, 0));
+                }
+            }
         }
     }
 }

@@ -58,11 +58,13 @@ public class BlockGenerator : MonoBehaviour {
         return blocks;
     }
 
-    // TODO: abort solution if first/last edge are the same.
     private List<Vector3> SpawnTurtle(HashSet<Tuple<Vector3, Vector3>> traversed, Node node, NodeConnection startEdge) {
         var vertices = new List<Vector3>();
         var curNode = node;
         var nextEdge = startEdge;
+
+        // A bad loop occurs when return to the same node through the same edge.
+        bool badloop = false;
 
         // Simulate turtle until we make a loop, or find another turtle's path.
         while(!traversed.Contains(Tuple.Create(curNode.pos, nextEdge.node.pos))) {
@@ -77,9 +79,16 @@ public class BlockGenerator : MonoBehaviour {
             var options = curNode.connections.Select(c => c.node.pos - curNode.pos).ToList();
             var rightmostIndex = RightmostDirection(curDir, options);
             nextEdge = curNode.connections[rightmostIndex];
+
+            // Track if we return through the same edge
+            if(node.pos == nextEdge.node.pos && startEdge.node.pos == curNode.pos) {
+                badloop = true;
+                break;
+            }
+
         }
 
-        return vertices;
+        return badloop ? new List<Vector3>() : vertices;
     }
 
     // Index of the direction option closest to the right of the reference.

@@ -47,17 +47,17 @@ namespace RBush {
 
         public void BulkLoad(IEnumerable<T> items) {
             var data = items.Cast<ISpatialData>().ToList();
-            if(data.Count == 0) return;
+            if (data.Count == 0) return;
 
-            if(this.Root.IsLeaf &&
+            if (this.Root.IsLeaf &&
                 this.Root.children.Count + data.Count < maxEntries) {
-                foreach(var i in data)
+                foreach (var i in data)
                     Insert((T)i);
                 return;
             }
 
-            if(data.Count < this.minEntries) {
-                foreach(var i in data)
+            if (data.Count < this.minEntries) {
+                foreach (var i in data)
                     Insert((T)i);
                 return;
             }
@@ -65,18 +65,18 @@ namespace RBush {
             var dataRoot = BuildTree(data);
             this.Count += data.Count;
 
-            if(this.Root.children.Count == 0)
+            if (this.Root.children.Count == 0)
                 this.Root = dataRoot;
-            else if(this.Root.Height == dataRoot.Height) {
-                if(this.Root.children.Count + dataRoot.children.Count <= this.maxEntries) {
-                    foreach(var isd in dataRoot.children)
+            else if (this.Root.Height == dataRoot.Height) {
+                if (this.Root.children.Count + dataRoot.children.Count <= this.maxEntries) {
+                    foreach (var isd in dataRoot.children)
                         this.Root.Add(isd);
                 }
                 else
                     SplitRoot(dataRoot);
             }
             else {
-                if(this.Root.Height < dataRoot.Height) {
+                if (this.Root.Height < dataRoot.Height) {
                     var tmp = this.Root;
                     this.Root = dataRoot;
                     dataRoot = tmp;
@@ -89,23 +89,23 @@ namespace RBush {
         public void Delete(T item) {
             var candidates = DoPathSearch(item.Envelope);
 
-            foreach(var c in candidates
+            foreach (var c in candidates
                 .Where(c => {
-                    if(c.Peek() is T _item)
+                    if (c.Peek() is T _item)
                         return comparer.Equals(item, _item);
                     return false;
                 })) {
                 var path = c.Pop();
-                if(!path.IsEmpty)
+                if (!path.IsEmpty)
                     (path.Peek() as Node).Remove(item);
                 Count--;
-                while(!path.IsEmpty) {
+                while (!path.IsEmpty) {
                     path = path.Pop(out var e);
                     var n = e as Node;
 
-                    if(n.children.Count != 0)
+                    if (n.children.Count != 0)
                         n.ResetEnvelope();
-                    else if(!path.IsEmpty)
+                    else if (!path.IsEmpty)
                         (path.Peek() as Node).Remove(n);
                 }
             }

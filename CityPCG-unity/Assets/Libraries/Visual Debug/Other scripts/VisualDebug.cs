@@ -107,7 +107,7 @@ namespace VisualDebugging {
 
 
         static void AddArtistToCurrentFrame(SceneArtist artist) {
-            if(debugData.frames.Count == 0) {
+            if (debugData.frames.Count == 0) {
                 BeginFrame();
             }
 

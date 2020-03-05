@@ -52,7 +52,7 @@ public class RoadGenerator : MonoBehaviour {
 
     // Iterate through queue and let the agents work.
     IEnumerator DoAgentWork() {
-        if(this.queue.Count == 0) yield break;
+        if (this.queue.Count == 0) yield break;
 
 #if DEBUG_AGENT_WORK
         if (prevQueueCount == 0) {
@@ -64,15 +64,15 @@ public class RoadGenerator : MonoBehaviour {
         areAgentsWorking = true;
 
         int iterations = 0;
-        while(this.queue.Count > 0 && iterations < maxAgentQueueIterations) {
+        while (this.queue.Count > 0 && iterations < maxAgentQueueIterations) {
             Agent agent = this.queue.Peek();
             AgentConfiguration config = agent.config;
 
-            if(config.requeue) this.queue.Dequeue();
+            if (config.requeue) this.queue.Dequeue();
 
             Vector3 oldPos = agent.Position;
 
-            if(!agent.IsStarted) {
+            if (!agent.IsStarted) {
                 agent.Start();
             }
 
@@ -81,13 +81,13 @@ public class RoadGenerator : MonoBehaviour {
                 this.AddAgent(newAgent);
             }
 
-            if(agent.IsTerminated) {
-                if(!config.requeue)
+            if (agent.IsTerminated) {
+                if (!config.requeue)
                     this.queue.Dequeue();
 
             }
             else {
-                if(config.requeue)
+                if (config.requeue)
                     this.queue.Enqueue(agent);
             }
 
@@ -121,7 +121,8 @@ public class RoadGenerator : MonoBehaviour {
         areAgentsWorking = false;
     }
 
-    private void ODirection() {
+    private void OnGUI() {
+        if (network == null) return;
         GUI.Label(new Rect(10, 10, 100, 20), "node count: " + network.Nodes.Count);
         GUI.Label(new Rect(10, 40, 100, 20), "tree count: " + network.Tree.Count);
     }
@@ -130,14 +131,14 @@ public class RoadGenerator : MonoBehaviour {
     }
 
     private void Update() {
-        if(this.queue != null && !areAgentsWorking) {
+        if (this.queue != null && !areAgentsWorking) {
             StartCoroutine("DoAgentWork");
         }
 
         if (this.network != null)
             this.network.DrawDebug();
 
-        foreach(Vector3 p in debugPoints) {
+        foreach (Vector3 p in debugPoints) {
             DrawUtil.DebugDrawCircle(p, 0.03f, new Color(1, 0.5f, 0));
         }
     }

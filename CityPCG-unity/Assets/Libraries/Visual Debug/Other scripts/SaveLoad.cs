@@ -58,9 +58,9 @@ namespace VisualDebugging.Internal {
 
             public FrameSaveData(Frame frame) {
                 this.frame = frame;
-                if(frame.artists != null) {
+                if (frame.artists != null) {
                     artistJsonStrings = new string[frame.artists.Count];
-                    for(int i = 0; i < frame.artists.Count; i++) {
+                    for (int i = 0; i < frame.artists.Count; i++) {
                         artistJsonStrings[i] = JsonUtility.ToJson(frame.artists[i]);
                     }
                 }
@@ -78,11 +78,11 @@ namespace VisualDebugging.Internal {
             }
 
             public void ProcessLoadedData() {
-                foreach(FrameSaveData f in frameSaveData) {
-                    foreach(string artistSaveString in f.artistJsonStrings) {
+                foreach (FrameSaveData f in frameSaveData) {
+                    foreach (string artistSaveString in f.artistJsonStrings) {
                         SceneArtist baseArtist = JsonUtility.FromJson<SceneArtist>(artistSaveString);
 
-                        if(!string.IsNullOrEmpty(baseArtist.artistType) && System.Type.GetType(baseArtist.artistType) != null) {
+                        if (!string.IsNullOrEmpty(baseArtist.artistType) && System.Type.GetType(baseArtist.artistType) != null) {
                             SceneArtist artist = JsonUtility.FromJson(artistSaveString, System.Type.GetType(baseArtist.artistType)) as SceneArtist;
                             f.frame.AddArtist(artist);
                         }

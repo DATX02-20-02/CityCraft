@@ -129,11 +129,11 @@ namespace VisualDebugging {
         public static void DrawLine(IEnumerable<Vector3> points, bool joinFirstAndLast = false) {
             Vector3[] pointsArray = points.ToArray();
             List<Vector3> lineSegments = new List<Vector3>();
-            for(int i = 0; i < pointsArray.Length - 1; i++) {
+            for (int i = 0; i < pointsArray.Length - 1; i++) {
                 lineSegments.Add(pointsArray[i]);
                 lineSegments.Add(pointsArray[i + 1]);
             }
-            if(joinFirstAndLast) {
+            if (joinFirstAndLast) {
                 lineSegments.Add(pointsArray[pointsArray.Length - 1]);
                 lineSegments.Add(pointsArray[0]);
             }

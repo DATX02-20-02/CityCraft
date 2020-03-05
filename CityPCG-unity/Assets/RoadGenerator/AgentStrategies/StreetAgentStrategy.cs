@@ -28,12 +28,12 @@ public class StreetAgentStrategy : AgentStrategy {
 
     public override void Start(Agent agent) {
         // Initialize agent data
-        if(agent.Data == null) {
+        if (agent.Data == null) {
             AgentData data;
             agent.Data = data;
         }
 
-        if(agent.PreviousNode == null) {
+        if (agent.PreviousNode == null) {
             Node node = agent.Network.AddNodeNearby(new Node(agent.Position), agent.config.snapRadius);
             agent.PreviousNode = node;
         };
@@ -48,13 +48,13 @@ public class StreetAgentStrategy : AgentStrategy {
 
         agent.PlaceNode(agent.Position, this.nodeType, this.connectionType, out ConnectionResult info);
 
-        if(!info.success) agent.Terminate();
+        if (!info.success) agent.Terminate();
     }
 
     public override List<Agent> Branch(Agent agent, Node node) {
         List<Agent> newAgents = new List<Agent>();
 
-        if(Random.Range(0.0f, 1.0f) <= 0.8f
+        if (Random.Range(0.0f, 1.0f) <= 0.8f
             && agent.BranchCount <= agent.config.maxBranchCount
             && agent.StepCount < agent.config.maxStepCount - 1
         ) {

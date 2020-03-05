@@ -14,10 +14,10 @@ public class VectorUtil {
 
     public static Vector2 GetProjectedPointOnLine(Vector2 point, Vector2 from, Vector2 to) {
         float l2 = (to - from).sqrMagnitude;
-        if(l2 == 0) return from;
+        if (l2 == 0) return from;
 
         float t = Vector2.Dot(point - from, to - from) / l2;
-        if(t < 0 || t > 1) return Vector2.negativeInfinity;
+        if (t < 0 || t > 1) return Vector2.negativeInfinity;
 
         Vector2 proj = from + t * (to - from);
         return proj;
@@ -32,7 +32,7 @@ public class VectorUtil {
         Plane plane = new Plane(Vector3.up, planePos);
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         float dist;
-        if(plane.Raycast(ray, out dist)) {
+        if (plane.Raycast(ray, out dist)) {
             return ray.GetPoint(dist);
         }
         return Vector3.zero;

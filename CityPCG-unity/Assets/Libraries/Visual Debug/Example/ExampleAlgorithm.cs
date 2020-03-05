@@ -13,10 +13,10 @@ namespace VisualDebugging.Example {
             Vector3[] closestPointPair = new Vector3[2];
             float bestDst = float.MaxValue;
 
-            for(int i = 0; i < points.Length; i++) {
-                for(int j = i + 1; j < points.Length; j++) {
+            for (int i = 0; i < points.Length; i++) {
+                for (int j = i + 1; j < points.Length; j++) {
                     float dst = Vector3.Distance(points[i], points[j]);
-                    if(dst < bestDst) {
+                    if (dst < bestDst) {
                         bestDst = dst;
                         closestPointPair[0] = points[i];
                         closestPointPair[1] = points[j];

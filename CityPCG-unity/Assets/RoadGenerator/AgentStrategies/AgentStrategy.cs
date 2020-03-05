@@ -15,7 +15,7 @@ public abstract class AgentStrategy {
     public virtual int CompareTo(Agent agentA, Agent agentB) {
         var i = agentA.Priority.CompareTo(agentB.Priority);
 
-        if(i == 0) {
+        if (i == 0) {
             return agentA.StepCount.CompareTo(agentB.StepCount);
         }
         return i;

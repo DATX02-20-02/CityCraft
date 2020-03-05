@@ -13,9 +13,9 @@ public class ParisAgentFactory : IAgentFactory {
         };
 
         int priority = 0;
-        foreach(float radius in rings) {
-            foreach(Vector2 dir in directions) {
-                for(int reverse = -1; reverse <= 1; reverse += 2) {
+        foreach (float radius in rings) {
+            foreach (Vector2 dir in directions) {
+                for (int reverse = -1; reverse <= 1; reverse += 2) {
                     float angleIncrement = (10 * Mathf.PI) / 180 * reverse;
                     Agent agent = new Agent(
                         network,
@@ -32,7 +32,7 @@ public class ParisAgentFactory : IAgentFactory {
         priority++;
 
         int max = (int)Mathf.Floor(Random.Range(3, 7));
-        for(int i = 0; i < max; i++) {
+        for (int i = 0; i < max; i++) {
             float rad = (Mathf.PI * 2) / max;
 
             Vector3 dir = new Vector3(Mathf.Cos(rad * i), 0, Mathf.Sin(rad * i));

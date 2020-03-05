@@ -10,12 +10,12 @@ namespace VisualDebugging.Internal {
         public bool loop;
 
         public void Load() {
-            if(SaveLoad.HasSaveFile()) {
+            if (SaveLoad.HasSaveFile()) {
                 frames = new List<Frame>(SaveLoad.Load());
             }
 
-            if(frames != null) {
-                if(frameIndex >= frames.Count) {
+            if (frames != null) {
+                if (frameIndex >= frames.Count) {
                     frameIndex = -1;
                 }
             }
@@ -23,7 +23,7 @@ namespace VisualDebugging.Internal {
 
         public Frame CurrentFrame {
             get {
-                if(frameIndex >= 0 && frameIndex < frames.Count) {
+                if (frameIndex >= 0 && frameIndex < frames.Count) {
                     return frames[frameIndex];
                 }
                 return null;
@@ -33,7 +33,7 @@ namespace VisualDebugging.Internal {
 
         public int NumFrames {
             get {
-                if(frames == null) {
+                if (frames == null) {
                     return 0;
                 }
                 return frames.Count;

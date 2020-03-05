@@ -7,7 +7,7 @@ namespace VisualDebugging.Example {
 
         public override void OnInspectorGUI() {
             base.OnInspectorGUI();
-            if(GUILayout.Button("Run")) {
+            if (GUILayout.Button("Run")) {
                 (target as TestExample).Run();
             }
         }

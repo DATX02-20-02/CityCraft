@@ -35,8 +35,8 @@ public class LineIntersection {
         float numeA = (dir.x * (fromA.y - origin.y)) - (dir.y * (fromA.x - origin.x));
         float numeB = ((toA.x - fromA.x) * (fromA.y - origin.y)) - ((toA.y - fromA.y) * (fromA.x - origin.x));
 
-        if(denom == 0) {
-            if(numeA == 0 && numeB == 0) {
+        if (denom == 0) {
+            if (numeA == 0 && numeB == 0) {
                 return new Result(Type.Colinear);
             }
             return new Result(Type.Parallel);
@@ -45,7 +45,7 @@ public class LineIntersection {
         float uA = numeA / denom;
         float uB = numeB / denom;
 
-        if(uA >= 0 && uA <= 1 && uB >= 0) {
+        if (uA >= 0 && uA <= 1 && uB >= 0) {
             return new Result(Type.Intersecting, origin + uB * dir, uA, uB);
         }
 
@@ -55,7 +55,7 @@ public class LineIntersection {
     public static Result LineTest(Vector2 fromA, Vector2 toA, Vector2 fromB, Vector2 toB) {
         Result res = RayTest(fromA, toA, fromB, toB - fromB);
 
-        if(res.factorB <= 1) {
+        if (res.factorB <= 1) {
             return res;
         }
 

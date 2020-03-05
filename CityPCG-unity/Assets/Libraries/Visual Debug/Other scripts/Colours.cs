@@ -22,7 +22,7 @@ namespace VisualDebugging {
         public const string black = "000000FF";
 
         public static Color HexStringToColour(string hex) {
-            if(hex[0] != '#') {
+            if (hex[0] != '#') {
                 hex = "#" + hex;
             }
 

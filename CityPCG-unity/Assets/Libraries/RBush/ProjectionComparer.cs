@@ -89,13 +89,13 @@ namespace RBush {
         /// </summary>
         public int Compare(TSource x, TSource y) {
             // Don't want to project from nullity
-            if(x == null && y == null) {
+            if (x == null && y == null) {
                 return 0;
             }
-            if(x == null) {
+            if (x == null) {
                 return -1;
             }
-            if(y == null) {
+            if (y == null) {
                 return 1;
             }
             return comparer.Compare(projection(x), projection(y));

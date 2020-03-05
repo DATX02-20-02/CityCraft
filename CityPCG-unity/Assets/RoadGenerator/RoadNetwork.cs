@@ -50,7 +50,7 @@ public class RoadNetwork {
         IEnumerable<Node> result = FindNodesInRadius(node.pos, radius);
 
         Node closestNode = GetClosestNode(node, result);
-        if(closestNode != null && Vector3.Distance(closestNode.pos, node.pos) <= radius) {
+        if (closestNode != null && Vector3.Distance(closestNode.pos, node.pos) <= radius) {
             return closestNode;
         }
 
@@ -72,9 +72,9 @@ public class RoadNetwork {
     public bool ConnectNodes(Node node1, Node node2, ConnectionType type = ConnectionType.Street) {
         bool success = node1.ConnectTo(node2, type);
 
-        if(success) {
-            if(node1.added) this.UpdateNodeInTree(node1);
-            if(node2.added) this.UpdateNodeInTree(node2);
+        if (success) {
+            if (node1.added) this.UpdateNodeInTree(node1);
+            if (node2.added) this.UpdateNodeInTree(node2);
         }
 
         return success;
@@ -83,12 +83,12 @@ public class RoadNetwork {
     public void DisconnectNodes(Node node1, Node node2) {
         node1.Disconnect(node2);
 
-        if(node1.added) this.UpdateNodeInTree(node1);
-        if(node2.added) this.UpdateNodeInTree(node2);
+        if (node1.added) this.UpdateNodeInTree(node1);
+        if (node2.added) this.UpdateNodeInTree(node2);
     }
 
     public ConnectionResult ConnectNodesWithIntersect(Node node1, Node node2, float snapRadius, ConnectionType type = ConnectionType.Street) {
-        if(Vector3.Distance(node1.pos, node2.pos) <= snapRadius) {
+        if (Vector3.Distance(node1.pos, node2.pos) <= snapRadius) {
             return new ConnectionResult(false, false, true, node1);
         }
 
@@ -104,18 +104,18 @@ public class RoadNetwork {
         Dictionary<Node, bool> visited = new Dictionary<Node, bool>();
         bool success = false;
         bool shouldExtend = false;
-        foreach(Node other in nearestNodes) {
-            if(other == node1 || other == node2) continue;
+        foreach (Node other in nearestNodes) {
+            if (other == node1 || other == node2) continue;
 
-            if(visited.ContainsKey(other)) continue;
+            if (visited.ContainsKey(other)) continue;
             visited[other] = true;
 
-            foreach(NodeConnection connection in other.connections) {
-                if(connection.node == node1 || connection.node == node2) continue;
+            foreach (NodeConnection connection in other.connections) {
+                if (connection.node == node1 || connection.node == node2) continue;
 
                 // This is to ensure intersection test is not performed on the same connection twice
                 // This is due to nodes having bi-directional connections
-                if(visited.ContainsKey(connection.node)) continue;
+                if (visited.ContainsKey(connection.node)) continue;
 
 
                 // Perform a ray-line intersection test
@@ -132,16 +132,16 @@ public class RoadNetwork {
                 );
 
                 bool didIntersect = false;
-                if(intersection.type == LineIntersection.Type.Intersecting) {
+                if (intersection.type == LineIntersection.Type.Intersecting) {
                     // Scenario #2
-                    if(intersection.factorB <= 1) {
+                    if (intersection.factorB <= 1) {
                         intersections.Add(new IntersectionInfo(other, connection, intersection.point, false));
                         didIntersect = true;
                     }
                     // Scenario #3
                     else {
                         float distLine = Vector2.Distance(VectorUtil.Vector3To2(node2.pos), intersection.point);
-                        if(distLine <= snapRadius) {
+                        if (distLine <= snapRadius) {
                             // The ray intersection handles the extension for us, so simply add this result
                             intersections.Add(new IntersectionInfo(other, connection, intersection.point, false));
                             shouldExtend = true;
@@ -150,7 +150,7 @@ public class RoadNetwork {
                 }
 
                 // Try projecting the end node onto the edge and check if it is within snap radius
-                if(!didIntersect) {
+                if (!didIntersect) {
                     Vector2 proj = VectorUtil.GetProjectedPointOnLine(
                         VectorUtil.Vector3To2(node2.pos),
                         VectorUtil.Vector3To2(other.pos),
@@ -158,7 +158,7 @@ public class RoadNetwork {
                     );
 
                     float distProj = Vector2.Distance(proj, VectorUtil.Vector3To2(node2.pos));
-                    if(distProj <= snapRadius) {
+                    if (distProj <= snapRadius) {
                         intersections.Add(new IntersectionInfo(other, connection, proj, true));
                         didIntersect = true;
                     }
@@ -175,23 +175,23 @@ public class RoadNetwork {
         Node finalNode = node2;
 
         // If there is an intersection, create a ghost node at that point
-        if(sortedIntersections.Count > 0) {
+        if (sortedIntersections.Count > 0) {
             IntersectionInfo info = sortedIntersections.First();
             finalNode = new Node(VectorUtil.Vector2To3(info.point), node1.type);
         }
 
         // TODO: These two statements can be merged into one for loop
         bool didSnap = false;
-        foreach(Node other in nearestNodes) {
-            if(other == node1) continue;
+        foreach (Node other in nearestNodes) {
+            if (other == node1) continue;
 
             float dist = VectorUtil.GetMinimumDistanceToLine(
                 VectorUtil.Vector3To2(other.pos),
                 VectorUtil.Vector3To2(node1.pos),
                 VectorUtil.Vector3To2(node2.pos)
             );
-            if(dist <= snapRadius) {
-                if(Vector3.Distance(node1.pos, finalNode.pos) > Vector3.Distance(node1.pos, other.pos)) {
+            if (dist <= snapRadius) {
+                if (Vector3.Distance(node1.pos, finalNode.pos) > Vector3.Distance(node1.pos, other.pos)) {
                     finalNode = other;
                     didSnap = true;
                     break;
@@ -199,10 +199,10 @@ public class RoadNetwork {
             }
         }
         // If no nodes were found along the line, try finding one near the end node
-        if(!didSnap) {
+        if (!didSnap) {
             Node closestNode = GetClosestNode(finalNode, nearestNodes);
-            if(closestNode != null && Vector3.Distance(closestNode.pos, finalNode.pos) <= snapRadius) {
-                if(Vector3.Distance(node1.pos, finalNode.pos) > Vector3.Distance(node1.pos, closestNode.pos)) {
+            if (closestNode != null && Vector3.Distance(closestNode.pos, finalNode.pos) <= snapRadius) {
+                if (Vector3.Distance(node1.pos, finalNode.pos) > Vector3.Distance(node1.pos, closestNode.pos)) {
                     finalNode = closestNode;
                     didSnap = true;
                 }
@@ -210,15 +210,15 @@ public class RoadNetwork {
         }
 
         // If we haven't snapped yet (no pun intended), and there are intersections, do some more checks
-        if(sortedIntersections.Count > 0 && !didSnap) {
+        if (sortedIntersections.Count > 0 && !didSnap) {
             IntersectionInfo info = sortedIntersections.First();
 
             // We might want to snap to one of the edge nodes
-            if(Vector3.Distance(info.from.pos, finalNode.pos) < snapRadius) {
+            if (Vector3.Distance(info.from.pos, finalNode.pos) < snapRadius) {
                 finalNode = info.from;
                 didSnap = true;
             }
-            else if(Vector3.Distance(info.connection.node.pos, finalNode.pos) < snapRadius) {
+            else if (Vector3.Distance(info.connection.node.pos, finalNode.pos) < snapRadius) {
                 finalNode = info.connection.node;
                 didSnap = true;
             }
@@ -239,7 +239,7 @@ public class RoadNetwork {
         }
 
         // If the final node is not the original destination node
-        if(finalNode != node2) {
+        if (finalNode != node2) {
             ConnectNodes(node1, finalNode, type);
 
             return new ConnectionResult(false, false, true, finalNode);
@@ -247,9 +247,9 @@ public class RoadNetwork {
 
         // Looks like we got nowhere to snap or intersect to, but there are still connections
         // left to check from the origin node since these are ignored in the checks above
-        foreach(NodeConnection con in node1.connections) {
+        foreach (NodeConnection con in node1.connections) {
             // If we are close to a node on the other side of the connection, snap to it
-            if(Vector3.Distance(node2.pos, con.node.pos) <= snapRadius) {
+            if (Vector3.Distance(node2.pos, con.node.pos) <= snapRadius) {
                 return new ConnectionResult(false, false, true, con.node);
             }
 
@@ -261,7 +261,7 @@ public class RoadNetwork {
 
             // Check if we should cut the connection at the projection point
             float distProj = Vector2.Distance(proj, VectorUtil.Vector3To2(node2.pos));
-            if(distProj <= snapRadius) {
+            if (distProj <= snapRadius) {
                 Node n = new Node(VectorUtil.Vector2To3(proj), node1.type);
 
                 AddNode(n);
@@ -285,14 +285,14 @@ public class RoadNetwork {
         Dictionary<Node, bool> visited = new Dictionary<Node, bool>();
 
         int idx = 0;
-        foreach(Node n in nodes) {
+        foreach (Node n in nodes) {
             visited[n] = true;
 
-            foreach(NodeConnection c in n.connections) {
-                if(visited.ContainsKey(c.node)) continue;
+            foreach (NodeConnection c in n.connections) {
+                if (visited.ContainsKey(c.node)) continue;
 
                 var color = new Color(1, 0, 0);
-                if(c.type == ConnectionType.Street)
+                if (c.type == ConnectionType.Street)
                     color = new Color(0, 1, 0);
 
                 Debug.DrawLine(n.pos, c.node.pos, color);
@@ -310,7 +310,7 @@ public class RoadNetwork {
         float maxX = float.MinValue;
         float maxZ = float.MinValue;
 
-        foreach(Node node in nodes) {
+        foreach (Node node in nodes) {
             minX = Mathf.Min(minX, node.pos.x);
             minZ = Mathf.Min(minZ, node.pos.z);
 
@@ -325,11 +325,11 @@ public class RoadNetwork {
         float leastDistance = float.MaxValue;
         Node leastNode = null;
 
-        foreach(Node n in nodes) {
-            if(n == node) continue;
+        foreach (Node n in nodes) {
+            if (n == node) continue;
 
             float dist = Vector3.Distance(n.pos, node.pos);
-            if(dist < leastDistance) {
+            if (dist < leastDistance) {
                 leastNode = n;
                 leastDistance = dist;
             }

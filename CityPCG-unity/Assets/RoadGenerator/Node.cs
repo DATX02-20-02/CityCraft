@@ -5,7 +5,6 @@ using UnityEngine;
 using RBush;
 
 public class Node : ISpatialData {
-    public static int MAX_NODE_CONNECTIONS = 8;
 
     public enum NodeType {
         Main,
@@ -31,15 +30,15 @@ public class Node : ISpatialData {
     }
 
     public bool HasConnection(Node other) {
-        foreach(NodeConnection connection in connections) {
-            if(connection.node.Equals(other)) return true;
+        foreach (NodeConnection connection in connections) {
+            if (connection.node.Equals(other)) return true;
         }
 
         return false;
     }
 
     public bool ConnectTo(Node node, ConnectionType type = ConnectionType.Street) {
-        if(HasConnection(node)) return false;
+        if (HasConnection(node)) return false;
 
         this.connections.Add(new NodeConnection(node, type));
         node.connections.Add(new NodeConnection(this, type));
@@ -51,7 +50,7 @@ public class Node : ISpatialData {
     }
 
     public bool Disconnect(Node node) {
-        if(!HasConnection(node)) return false;
+        if (!HasConnection(node)) return false;
 
         this.connections.RemoveAll(c => c.node.Equals(node));
         node.connections.RemoveAll(c => c.node.Equals(this));

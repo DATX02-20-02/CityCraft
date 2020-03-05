@@ -14,6 +14,8 @@ using UnityEngine;
 */
 public class BlockGenerator : MonoBehaviour {
 
+    [SerializeField] private float minBlockArea = 0.0f;
+    [SerializeField] private float maxBlockArea = 0.0f;
     [SerializeField] private bool debug = false;
     [SerializeField] private int debugBlock = 0;
 
@@ -45,7 +47,10 @@ public class BlockGenerator : MonoBehaviour {
 
                 // Ignore empty city blocks.
                 if(vertices.Count > 0) {
-                    blocks.Add(new Block(vertices));
+                    var b = new Block(vertices);
+                    float area = BlockArea(b);
+                    if(minBlockArea <= area && area <= maxBlockArea)
+                        blocks.Add(b);
                 }
             }
         }
@@ -54,7 +59,6 @@ public class BlockGenerator : MonoBehaviour {
     }
 
     // TODO: abort solution if first/last edge are the same.
-    // TODO: ignore solution if area is too big.
     private List<Vector3> SpawnTurtle(HashSet<Tuple<Vector3, Vector3>> traversed, Node node, NodeConnection startEdge) {
         var vertices = new List<Vector3>();
         var curNode = node;
@@ -95,18 +99,28 @@ public class BlockGenerator : MonoBehaviour {
         return rightmostIndex;
     }
 
+    private float BlockArea(Block block) {
+        var vs = block.vertices;
+
+        float area = 0.0f;
+        for(int i = 0; i < vs.Count; i++)
+            area += vs[i].x * (vs[(i+1) % vs.Count].z - vs[(i-1+vs.Count) % vs.Count].z);
+
+        return Mathf.Abs(area / 2.0f);
+    }
+
     private void Log(object msg) {
         if(debug)
             Debug.Log(msg);
     }
 
-    private bool ready = false;
     private void Update() {
         if(debug && this.blocks != null) {
             if(debugBlock < 0 || debugBlock > this.blocks.Count) return;
             foreach(var v in this.blocks[debugBlock].vertices) {
                 Debug.DrawLine(v, v + 0.5f*Vector3.up, Color.yellow, 0.1f);
             }
+            Log("Block area: " + BlockArea(this.blocks[debugBlock]));
         }
     }
 }

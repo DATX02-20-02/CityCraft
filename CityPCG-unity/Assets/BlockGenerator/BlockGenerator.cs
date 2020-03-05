@@ -14,7 +14,6 @@ using UnityEngine;
 */
 public class BlockGenerator : MonoBehaviour {
 
-    public static RoadNetwork REMOVEME;
     [SerializeField] private bool debug = false;
     [SerializeField] private int debugBlock = 0;
 
@@ -103,11 +102,6 @@ public class BlockGenerator : MonoBehaviour {
 
     private bool ready = false;
     private void Update() {
-        if(REMOVEME != null && !ready) {
-            ready = true;
-            Generate(REMOVEME);
-        }
-
         if(debug && this.blocks != null) {
             if(debugBlock < 0 || debugBlock > this.blocks.Count) return;
             foreach(var v in this.blocks[debugBlock].vertices) {

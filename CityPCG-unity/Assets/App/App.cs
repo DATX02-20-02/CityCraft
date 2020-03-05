@@ -77,8 +77,4 @@ public class App : MonoBehaviour {
         if(debug)
             Debug.Log(msg);
     }
-
-    private void Awake() {
-        Random.seed = 42;
-    }
 }

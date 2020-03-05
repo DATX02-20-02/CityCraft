@@ -33,8 +33,8 @@ public class TerrainGenerator : MonoBehaviour {
     // For each point in the terrain plane, calculate the height for that point.
     private float[,] GenerateHeights() {
         float[,] heights = new float[width, height];
-        for(int x = 0; x < width; x++) {
-            for(int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
                 heights[x, y] = /*terrHeightCurve.Evaluate*/(CalculateHeight(x, y)); //PERLIN NOISE
             }
         }
@@ -48,7 +48,7 @@ public class TerrainGenerator : MonoBehaviour {
         float noiseBase = PerlinFunc(xCoord, yCoord, 0.9f, 0.1f);
         float noiseMountain = PerlinFunc(xCoord, yCoord, 0.3f, 0.5f);
 
-        if(noiseBase > 0.6f) { // High ground Perlin Noise
+        if (noiseBase > 0.6f) { // High ground Perlin Noise
             float t = Mathf.InverseLerp(0.6f, 0.9f, noiseBase);
             //float t = (Mathf.Clamp(noise,0.6f,0.8f)-0.6f)/(0.8f-0.6f);
             return noiseBase + (t) * noiseMountain;

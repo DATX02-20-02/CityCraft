@@ -133,10 +133,10 @@ public class Agent : IComparable {
 
     // Required for priority queue
     public int CompareTo(object obj) {
-        if(obj == null) return 1;
+        if (obj == null) return 1;
 
         Agent agent = obj as Agent;
-        if(agent != null) {
+        if (agent != null) {
             return this.strategy.CompareTo(this, agent);
         }
         else {
@@ -148,16 +148,16 @@ public class Agent : IComparable {
         Node node = new Node(pos, nodeType);
 
         info = null;
-        if(this.prevNode == null) {
+        if (this.prevNode == null) {
             this.network.AddNode(node);
             this.prevNode = node;
 
             return node;
         }
-        else if(connectionType != ConnectionType.None) {
+        else if (connectionType != ConnectionType.None) {
             info = this.network.ConnectNodesWithIntersect(this.prevNode, node, config.snapRadius, connectionType);
 
-            if(info.success && !info.didIntersect && !info.didSnap) {
+            if (info.success && !info.didIntersect && !info.didSnap) {
                 this.network.AddNode(node);
             }
             this.prevNode = info.prevNode;
@@ -172,7 +172,7 @@ public class Agent : IComparable {
     }
 
     public void Start() {
-        if(this.strategy != null) {
+        if (this.strategy != null) {
             this.started = true;
             this.strategy.Start(this);
         }
@@ -181,17 +181,17 @@ public class Agent : IComparable {
     public List<Agent> Work() {
         List<Agent> newAgents = new List<Agent>();
 
-        if(this.strategy == null) return newAgents;
+        if (this.strategy == null) return newAgents;
 
         this.strategy.Work(this);
 
         this.stepCount++;
-        if(this.strategy.ShouldDie(this, this.prevNode))
+        if (this.strategy.ShouldDie(this, this.prevNode))
             this.Terminate();
 
-        if(!this.terminated) {
+        if (!this.terminated) {
             newAgents = this.strategy.Branch(this, this.prevNode);
-            foreach (Agent newAgent in newAgents){
+            foreach (Agent newAgent in newAgents) {
                 newAgent.branchCount = this.branchCount + 1;
             }
         }

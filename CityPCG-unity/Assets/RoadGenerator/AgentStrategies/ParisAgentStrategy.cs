@@ -32,16 +32,16 @@ public class ParisAgentStrategy : AgentStrategy {
 
     public override void Start(Agent agent) {
         // Initialize agent data
-        if(agent.Data == null) {
+        if (agent.Data == null) {
             AgentData data;
             data.stopAtRoad = false;
             agent.Data = data;
         }
 
-        if(agent.PreviousNode == null) {
+        if (agent.PreviousNode == null) {
             Vector3 pos = agent.Position;
 
-            if(!this.straight) pos = center + agent.Direction * radius;
+            if (!this.straight) pos = center + agent.Direction * radius;
 
             Node node = agent.Network.AddNodeNearby(new Node(pos), agent.config.snapRadius);
             agent.PreviousNode = node;
@@ -52,7 +52,7 @@ public class ParisAgentStrategy : AgentStrategy {
         AgentData agentData = (AgentData)agent.Data;
         AgentConfiguration config = agent.config;
 
-        if(this.straight) {
+        if (this.straight) {
             agent.Angle += Random.Range(-1.0f, 1.0f) * 10.0f * Mathf.Deg2Rad;
 
             Vector3 oldPos = agent.Position;
@@ -64,7 +64,7 @@ public class ParisAgentStrategy : AgentStrategy {
             agent.Angle = Mathf.Atan2(newDir.z, newDir.x);
 
             float distance = Vector3.Distance(agent.Position, center);
-            if((distance > radius || agentData.stopAtRoad) && (!info.success)) {
+            if ((distance > radius || agentData.stopAtRoad) && (!info.success)) {
                 agent.Terminate();
             }
         }
@@ -79,8 +79,8 @@ public class ParisAgentStrategy : AgentStrategy {
             ) * (this.radius + randRadius);
 
             agent.PlaceNode(agent.Position, this.nodeType, this.connectionType, out ConnectionResult info);
-            if(info != null) {
-                if(info.didSnap || info.didIntersect) {
+            if (info != null) {
+                if (info.didSnap || info.didIntersect) {
                     agent.Terminate();
                 }
             }
@@ -94,8 +94,8 @@ public class ParisAgentStrategy : AgentStrategy {
         float revert = Mathf.Sign(Random.Range(-1.0f, 1.0f));
         float distance = Vector3.Distance(agent.Position, center);
 
-        if((this.straight && distance >= radius)) {
-            if(Random.Range(0.0f, 1.0f) < 0.1f
+        if ((this.straight && distance >= radius)) {
+            if (Random.Range(0.0f, 1.0f) < 0.1f
                 && agent.BranchCount < agent.config.maxBranchCount
                 && agent.StepCount < agent.config.maxStepCount - 3
             ) {
@@ -115,9 +115,9 @@ public class ParisAgentStrategy : AgentStrategy {
             }
         }
 
-        if(!didBranch) {
-            foreach(NodeConnection c in node.connections) {
-                if(Random.Range(0.0f, 1.0f) <= 0.2f) {
+        if (!didBranch) {
+            foreach (NodeConnection c in node.connections) {
+                if (Random.Range(0.0f, 1.0f) <= 0.2f) {
                     Vector3 dir = c.node.pos - node.pos;
                     Vector3 perp = Vector3.Cross(dir, Vector3.up);
 

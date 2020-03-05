@@ -29,7 +29,7 @@ class PriorityQueue<T> where T : IComparable {
     public PriorityQueue(IEnumerable<T> collection, bool isdesc)
         : this() {
         IsDescending = isdesc;
-        foreach(var item in collection)
+        foreach (var item in collection)
             Enqueue(item);
     }
 
@@ -38,15 +38,15 @@ class PriorityQueue<T> where T : IComparable {
         list.Add(x);
         int i = Count - 1;
 
-        while(i > 0) {
+        while (i > 0) {
             int p = (i - 1) / 2;
-            if((IsDescending ? -1 : 1) * list[p].CompareTo(x) <= 0) break;
+            if ((IsDescending ? -1 : 1) * list[p].CompareTo(x) <= 0) break;
 
             list[i] = list[p];
             i = p;
         }
 
-        if(Count > 0) list[i] = x;
+        if (Count > 0) list[i] = x;
     }
 
     public T Dequeue() {
@@ -55,22 +55,22 @@ class PriorityQueue<T> where T : IComparable {
         list.RemoveAt(Count - 1);
 
         int i = 0;
-        while(i * 2 + 1 < Count) {
+        while (i * 2 + 1 < Count) {
             int a = i * 2 + 1;
             int b = i * 2 + 2;
             int c = b < Count && (IsDescending ? -1 : 1) * list[b].CompareTo(list[a]) < 0 ? b : a;
 
-            if((IsDescending ? -1 : 1) * list[c].CompareTo(root) >= 0) break;
+            if ((IsDescending ? -1 : 1) * list[c].CompareTo(root) >= 0) break;
             list[i] = list[c];
             i = c;
         }
 
-        if(Count > 0) list[i] = root;
+        if (Count > 0) list[i] = root;
         return target;
     }
 
     public T Peek() {
-        if(Count == 0) throw new InvalidOperationException("Queue is empty.");
+        if (Count == 0) throw new InvalidOperationException("Queue is empty.");
         return list[0];
     }
 

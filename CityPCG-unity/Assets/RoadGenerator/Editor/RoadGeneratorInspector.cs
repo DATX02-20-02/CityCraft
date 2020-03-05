@@ -6,10 +6,8 @@ using UnityEditor;
   Why? Allows some more customization for the editor view
 */
 [CustomEditor(typeof(RoadGenerator))]
-public class RoadGeneratorInspector : Editor
-{
-    public override void OnInspectorGUI()
-    {
+public class RoadGeneratorInspector : Editor {
+    public override void OnInspectorGUI() {
         RoadGenerator generator = target as RoadGenerator;
 
         DrawDefaultInspector();

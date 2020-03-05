@@ -7,7 +7,7 @@ public class DrawUtil {
 
     public static void DebugDrawCircle(Vector3 pos, float radius, Color color, float fidelity = 10) {
         float step = 2 * Mathf.PI / fidelity;
-        for(int i = 0; i < fidelity; i++) {
+        for (int i = 0; i < fidelity; i++) {
             float x = Mathf.Sin(step * i) * radius;
             float z = Mathf.Cos(step * i) * radius;
 

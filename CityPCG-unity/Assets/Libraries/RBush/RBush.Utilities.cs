@@ -14,7 +14,7 @@ namespace RBush {
 
         #region Search
         private List<ImmutableStack<ISpatialData>> DoPathSearch(in Envelope boundingBox) {
-            if(!Root.Envelope.Intersects(boundingBox))
+            if (!Root.Envelope.Intersects(boundingBox))
                 return new List<ImmutableStack<ISpatialData>>();
 
             var intersections = new List<ImmutableStack<ISpatialData>>();
@@ -23,37 +23,37 @@ namespace RBush {
 
             do {
                 var current = queue.Dequeue();
-                foreach(var c in (current.Peek() as Node).children) {
-                    if(c.Envelope.Intersects(boundingBox)) {
-                        if(c is T)
+                foreach (var c in (current.Peek() as Node).children) {
+                    if (c.Envelope.Intersects(boundingBox)) {
+                        if (c is T)
                             intersections.Add(current.Push(c));
                         else
                             queue.Enqueue(current.Push(c));
                     }
                 }
-            } while(queue.Count != 0);
+            } while (queue.Count != 0);
 
             return intersections;
         }
 
         private List<T> DoSearch(in Envelope boundingBox) {
-            if(!Root.Envelope.Intersects(boundingBox))
+            if (!Root.Envelope.Intersects(boundingBox))
                 return new List<T>();
 
             var intersections = new List<T>();
             var queue = new Queue<Node>();
             queue.Enqueue(Root);
 
-            while(queue.Count != 0) {
+            while (queue.Count != 0) {
                 var item = queue.Dequeue();
-                if(item.IsLeaf) {
-                    foreach(T leafChildItem in item.children.Cast<T>())
-                        if(leafChildItem.Envelope.Intersects(boundingBox))
+                if (item.IsLeaf) {
+                    foreach (T leafChildItem in item.children.Cast<T>())
+                        if (leafChildItem.Envelope.Intersects(boundingBox))
                             intersections.Add(leafChildItem);
                 }
                 else {
-                    foreach(var child in item.children.Cast<Node>())
-                        if(child.Envelope.Intersects(boundingBox))
+                    foreach (var child in item.children.Cast<Node>())
+                        if (child.Envelope.Intersects(boundingBox))
                             queue.Enqueue(child);
                 }
             }
@@ -68,9 +68,9 @@ namespace RBush {
             var node = this.Root;
             var _area = area; //FIX CS1628
 
-            while(true) {
+            while (true) {
                 path.Add(node);
-                if(node.IsLeaf || path.Count == depth) return path;
+                if (node.IsLeaf || path.Count == depth) return path;
 
                 node = node.children
                     .Select(c => new { EnlargedArea = c.Envelope.Extend(_area).Area, c.Envelope.Area, Node = c as Node, })
@@ -87,10 +87,10 @@ namespace RBush {
             var insertNode = path.Last();
             insertNode.Add(data);
 
-            while(--depth >= 0) {
-                if(path[depth].children.Count > maxEntries) {
+            while (--depth >= 0) {
+                if (path[depth].children.Count > maxEntries) {
                     var newNode = SplitNode(path[depth]);
-                    if(depth == 0)
+                    if (depth == 0)
                         SplitRoot(newNode);
                     else
                         path[depth - 1].Add(newNode);
@@ -120,7 +120,7 @@ namespace RBush {
             node.children.Sort(CompareMinY);
             var splitsByY = GetPotentialSplitMargins(node.children);
 
-            if(splitsByX < splitsByY)
+            if (splitsByX < splitsByY)
                 node.children.Sort(CompareMinX);
         }
 
@@ -131,12 +131,12 @@ namespace RBush {
         private double GetPotentialEnclosingMargins(List<ISpatialData> children) {
             var envelope = Envelope.EmptyBounds;
             int i = 0;
-            for(; i < minEntries; i++) {
+            for (; i < minEntries; i++) {
                 envelope = envelope.Extend(children[i].Envelope);
             }
 
             var totalMargin = envelope.Margin;
-            for(; i < children.Count - minEntries; i++) {
+            for (; i < children.Count - minEntries; i++) {
                 envelope = envelope.Extend(children[i].Envelope);
                 totalMargin += envelope.Margin;
             }
@@ -175,7 +175,7 @@ namespace RBush {
 
         private Node BuildNodes(List<ISpatialData> data, int left, int right, int height, int maxEntries) {
             var num = right - left + 1;
-            if(num <= maxEntries) {
+            if (num <= maxEntries) {
                 return height == 1
                     ? new Node(data.GetRange(left, num), height)
                     : new Node(
@@ -192,11 +192,11 @@ namespace RBush {
             var subSortLength = nodeSize * (int)Math.Ceiling(Math.Sqrt(maxEntries));
 
             var children = new List<ISpatialData>(maxEntries);
-            for(int subCounter = left; subCounter <= right; subCounter += subSortLength) {
+            for (int subCounter = left; subCounter <= right; subCounter += subSortLength) {
                 var subRight = Math.Min(subCounter + subSortLength - 1, right);
                 data.Sort(subCounter, subRight - subCounter + 1, CompareMinY);
 
-                for(int nodeCounter = subCounter; nodeCounter <= subRight; nodeCounter += nodeSize) {
+                for (int nodeCounter = subCounter; nodeCounter <= subRight; nodeCounter += nodeSize) {
                     children.Add(
                         BuildNodes(
                             data,
@@ -213,19 +213,19 @@ namespace RBush {
 
         private static Envelope GetEnclosingEnvelope(IEnumerable<ISpatialData> items) {
             var envelope = Envelope.EmptyBounds;
-            foreach(var data in items) {
+            foreach (var data in items) {
                 envelope = envelope.Extend(data.Envelope);
             }
             return envelope;
         }
 
         private List<T> GetAllChildren(List<T> list, Node n) {
-            if(n.IsLeaf) {
+            if (n.IsLeaf) {
                 list.AddRange(
                     n.children.Cast<T>());
             }
             else {
-                foreach(var node in n.children.Cast<Node>())
+                foreach (var node in n.children.Cast<Node>())
                     GetAllChildren(list, node);
             }
 

@@ -54,13 +54,13 @@ public class ImmutableStack<T> : IImmutableStack<T> {
     }
 
     public T Peek() {
-        if(IsEmpty)
+        if (IsEmpty)
             throw new InvalidOperationException("Stack is empty.");
         return head;
     }
 
     public ImmutableStack<T> Pop() {
-        if(IsEmpty)
+        if (IsEmpty)
             throw new InvalidOperationException("Stack is empty.");
         return tail;
     }
@@ -100,10 +100,10 @@ public class ImmutableStack<T> : IImmutableStack<T> {
         #region IEnumerator implementation
 
         bool IEnumerator.MoveNext() {
-            if(current == null) {
+            if (current == null) {
                 current = this.start;
             }
-            else if(!current.IsEmpty) {
+            else if (!current.IsEmpty) {
                 current = current.Pop();
             }
 
@@ -154,7 +154,7 @@ public static class ImmutableStack {
 
     public static ImmutableStack<T> Create<T>(IEnumerable<T> items) {
         var result = ImmutableStack<T>.Empty;
-        foreach(var item in items)
+        foreach (var item in items)
             result = result.Push(item);
         return result;
     }
@@ -164,7 +164,7 @@ public static class ImmutableStack {
     }
 
     public static IImmutableStack<T> Pop<T>(this IImmutableStack<T> stack, out T value) {
-        if(stack == null)
+        if (stack == null)
             throw new ArgumentNullException("stack");
         value = stack.Peek();
         return stack.Pop();

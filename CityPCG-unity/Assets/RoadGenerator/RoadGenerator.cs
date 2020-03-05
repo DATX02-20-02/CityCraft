@@ -1,5 +1,6 @@
 // #define DEBUG_AGENT_WORK
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,10 +32,12 @@ public class RoadGenerator : MonoBehaviour {
     private int increment;
 
     private bool areAgentsWorking = false;
+    private Action<RoadNetwork> callback;
 
 
     // Generates a complete road network.
-    public RoadNetwork Generate() {
+    public void Generate(Action<RoadNetwork> callback = null) {
+        this.callback = callback;
         prevQueueCount = 0;
 
         network = new RoadNetwork();
@@ -43,7 +46,6 @@ public class RoadGenerator : MonoBehaviour {
         IAgentFactory factory = new ParisAgentFactory();
         factory.Create(this, network, new Vector3(0, 0, 0));
         factory.Create(this, network, new Vector3(20, 0, 0));
-        return network;
     }
 
     // Adds an agent to the pool of active agents.
@@ -54,7 +56,7 @@ public class RoadGenerator : MonoBehaviour {
     // Iterate through queue and let the agents work.
     IEnumerator DoAgentWork() {
         if(this.queue.Count == 0) {
-            BlockGenerator.REMOVEME = this.network;
+            if(callback != null) this.callback(network);
             yield break;
         }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -31,7 +32,7 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     public void GenerateRoads() {
-        roadGenerator.Generate();
+        roadGenerator.Generate((roadNetwork) => blockGenerator.Generate(roadNetwork));
     }
 
     public void GenerateStreets() { }

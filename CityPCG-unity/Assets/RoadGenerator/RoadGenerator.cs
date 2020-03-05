@@ -34,7 +34,7 @@ public class RoadGenerator : MonoBehaviour {
 
 
     // Generates a complete road network.
-    public void Generate() {
+    public RoadNetwork Generate() {
         prevQueueCount = 0;
 
         network = new RoadNetwork();
@@ -43,6 +43,7 @@ public class RoadGenerator : MonoBehaviour {
         IAgentFactory factory = new ParisAgentFactory();
         factory.Create(this, network, new Vector3(0, 0, 0));
         factory.Create(this, network, new Vector3(20, 0, 0));
+        return network;
     }
 
     // Adds an agent to the pool of active agents.
@@ -52,7 +53,10 @@ public class RoadGenerator : MonoBehaviour {
 
     // Iterate through queue and let the agents work.
     IEnumerator DoAgentWork() {
-        if (this.queue.Count == 0) yield break;
+        if(this.queue.Count == 0) {
+            BlockGenerator.REMOVEME = this.network;
+            yield break;
+        }
 
 #if DEBUG_AGENT_WORK
         if (prevQueueCount == 0) {
@@ -92,7 +96,7 @@ public class RoadGenerator : MonoBehaviour {
             }
 
 #if DEBUG_AGENT_WORK
-            if (agent.terminated) {
+            if (agent.IsTerminated) {
                 VisualDebug.BeginFrame("Agent terminated", true);
                 VisualDebug.SetColour(Colours.lightRed);
             }

@@ -56,8 +56,8 @@ public class RoadGenerator : MonoBehaviour {
 
     // Iterate through queue and let the agents work.
     IEnumerator DoAgentWork() {
-        if(this.queue.Count == 0) {
-            if(!isDone && callback != null) {
+        if (this.queue.Count == 0) {
+            if (!isDone && callback != null) {
                 isDone = true;
                 this.callback(network);
             }

@@ -33,6 +33,7 @@ public class RoadGenerator : MonoBehaviour {
 
     private bool areAgentsWorking = false;
     private Action<RoadNetwork> callback;
+    private bool isDone = false;
 
 
     // Generates a complete road network.
@@ -56,7 +57,10 @@ public class RoadGenerator : MonoBehaviour {
     // Iterate through queue and let the agents work.
     IEnumerator DoAgentWork() {
         if(this.queue.Count == 0) {
-            if(callback != null) this.callback(network);
+            if(!isDone && callback != null) {
+                isDone = true;
+                this.callback(network);
+            }
             yield break;
         }
 

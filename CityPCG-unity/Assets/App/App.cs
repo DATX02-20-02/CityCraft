@@ -74,7 +74,7 @@ public class App : MonoBehaviour {
     }
 
     private void Log(object msg) {
-        if(debug)
+        if (debug)
             Debug.Log(msg);
     }
 }

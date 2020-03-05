@@ -41,15 +41,15 @@ public class BlockGenerator : MonoBehaviour {
         var traversed = new HashSet<Tuple<Vector3, Vector3>>();
 
         // Spawn a turtle at every node, for each of its edges.
-        foreach(var node in nodes) {
-            foreach(var edge in node.connections) {
+        foreach (var node in nodes) {
+            foreach (var edge in node.connections) {
                 var vertices = SpawnTurtle(traversed, node, edge);
 
                 // Ignore empty city blocks.
-                if(vertices.Count > 0) {
+                if (vertices.Count > 0) {
                     var b = new Block(vertices);
                     float area = BlockArea(b);
-                    if(minBlockArea <= area && area <= maxBlockArea)
+                    if (minBlockArea <= area && area <= maxBlockArea)
                         blocks.Add(b);
                 }
             }
@@ -67,7 +67,7 @@ public class BlockGenerator : MonoBehaviour {
         bool badloop = false;
 
         // Simulate turtle until we make a loop, or find another turtle's path.
-        while(!traversed.Contains(Tuple.Create(curNode.pos, nextEdge.node.pos))) {
+        while (!traversed.Contains(Tuple.Create(curNode.pos, nextEdge.node.pos))) {
 
             // Traverse the next edge.
             var curDir = nextEdge.node.pos - curNode.pos;
@@ -81,7 +81,7 @@ public class BlockGenerator : MonoBehaviour {
             nextEdge = curNode.connections[rightmostIndex];
 
             // Track if we return through the same edge
-            if(node.pos == nextEdge.node.pos && startEdge.node.pos == curNode.pos) {
+            if (node.pos == nextEdge.node.pos && startEdge.node.pos == curNode.pos) {
                 badloop = true;
                 break;
             }
@@ -96,10 +96,10 @@ public class BlockGenerator : MonoBehaviour {
         int rightmostIndex = 0;
         float rightmostAngle = -180.0f;
 
-        for(int i = 0; i < options.Count; i++) {
+        for (int i = 0; i < options.Count; i++) {
             float angle = Vector3.SignedAngle(reference, options[i], Vector3.up);
             // NOTE: "< 180.f" ensures that we prioritize going backwards the least.
-            if(Mathf.Abs(angle) < 180.0f && rightmostAngle < angle) {
+            if (Mathf.Abs(angle) < 180.0f && rightmostAngle < angle) {
                 rightmostIndex = i;
                 rightmostAngle = angle;
             }
@@ -112,22 +112,22 @@ public class BlockGenerator : MonoBehaviour {
         var vs = block.vertices;
 
         float area = 0.0f;
-        for(int i = 0; i < vs.Count; i++)
-            area += vs[i].x * (vs[(i+1) % vs.Count].z - vs[(i-1+vs.Count) % vs.Count].z);
+        for (int i = 0; i < vs.Count; i++)
+            area += vs[i].x * (vs[(i + 1) % vs.Count].z - vs[(i - 1 + vs.Count) % vs.Count].z);
 
         return Mathf.Abs(area / 2.0f);
     }
 
     private void Log(object msg) {
-        if(debug)
+        if (debug)
             Debug.Log(msg);
     }
 
     private void Update() {
-        if(debug && this.blocks != null) {
-            if(debugBlock < 0 || debugBlock > this.blocks.Count) return;
-            foreach(var v in this.blocks[debugBlock].vertices) {
-                Debug.DrawLine(v, v + 0.5f*Vector3.up, Color.yellow, 0.1f);
+        if (debug && this.blocks != null) {
+            if (debugBlock < 0 || debugBlock > this.blocks.Count) return;
+            foreach (var v in this.blocks[debugBlock].vertices) {
+                Debug.DrawLine(v, v + 0.5f * Vector3.up, Color.yellow, 0.1f);
             }
             Log("Block area: " + BlockArea(this.blocks[debugBlock]));
         }

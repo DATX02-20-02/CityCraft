@@ -16,6 +16,7 @@ public class App : MonoBehaviour {
     [SerializeField] private GameObject worldMesh = null;
     [SerializeField] private WorldGenerator worldGenerator = null;
     [SerializeField] private GameObject[] menuPanels = null;
+    [SerializeField] private bool debug = false;
 
     private int currentMenuPanel = 0;
 
@@ -30,27 +31,27 @@ public class App : MonoBehaviour {
     }
 
     public void GenerateTerrain() {
-        Debug.Log("Generating terrain...");
+        Log("Generating terrain...");
         worldGenerator.GenerateTerrain();
-        Debug.Log("Terrain generated.");
+        Log("Terrain generated.");
     }
 
     public void GenerateRoads() {
-        Debug.Log("Generating roads...");
+        Log("Generating roads...");
         worldGenerator.GenerateRoads();
-        Debug.Log("Roads generated.");
+        Log("Roads generated.");
     }
 
     public void GenerateStreets() {
-        Debug.Log("Generating streets...");
+        Log("Generating streets...");
         worldGenerator.GenerateStreets();
-        Debug.Log("Streets generated.");
+        Log("Streets generated.");
     }
 
     public void GenerateBuildings() {
-        Debug.Log("Generating buildings...");
+        Log("Generating buildings...");
         worldGenerator.GenerateBuildings();
-        Debug.Log("Buildings generated.");
+        Log("Buildings generated.");
     }
 
     public void ExportModelToFBX() {
@@ -70,5 +71,14 @@ public class App : MonoBehaviour {
         menuPanels[currentMenuPanel].SetActive(false);
         currentMenuPanel = Mathf.Max(0, currentMenuPanel - 1);
         menuPanels[currentMenuPanel].SetActive(true);
+    }
+
+    private void Log(object msg) {
+        if(debug)
+            Debug.Log(msg);
+    }
+
+    private void Awake() {
+        Random.seed = 42;
     }
 }

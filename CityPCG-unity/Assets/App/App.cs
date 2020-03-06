@@ -2,9 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor.Formats.Fbx.Exporter;
-#endif
+using UnityGLTF;
 
 /*
   What? Handles all user interaction.
@@ -54,11 +52,15 @@ public class App : MonoBehaviour {
         Log("Buildings generated.");
     }
 
-    public void ExportModelToFBX() {
-#if UNITY_EDITOR
-        string filePath = Path.Combine(Application.persistentDataPath, "city.fbx");
-        ModelExporter.ExportObject(filePath, worldMesh);
-#endif
+    public void ExportModelToGLTF() {
+        // Setup export path
+        var path = Path.Combine(Application.persistentDataPath, "Export");
+        Directory.CreateDirectory(path);
+
+        // Export
+        var exporter = new GLTFSceneExporter(new[] {worldMesh.transform}, (t) => t.name);
+        exporter.SaveGLTFandBin(path, "World");
+        Log("Model exported to: " + path);
     }
 
     private void NextMenu() {
@@ -77,4 +79,5 @@ public class App : MonoBehaviour {
         if (debug)
             Debug.Log(msg);
     }
+
 }

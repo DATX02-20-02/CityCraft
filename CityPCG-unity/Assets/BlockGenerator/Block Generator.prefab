@@ -43,13 +43,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfc52229aec5a401c9bfc71de47d33c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minBlockArea: 0.1
-  maxBlockArea: 0.8
-  debug: 0
-  debugBlock: 0
-  offset: 0.2
+  offset: -0.05
   scale: 100000
   polygon:
   - {x: 0, y: 0}
   - {x: 0, y: 1}
   - {x: 1, y: 0}
+  minBlockArea: 0.02
+  maxBlockArea: 0.8
+  debug: 0
+  debugBlock: 0

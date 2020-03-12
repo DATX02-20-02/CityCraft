@@ -14,14 +14,18 @@ using ClipperLib;
   3. Insets all found polygons and returns them.
 */
 public class BlockGenerator : MonoBehaviour {
+    // The distance the blocks should be inset
     [Range(0, 2)]
     public float inset = 0.05f;
 
+    // Since ClipperLib only uses IntPoint, we have to scale it first
+    // to work with floats, and after Clipper is done, we reverse the scale
     [Range(0, (int)1E5)]
     public int scale = 1024;
 
+    // This is primarily for testing the inset algorithm on a configurable polygon
     [SerializeField]
-    List<Vector2> polygon = new List<Vector2>() {
+    List<Vector2> debugPolygon = new List<Vector2>() {
         new Vector2(0, 0),
         new Vector2(0, 1),
         new Vector2(0.5f, 1),
@@ -58,17 +62,8 @@ public class BlockGenerator : MonoBehaviour {
         this.blocks = new List<Block>();
         this.insetBlocks = new List<Block>();
 
-        List<Block> blocks = ExtractPolygons();
-
-        foreach (Block block in blocks) {
-            List<Block> newBlocks = InsetBlock(block, this.inset);
-
-            foreach (Block newBlock in newBlocks) {
-                float area = BlockArea(newBlock);
-                if (minBlockArea <= area && area <= maxBlockArea)
-                    this.insetBlocks.Add(newBlock);
-            }
-        }
+        ExtractPolygons();
+        InsetBlocks();
 
         return this.insetBlocks;
     }
@@ -160,17 +155,25 @@ public class BlockGenerator : MonoBehaviour {
         return Mathf.Abs(area / 2.0f);
     }
 
+    // This operation can return multiple blocks because the inset could
+    // create polygons that are isolated because of overlapping inset lines
     private List<Block> InsetBlock(Block block, float inset) {
         List<Vector3> vertices = block.vertices;
+
+        // Segments are paths that represent lines that occur when
+        // points are overlapping
         List<List<Vector3>> segments = new List<List<Vector3>>();
         HashSet<Vector3> visited = new HashSet<Vector3>();
 
+        // Overlaps are a list of indices for vertices that overlap
+        // other vertices in the same polygon
         List<int> overlaps = new List<int>();
         Vector3 last = Vector3.zero;
 
         for (int i = 0; i < vertices.Count; i++) {
             Vector3 vec = vertices[i];
 
+            // Find all overlapping points
             if (visited.Contains(vec)) overlaps.Add(i);
             else visited.Add(vec);
 
@@ -181,12 +184,15 @@ public class BlockGenerator : MonoBehaviour {
             }
         }
 
+        // If we found overlaps, it means we have to create line segments
+        // that will be used as difference on the simplified polygon
         if (overlaps.Count > 0) {
             int currOverlapIndex = overlaps.Count - 1;
             int firstIndex = overlaps[currOverlapIndex];
             Vector3 currOverlap = vertices[firstIndex];
 
-            List<Vector3> path = new List<Vector3>();;
+            // Iterate through all overlaps in reverse order
+            List<Vector3> path = new List<Vector3>();
             for (int i = firstIndex; i >= 0; i--) {
                 Vector3 vec = vertices[i];
 
@@ -194,6 +200,9 @@ public class BlockGenerator : MonoBehaviour {
 
                 if (i != firstIndex && Vector3.Equals(vec, currOverlap)) {
                     if (path.Count == 2) {
+                        // If the path is only two long, that means we went to a point
+                        // and then directly back to the point we came from,
+                        // this is unnecessary
                         path.RemoveAt(path.Count - 1);
                         segments.Add(path);
                     }
@@ -202,6 +211,8 @@ public class BlockGenerator : MonoBehaviour {
                     }
                     path = new List<Vector3>();
 
+                    // Find next overlap that is not part of the current line segment
+                    // This is to repeat the line segment creation for all overlaps
                     for (int j = currOverlapIndex; j >= 0; j--) {
                         if (overlaps[j] < i) {
                             i = overlaps[j];
@@ -229,12 +240,16 @@ public class BlockGenerator : MonoBehaviour {
                 }
             }
 
+            // This is necessary because Clipper only works with IntPoint, so
+            // our Vector3 must be converted to Vector2, scaled and then
+            // changed into an IntPoint
             List<IntPoint> linePoly = new List<IntPoint>();
             foreach (Vector3 vec in path) {
                 Vector2 scaled = VectorUtil.Vector3To2(vec) * scale;
                 linePoly.Add(new IntPoint((int) scaled.x, (int) scaled.y));
             }
 
+            // Perform the Clipper offset on all the line segments
             List<List<IntPoint>> solution = new List<List<IntPoint>>();
             ClipperOffset co = new ClipperOffset();
             co.AddPath(linePoly, JoinType.jtSquare, EndType.etOpenSquare);
@@ -243,6 +258,7 @@ public class BlockGenerator : MonoBehaviour {
             // Add all offsetted polygons to a list
             segmentSolutions.Add(solution);
 
+            // Debug draw the line segments
             if (debugInset) {
                 foreach (List<IntPoint> poly in solution) {
                     for (int i = 0; i < poly.Count; i++) {
@@ -262,6 +278,9 @@ public class BlockGenerator : MonoBehaviour {
             s.Add(new IntPoint((int) scaled.x, (int) scaled.y));
         }
 
+        // Simplify polygon, removing overlapping lines
+        // These will be reintroduced by the line segments using
+        // a difference operation
         List<List<IntPoint>> polygons = Clipper.SimplifyPolygon(
             s,
             PolyFillType.pftEvenOdd
@@ -271,14 +290,19 @@ public class BlockGenerator : MonoBehaviour {
 
         // Perform subject offset and line segment difference operations
         foreach (List<IntPoint> simplePoly in polygons) {
+            // Perform the offset on the simplified polygon
             List<List<IntPoint>> solution = new List<List<IntPoint>>();
             ClipperOffset co = new ClipperOffset();
             co.AddPath(simplePoly, JoinType.jtSquare, EndType.etClosedPolygon);
             co.Execute(ref solution, -inset * scale);
 
+            // The offset operation can return multiple polygons, but we first need to
+            // check if there are any to do any more operations
             if (solution.Count > 0) {
                 List<IntPoint> poly = solution[0];
 
+                // Perform difference operation on the insetted simplified polygon
+                // and the line segments
                 List<List<IntPoint>> finalSolution = new List<List<IntPoint>>();
                 Clipper cDiff = new Clipper();
                 // Add original polygon a subject
@@ -292,6 +316,7 @@ public class BlockGenerator : MonoBehaviour {
 
                 // Compose final solution
                 foreach (List<IntPoint> finalPoly in finalSolution) {
+                    // Debug draw the final polygons
                     if (debugInset) {
                         for (int i = 0; i < finalPoly.Count; i++) {
                             Vector2 p1 = VectorUtil.IntPointToVector2(finalPoly[i]) / scale;
@@ -313,34 +338,27 @@ public class BlockGenerator : MonoBehaviour {
         return finalBlocks;
     }
 
+    private List<Block> InsetBlocks() {
+        // Go through all blocks and perform the inset algorithm on each
+        foreach (Block block in this.blocks) {
+            List<Block> newBlocks = InsetBlock(block, this.inset);
+
+            foreach (Block newBlock in newBlocks) {
+                float area = BlockArea(newBlock);
+                if (minBlockArea <= area && area <= maxBlockArea)
+                    this.insetBlocks.Add(newBlock);
+            }
+        }
+
+        return this.insetBlocks;
+    }
+
     private void Log(object msg) {
         if (debug)
             Debug.Log(msg);
     }
 
     private void Update() {
-        /*
-        polygon = new List<Vector2>() {
-            new Vector2(0, 0),
-            new Vector2(0, 1),
-            new Vector2(0.5f, 1),
-            new Vector2(0.5f, 0.5f),
-            new Vector2(0.2f, 0.2f),
-            new Vector2(0.5f, 0.5f),
-            new Vector2(0.5f, 1),
-            new Vector2(1, 1),
-            new Vector2(1, -1),
-            new Vector2(0.48f, -1),
-            new Vector2(0.51f, -0.8f),
-            new Vector2(0.35f, -0.52f),
-            new Vector2(0.51f, -0.8f),
-            new Vector2(0.64f, -0.67f),
-            new Vector2(0.51f, -0.8f),
-            new Vector2(0.48f, -1),
-            new Vector2(0, -1),
-        };
-        */
-
         List<Block> blocks = this.insetBlocks;
 
         if (debug && blocks != null) {
@@ -352,7 +370,7 @@ public class BlockGenerator : MonoBehaviour {
         }
 
         if (debugInset)
-            InsetBlock(new Block(polygon.Select(v => VectorUtil.Vector2To3(v)).ToList()), this.inset);
+            InsetBlock(new Block(debugPolygon.Select(v => VectorUtil.Vector2To3(v)).ToList()), this.inset);
 
         if (blocks != null) {
             if (debugInset) {

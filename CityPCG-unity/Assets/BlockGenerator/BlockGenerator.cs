@@ -45,6 +45,7 @@ public class BlockGenerator : MonoBehaviour {
     [SerializeField] private float maxBlockArea = 0.0f;
     [SerializeField] private bool debug = false;
     [SerializeField] private int debugBlock = 0;
+    [SerializeField] private bool debugInset = false;
 
     private RoadNetwork roadNetwork;
     private List<Block> blocks;
@@ -173,7 +174,7 @@ public class BlockGenerator : MonoBehaviour {
             if (visited.Contains(vec)) overlaps.Add(i);
             else visited.Add(vec);
 
-            if (debug) {
+            if (debugInset) {
                 Vector3 end = vertices[(i + 1) % vertices.Count];
 
                 Debug.DrawLine(vec, end, new Color(1, 1, 1));
@@ -218,12 +219,14 @@ public class BlockGenerator : MonoBehaviour {
         // Create offsetted line solutions
         List<List<List<IntPoint>>> segmentSolutions = new List<List<List<IntPoint>>>();
         foreach (List<Vector3> path in segments) {
-            for (int i = 0; i < path.Count - 1; i++) {
-                Vector3 p1 = path[i];
-                Vector3 p2 = path[i + 1];
+            if (debugInset) {
+                for (int i = 0; i < path.Count - 1; i++) {
+                    Vector3 p1 = path[i];
+                    Vector3 p2 = path[i + 1];
 
-                Debug.DrawLine(p1 + Vector3.up * (0.01f * i), p2 + Vector3.up * (0.01f * (i + 1)),
-                               new Color(1, 1, 0));
+                    Debug.DrawLine(p1 + Vector3.up * (0.01f * i), p2 + Vector3.up * (0.01f * (i + 1)),
+                                   new Color(1, 1, 0));
+                }
             }
 
             List<IntPoint> linePoly = new List<IntPoint>();
@@ -240,7 +243,7 @@ public class BlockGenerator : MonoBehaviour {
             // Add all offsetted polygons to a list
             segmentSolutions.Add(solution);
 
-            if (debug) {
+            if (debugInset) {
                 foreach (List<IntPoint> poly in solution) {
                     for (int i = 0; i < poly.Count; i++) {
                         Vector2 p1 = VectorUtil.IntPointToVector2(poly[i]) / scale;
@@ -287,13 +290,15 @@ public class BlockGenerator : MonoBehaviour {
                 cDiff.Execute(ClipType.ctDifference, finalSolution,
                               PolyFillType.pftPositive, PolyFillType.pftPositive);
 
-                // Draw final solution
+                // Compose final solution
                 foreach (List<IntPoint> finalPoly in finalSolution) {
-                    for (int i = 0; i < finalPoly.Count; i++) {
-                        Vector2 p1 = VectorUtil.IntPointToVector2(finalPoly[i]) / scale;
-                        Vector2 p2 = VectorUtil.IntPointToVector2(finalPoly[(i + 1) % finalPoly.Count]) / scale;
+                    if (debugInset) {
+                        for (int i = 0; i < finalPoly.Count; i++) {
+                            Vector2 p1 = VectorUtil.IntPointToVector2(finalPoly[i]) / scale;
+                            Vector2 p2 = VectorUtil.IntPointToVector2(finalPoly[(i + 1) % finalPoly.Count]) / scale;
 
-                        Debug.DrawLine(VectorUtil.Vector2To3(p1), VectorUtil.Vector2To3(p2), new Color(1, 0, 1));
+                            Debug.DrawLine(VectorUtil.Vector2To3(p1), VectorUtil.Vector2To3(p2), new Color(1, 0, 1));
+                        }
                     }
 
                     finalBlocks.Add(
@@ -346,11 +351,11 @@ public class BlockGenerator : MonoBehaviour {
             Log("Block area: " + BlockArea(blocks[debugBlock]));
         }
 
-        if (debug)
+        if (debugInset)
             InsetBlock(new Block(polygon.Select(v => VectorUtil.Vector2To3(v)).ToList()), this.inset);
 
         if (blocks != null) {
-            if (debug) {
+            if (debugInset) {
                 foreach (Block block in this.blocks) {
                     List<Block> newBlocks = InsetBlock(block, this.inset);
 

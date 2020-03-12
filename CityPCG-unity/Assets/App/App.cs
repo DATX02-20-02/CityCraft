@@ -11,7 +11,6 @@ using UnityGLTF;
 */
 public class App : MonoBehaviour {
 
-    [SerializeField] private GameObject worldMesh = null;
     [SerializeField] private WorldGenerator worldGenerator = null;
     [SerializeField] private GameObject[] menuPanels = null;
     [SerializeField] private bool debug = false;
@@ -58,7 +57,7 @@ public class App : MonoBehaviour {
         Directory.CreateDirectory(path);
 
         // Export
-        var exporter = new GLTFSceneExporter(new[] {worldMesh.transform}, (t) => t.name);
+        var exporter = new GLTFSceneExporter(new[] {worldGenerator.transform}, (t) => t.name);
         exporter.SaveGLTFandBin(path, "World");
         Log("Model exported to: " + path);
     }

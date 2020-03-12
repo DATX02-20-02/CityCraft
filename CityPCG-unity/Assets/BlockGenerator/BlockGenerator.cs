@@ -246,7 +246,7 @@ public class BlockGenerator : MonoBehaviour {
             List<IntPoint> linePoly = new List<IntPoint>();
             foreach (Vector3 vec in path) {
                 Vector2 scaled = VectorUtil.Vector3To2(vec) * scale;
-                linePoly.Add(new IntPoint((int) scaled.x, (int) scaled.y));
+                linePoly.Add(new IntPoint((int)scaled.x, (int)scaled.y));
             }
 
             // Perform the Clipper offset on all the line segments
@@ -275,7 +275,7 @@ public class BlockGenerator : MonoBehaviour {
         List<IntPoint> s = new List<IntPoint>();
         foreach (Vector3 vec in vertices) {
             Vector2 scaled = VectorUtil.Vector3To2(vec) * scale;
-            s.Add(new IntPoint((int) scaled.x, (int) scaled.y));
+            s.Add(new IntPoint((int)scaled.x, (int)scaled.y));
         }
 
         // Simplify polygon, removing overlapping lines

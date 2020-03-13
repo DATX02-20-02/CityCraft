@@ -88,5 +88,11 @@ namespace Utils.PolygonSplitter
                LineSegment ls = (LineSegment) obj;
                return start == ls.start && end == ls.end;
         }
+
+        public bool EqualsOneTopo(LineSegment other)
+        {    
+            return start.Equals(other.start) || end.Equals(other.end)
+                || start.Equals(other.end) || end.Equals(other.start);
+        }
     }
 }

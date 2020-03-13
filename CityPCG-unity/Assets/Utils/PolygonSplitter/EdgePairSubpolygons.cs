@@ -150,7 +150,7 @@ namespace Utils.PolygonSplitter
                     lineOfCut = IsPointOnLineSegment(pointOfCut, edgeA) ? new LineSegment(pointOfCut, edgeB.end) : new LineSegment(edgeA.start, pointOfCut);
                 }
 
-                if (lineOfCut != null) { // && !IsIntersectingPolygon(lineOfCut, polygon)
+                if (lineOfCut != null){// && !IsIntersectingPolygon(lineOfCut, polygon)) { 
                     // only consider cuts that do not intersect the exterior ring of the polygon
                     var cutAwayPolygon = SlicePolygon(polygon, lineOfCut.start, lineOfCut.end);
                     cuts.Add(new Cut(lineOfCut.GetLength(), cutAwayPolygon));
@@ -198,7 +198,7 @@ namespace Utils.PolygonSplitter
                     lineOfCut = IsPointOnLineSegment(pointOfCut, edgeA) ? new LineSegment(edgeB.start, pointOfCut) : new LineSegment(pointOfCut, edgeA.end);
                 }
 
-                if (lineOfCut != null) { // && !IsIntersectingPolygon(lineOfCut, polygon)
+                if (lineOfCut != null){// && !IsIntersectingPolygon(lineOfCut, polygon)) { 
                     // only consider cuts that do not intersect the exterior ring of the polygon
                     var cutAwayPolygon = SlicePolygon(polygon, lineOfCut.start, lineOfCut.end);
                     if (cutAwayPolygon == null || cutAwayPolygon.points.Count > 3)
@@ -207,8 +207,7 @@ namespace Utils.PolygonSplitter
                     }
                 }
             }
-
-      
+            
             return cuts;
         }
 

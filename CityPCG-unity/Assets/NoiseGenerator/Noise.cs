@@ -40,8 +40,8 @@ public class Noise {
             y = y - this.position.z;
         }
 
-        int mx = (int) (Mathf.Clamp(x / this.width, 0, 1) * this.textureWidth);
-        int my = (int) (Mathf.Clamp(y / this.height, 0, 1) * this.textureHeight);
+        int mx = (int)(Mathf.Clamp(x / this.width, 0, 1) * this.textureWidth);
+        int my = (int)(Mathf.Clamp(y / this.height, 0, 1) * this.textureHeight);
         return new Vector2Int(mx, my);
     }
 
@@ -53,7 +53,7 @@ public class Noise {
         return mx >= 0 && mx < 1 && my >= 0 && my < 1;
     }
 
-    public float GetValue(float x, float y)  {
+    public float GetValue(float x, float y) {
         Vector2Int mapped = this.MapCoordinates(x, y);
         return this.map[mapped.x + mapped.y * this.textureWidth];
     }

@@ -47,24 +47,38 @@ public class TerrainGenerator : MonoBehaviour {
         this.xOffset = xOffset;
         this.zOffset = zOffset;
 
+        // Store current RNG state.
+        var prevRandomState = Random.state;
+
         GenerateVertices();
         GenerateTriangles();
         ColorTerrain();
         TextureTerrain();
         UpdateTerrainMesh();
+
+        // Restore RNG state.
+        Random.state = prevRandomState;
     }
 
     private void GenerateVertices() {
-        this.vertices = new Vector3[(xResolution+1) * (zResolution+1)];
+        this.vertices = new Vector3[4 * (xResolution) * (zResolution)];
 
         int i = 0;
-        for (int z = 0; z <= zResolution; z++) {
-            for (int x = 0; x <= xResolution; x++) {
-                float xPos = ((float)x / xResolution) * width;
-                float zPos = ((float)z / zResolution) * depth;
-                float yPos = PerlinFunc(xPos + xOffset, zPos + zOffset, maxHeight, frequency);
+        for (int z = 0; z < zResolution; z++) {
+            for (int x = 0; x < xResolution; x++) {
 
-                this.vertices[i++] = new Vector3(xPos, yPos, zPos);
+                // Unique vertices for each quad
+                // Each quad's vertices form an "N" shape
+                for (int a = 0; a < 2; a++) {
+                    for (int b = 0; b < 2; b++) {
+                        float xPos = (float)((x+a) / (float)xResolution) * width;
+                        float zPos = (float)((z+b) / (float)zResolution) * depth;
+                        float yPos = PerlinFunc(xPos + xOffset, zPos + zOffset, maxHeight, frequency);
+
+                        this.vertices[i++] = new Vector3(xPos, yPos, zPos);
+                    }
+                }
+
             }
         }
     }
@@ -76,17 +90,19 @@ public class TerrainGenerator : MonoBehaviour {
         int tris = 0;
         for (int z = 0; z < zResolution; z++) {
             for (int x = 0; x < xResolution; x++) {
+                // Right-angle in bottom-left corner.
                 this.triangles[tris + 0] = vert + 0;
-                this.triangles[tris + 1] = vert + xResolution + 1;
-                this.triangles[tris + 2] = vert + 1;
-                this.triangles[tris + 3] = vert + 1;
-                this.triangles[tris + 4] = vert + xResolution + 1;
-                this.triangles[tris + 5] = vert + xResolution + 2;
+                this.triangles[tris + 1] = vert + 1;
+                this.triangles[tris + 2] = vert + 2;
 
-                vert++;
+                // Right-angle in top-right corner.
+                this.triangles[tris + 3] = vert + 2;
+                this.triangles[tris + 4] = vert + 1;
+                this.triangles[tris + 5] = vert + 3;
+
+                vert += 4;
                 tris += 6;
             }
-            vert++;
         }
     }
 
@@ -94,22 +110,25 @@ public class TerrainGenerator : MonoBehaviour {
     private void ColorTerrain() {
         this.colors = new Color[this.vertices.Length];
 
-        int i = 0;
-        for(int z = 0; z <= zResolution; z++) {
-            for(int x = 0; x <= xResolution; x++) {
-                float height = this.vertices[i].y;
-                this.colors[i++] = heightGradient.Evaluate(height / maxHeight);
-            }
+        for(int i = 0; i < this.vertices.Length; i++) {
+            float height = this.vertices[i].y;
+            this.colors[i] = heightGradient.Evaluate(height / maxHeight);
         }
     }
 
     private void TextureTerrain() {
-        // uvs = new Vector2[vertices.Length];
+        this.uvs = new Vector2[vertices.Length];
 
-        // uvs[VertexIndex(0, 0)] = new Vector2(0, 0);
-        // uvs[VertexIndex(1, 0)] = new Vector2(1, 0);
-        // uvs[VertexIndex(0, 1)] = new Vector2(0, 1);
-        // uvs[VertexIndex(1, 1)] = new Vector2(1, 1);
+        for(int i = 0; i < this.vertices.Length; i += 4) {
+            float size = Random.Range(0.22f, 0.28f);
+            float x0 = Random.Range(0, 1 - size);
+            float z0 = Random.Range(0, 1 - size);
+
+            this.uvs[i+0] = new Vector2(x0 + 0.00f, z0 + 0.00f);
+            this.uvs[i+1] = new Vector2(x0 + 0.00f, z0 + size);
+            this.uvs[i+2] = new Vector2(x0 + size, z0 + 0.00f);
+            this.uvs[i+3] = new Vector2(x0 + size, z0 + size);
+        }
     }
 
     private void UpdateTerrainMesh() {
@@ -118,13 +137,9 @@ public class TerrainGenerator : MonoBehaviour {
         this.mesh.vertices = this.vertices;
         this.mesh.triangles = this.triangles;
         this.mesh.colors = this.colors;
-        //mesh.uv = this.uvs;
+        this.mesh.uv = this.uvs;
 
         this.mesh.RecalculateNormals();
-    }
-
-    private int VertexIndex(int x, int z) {
-        return z * (zResolution+1) + x;
     }
 
     // Helper function for generating perlin noise. Takes in x & y coords, constant con to multiply the noise and amp to amplify the coord values.
@@ -134,10 +149,14 @@ public class TerrainGenerator : MonoBehaviour {
 
     private void Awake() {
         this.mesh = new Mesh();
+        this.mesh.MarkDynamic(); // Optimize mesh for frequent updates.
+        this.mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; // Support lots of triangles.
+
         this.terrainMeshFilter.mesh = mesh;
 
-        if(this.debug)
+        if(this.debug) {
             GenerateTerrain();
+        }
     }
 
     private void Update() {

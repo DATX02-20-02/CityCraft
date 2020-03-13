@@ -98,75 +98,55 @@ namespace Utils.PolygonSplitter
             return inside;
         }
         
-        //TODO: Optimize
-        public Polygon Difference(Polygon otherPolygon)
-        {
+        public Polygon Difference(Polygon otherPolygon) {
             var vertices = new List<Vector3>();
 
             var segmentsA = GetLineSegments(this);
             var segmentsB = GetLineSegments(otherPolygon);
-            foreach (var segA in segmentsA)
-            {
-                LineSegment foundSegB = null;
-                var found = 0;
-                foreach (var segB in segmentsB)
-                {
-                    if (segA.EqualsTopo(segB))
-                    {
-                        found = 0;
-                        foundSegB = null;
-                        break;
-                    }
 
-                    if (found == 0 && IsPointOnLineSegmentExcludingEndpoints(segB.start, segA) || IsPointOnLineSegmentExcludingEndpoints(segB.end, segA) && segA.EqualsOneTopo(segB))
-                    {
-                        found = 1;
-                        foundSegB = segB;
-                        continue;
-                    }
-
-                    if (found == 0 && segA.EqualsOneTopo(segB))
-                    {
-                        found = 2;
-                        foundSegB = segB;
-                    }
+            // 1. Find all lines from the original that strictly isn't in the slice.
+            var segs = new List<LineSegment>();
+            foreach(var a in segmentsA) {
+                bool isOutside = true;
+                foreach(var b in segmentsB) {
+                    if(a.EqualsTopo(b))
+                        isOutside = false;
                 }
 
-                if (found == 1 && foundSegB != null)
-                {
-                    var segB = foundSegB;
-                    if (segA.start.Equals(segB.start))
-                    {
-                        vertices.Add(segB.end);
-                        vertices.Add(segA.end);
+                if(isOutside)
+                    segs.Add(a);
+            }
+
+            // 2. Find overlapping lines (if any) and shorten segments in segs.
+            foreach(var a in segmentsA) {
+                foreach(var b in segmentsB) {
+                    if(IsPointOnLineSegment(b.start, a) && IsPointOnLineSegment(b.end, a)) {
+                        // Shorten a, such that it doesn't equal b.
+                        if(a.start == b.start)
+                            a.start = b.end;
+                        else if(a.end == b.end)
+                            a.end = b.start;
+                        else if(a.start == b.end)
+                            a.start = b.start;
+                        else if(a.end == b.start)
+                            a.end = b.end;
                     }
-
-                    else if (segA.start.Equals(segB.end))
-                    {
-                        vertices.Add(segB.start);
-                        vertices.Add(segA.end);
-                    }
-
-                    else if (segA.end.Equals(segB.start))
-                    {
-                        vertices.Add(segA.start);
-                        vertices.Add(segB.end);
-                    }
-
-                    else if (segA.end.Equals(segB.end))
-                    {
-                        vertices.Add(segA.start);
-                        vertices.Add(segB.start);
-                    }
-
-                }
-
-                else if (found == 2)
-                {
-                    vertices.Add(segA.start);
                 }
             }
-            
+
+            // 3. Add all unique vertices.
+            var hasAdded = new HashSet<Vector3>();
+            foreach(var s in segs) {
+                if(!hasAdded.Contains(s.start)) {
+                    hasAdded.Add(s.start);
+                    vertices.Add(s.start);
+                }
+                if(!hasAdded.Contains(s.end)) {
+                    hasAdded.Add(s.end);
+                    vertices.Add(s.end);
+                }
+            }
+
             return CreatePolygon(vertices);	
         }
         

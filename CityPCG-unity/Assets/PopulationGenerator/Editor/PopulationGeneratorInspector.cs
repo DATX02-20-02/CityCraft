@@ -2,10 +2,8 @@ using UnityEngine;
 using UnityEditor;
 
 [CustomEditor(typeof(PopulationGenerator))]
-public class PopulationGeneratorInspector : Editor
-{
-    public override void OnInspectorGUI()
-    {
+public class PopulationGeneratorInspector : Editor {
+    public override void OnInspectorGUI() {
         PopulationGenerator generator = target as PopulationGenerator;
 
         DrawDefaultInspector();

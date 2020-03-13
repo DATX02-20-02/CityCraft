@@ -1,21 +1,22 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NoiseGenerator : MonoBehaviour
-{
-    [SerializeField] float width = 10;
-    [SerializeField] float height = 10;
-    [SerializeField] bool randomSeed = true;
-    [SerializeField] int textureWidth = 512;
-    [SerializeField] int textureHeight = 512;
-    [SerializeField] GameObject debugPlane = null;
-    [SerializeField] Layer[] layers;
+public class NoiseGenerator : MonoBehaviour {
 
-    [SerializeField] bool debug = false;
-    [SerializeField] Noise noise = null;
+    [SerializeField] private float width = 10;
+    [SerializeField] private float height = 10;
+    [SerializeField] private bool randomSeed = true;
+    [SerializeField] private int textureWidth = 512;
+    [SerializeField] private int textureHeight = 512;
+    [SerializeField] private GameObject debugPlane = null;
+    [SerializeField] private Layer[] layers = null;
+
+    [SerializeField] private bool debug = false;
+    [SerializeField] private Noise noise = null;
 
     private Texture2D texture = null;
+
 
     public Noise Generate() {
         if (this.debugPlane != null) {
@@ -36,8 +37,8 @@ public class NoiseGenerator : MonoBehaviour
                 float maxMagnitude = 0;
 
                 foreach (Layer layer in layers) {
-                    float nx = x / (float) this.textureWidth * layer.scale + layer.offset.x + seed;
-                    float ny = y / (float) this.textureHeight * layer.scale + layer.offset.y + seed;
+                    float nx = x / (float)this.textureWidth * layer.scale + layer.offset.x + seed;
+                    float ny = y / (float)this.textureHeight * layer.scale + layer.offset.y + seed;
 
                     float pvalue = Mathf.Pow(2 * Mathf.PerlinNoise(nx, ny) * layer.magnitude, layer.exponent) / 2;
                     value += pvalue;
@@ -71,22 +72,17 @@ public class NoiseGenerator : MonoBehaviour
         return this.noise;
     }
 
-    // Start is called before the first frame update
-    void Start() {
-    }
-
-    // Update is called once per frame
-    void Update() {
-        if (debug) {
-            Vector3 mousePos = Util.GetPlaneMousePos(new Vector3(0, 0, 0));
+    private void Update() {
+        if (debug && noise != null) {
+            Vector3 mousePos = VectorUtil.GetPlaneMousePos(new Vector3(0, 0, 0));
 
             Vector2Int mapped = noise.MapCoordinates(mousePos.x, mousePos.z, true);
 
-            Util.DebugDrawCircle(Vector3.zero, 2, new Color(0, 0, 1));
-            Util.DebugDrawCircle(transform.position, 2, new Color(1, 0, 1));
+            DrawUtil.DebugDrawCircle(Vector3.zero, 2, new Color(0, 0, 1));
+            DrawUtil.DebugDrawCircle(transform.position, 2, new Color(1, 0, 1));
 
-            Util.DebugDrawCircle(mousePos, 2, new Color(1, 1, 0));
-            Util.DebugDrawCircle(new Vector3(mapped.x, 0, mapped.y), 1, new Color(0, 1, 0));
+            DrawUtil.DebugDrawCircle(mousePos, 2, new Color(1, 1, 0));
+            DrawUtil.DebugDrawCircle(new Vector3(mapped.x, 0, mapped.y), 1, new Color(0, 1, 0));
 
             Debug.DrawLine(Vector3.zero, new Vector3(this.textureWidth, 0, 0), new Color(1, 0, 0));
             Debug.DrawLine(Vector3.zero, new Vector3(0, 0, this.textureHeight), new Color(1, 0, 0));

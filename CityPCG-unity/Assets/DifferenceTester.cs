@@ -15,15 +15,22 @@ namespace DefaultNamespace
         public PolygonDifferenceTester p3;
         public PolygonDifferenceTester p4;
         public PolygonDifferenceTester p5;
+
+        public PolygonDifferenceTester p6;
+        public PolygonDifferenceTester p7;
+        public PolygonDifferenceTester p8;
         
 
         public void Start()
         {
             p1.Init(Vector3.zero);
-            p2.Init(new Vector3(2.3f, 0, 0));
-            p3.Init(new Vector3(4.6f, 0, 0));
-            p4.Init(new Vector3(6.9f, 0, 0));
-            p5.Init(new Vector3(9.2f, 0, 0));
+            p2.Init(new Vector3(1 * 2.3f, 0, 0));
+            p3.Init(new Vector3(2 * 2.3f, 0, 0));
+            p4.Init(new Vector3(3 * 2.3f, 0, 0));
+            p5.Init(new Vector3(4 * 2.3f, 0, 0));
+            p6.Init(new Vector3(5 * 2.3f, 0, 0));
+            p7.Init(new Vector3(6 * 2.3f, 0, 0));
+            p8.Init(new Vector3(7 * 2.3f, 0, 0));
         }
 
         public void Update()
@@ -33,6 +40,9 @@ namespace DefaultNamespace
             p3.Render();
             p4.Render();
             p5.Render();
+            p6.Render();
+            p7.Render();
+            p8.Render();
         }
     }
     
@@ -75,6 +85,10 @@ namespace DefaultNamespace
 
             //Difference call
             difference = polygon.Difference(subPolygon);
+
+            Debug.Log("Diff polygon");
+            foreach(var p in difference.points)
+                Debug.Log(p);
             
             //Outline to clearly differentiate the tests
             outline = new Polygon(new List<Vector3>()

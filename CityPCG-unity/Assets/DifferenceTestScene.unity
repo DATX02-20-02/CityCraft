@@ -199,6 +199,33 @@ MonoBehaviour:
       - {x: 0.9, y: 0, z: 0.1}
     p1: {x: 0.5, y: 0, z: 0.8}
     p2: {x: 0.2, y: 0, z: 0.1}
+  p6:
+    polygon:
+      points:
+      - {x: 0, y: 0, z: 0}
+      - {x: 0, y: 0, z: 1}
+      - {x: 1, y: 0, z: 1}
+      - {x: 1, y: 0, z: 0}
+    p1: {x: 0.4, y: 0, z: 1}
+    p2: {x: 0.6, y: 0, z: 0}
+  p7:
+    polygon:
+      points:
+      - {x: 0, y: 0, z: 0}
+      - {x: 0, y: 0, z: 1}
+      - {x: 1, y: 0, z: 1}
+      - {x: 1, y: 0, z: 0}
+    p1: {x: 1, y: 0, z: 1}
+    p2: {x: 0, y: 0, z: 0}
+  p8:
+    polygon:
+      points:
+      - {x: 0, y: 0, z: 0}
+      - {x: 0, y: 0, z: 1}
+      - {x: 1, y: 0, z: 1}
+      - {x: 1, y: 0, z: 0}
+    p1: {x: 0.6, y: 0, z: 1}
+    p2: {x: 1, y: 0, z: 0}
 --- !u!4 &81545353
 Transform:
   m_ObjectHideFlags: 0

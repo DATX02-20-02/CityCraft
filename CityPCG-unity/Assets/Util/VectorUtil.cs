@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ClipperLib;
 
 public class VectorUtil {
 
@@ -10,6 +12,14 @@ public class VectorUtil {
 
     public static Vector3 Vector2To3(Vector2 vec) {
         return new Vector3(vec.x, 0, vec.y);
+    }
+
+    public static Vector2 IntPointToVector2(IntPoint point) {
+        return new Vector2(point.X, point.Y);
+    }
+
+    public static Vector3 IntPointToVector3(IntPoint point) {
+        return new Vector3(point.X, 0, point.Y);
     }
 
     public static Vector2 GetProjectedPointOnLine(Vector2 point, Vector2 from, Vector2 to) {

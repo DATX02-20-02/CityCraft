@@ -7,7 +7,7 @@ namespace Utils.PolygonSplitter
     public static class PolygonSplitter
     {
 
-        public static List<Polygon> Split(Polygon originalPolygon, int parts)
+        public static List<Polygon> Split(Polygon originalPolygon, int parts)    
         {
             var singlePartArea = originalPolygon.GetArea() / parts;
             
@@ -23,17 +23,8 @@ namespace Utils.PolygonSplitter
         }
 
         private static Polygon Split(Polygon polygon, List<Polygon> resultList, float singlePartArea)
-        {
+        { 
             var segments = GetLineSegments(polygon);
-            if (segments.Count < 3)
-            {
-                Debug.Log(polygon);
-                foreach (var segment in segments)
-                {
-                    Debug.Log(segment);
-                }
-                return polygon;
-            }
             
             var possibleCuts = new List<Cut>();
 
@@ -56,36 +47,16 @@ namespace Utils.PolygonSplitter
                 }
             }
 
-            Cut shortestCut = null;
-            if (possibleCuts.Count == 0)
-            {
-                var edgeA = segments[0];
-                var edgeB = segments[2];
-                var edgePair = new EdgePair(edgeA, edgeB);
-                var subPolygons = edgePair.GetSubPolygons();
-                var cuts = subPolygons.GetCuts(polygon, singlePartArea);
 
-                if (cuts.Count == 0)
-                {
-                    return polygon;
-                }
-                else
-                {
-                    shortestCut = cuts[0];
-                }
-            }
-            else
-            {
-                Debug.Log("Possible cuts:");
+            Debug.Log("Possible cuts:");
 
-                shortestCut = possibleCuts[0];
-                for (var i = 1; i < possibleCuts.Count; i++)
+            var shortestCut = possibleCuts[0];
+            for (var i = 1; i < possibleCuts.Count; i++)
+            {
+                Debug.Log(possibleCuts[i]);
+                if (possibleCuts[i].length < shortestCut.length && possibleCuts[i].cutAway != null && polygon.Contains(possibleCuts[i].cutAway))
                 {
-                    Debug.Log(possibleCuts[i]);
-                    if (possibleCuts[i].length < shortestCut.length && possibleCuts[i].cutAway != null && polygon.Contains(possibleCuts[i].cutAway))
-                    {
-                        shortestCut = possibleCuts[i];
-                    }
+                    shortestCut = possibleCuts[i];
                 }
             }
             

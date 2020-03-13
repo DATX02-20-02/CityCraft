@@ -103,55 +103,71 @@ namespace Utils.PolygonSplitter
         {
             var vertices = new List<Vector3>();
 
-            var thisIndex = 0;
-            var otherIndex = -1;
-	
-            for(; thisIndex < points.Count && otherIndex == -1; thisIndex++)
+            var segmentsA = GetLineSegments(this);
+            var segmentsB = GetLineSegments(otherPolygon);
+            foreach (var segA in segmentsA)
             {
-                var ls = new LineSegment(points[thisIndex], points[(thisIndex + 1) % points.Count]);
-                for(var l = 0; l < otherPolygon.points.Count; l++)
+                LineSegment foundSegB = null;
+                var found = 0;
+                foreach (var segB in segmentsB)
                 {
-                    if(ls.start.Equals(otherPolygon.points[l]))
+                    if (segA.EqualsTopo(segB))
                     {
-                        vertices.Add(ls.start);
-                        otherIndex = l;
+                        found = 0;
+                        foundSegB = null;
                         break;
                     }
-			
-                    if(IsPointOnLineSegmentExcludingEndpoints(otherPolygon.points[l], ls))
+
+                    if (found == 0 && IsPointOnLineSegmentExcludingEndpoints(segB.start, segA) || IsPointOnLineSegmentExcludingEndpoints(segB.end, segA) && segA.EqualsOneTopo(segB))
                     {
-                        vertices.Add(ls.start);
-                        vertices.Add(otherPolygon.points[l]);
-                        otherIndex = l;
-                        break;
+                        found = 1;
+                        foundSegB = segB;
+                        continue;
+                    }
+
+                    if (found == 0 && segA.EqualsOneTopo(segB))
+                    {
+                        found = 2;
+                        foundSegB = segB;
                     }
                 }
-            }
-	
-            otherIndex++;
-	
-            while(otherPolygon.points[otherIndex].Equals(points[thisIndex]))
-            {
-                thisIndex++;
-                otherIndex++;
-		
-                thisIndex %= points.Count;
-                otherIndex %= otherPolygon.points.Count;
-            }
 
-            vertices.Add(otherPolygon.points[otherIndex]);
+                if (found == 1 && foundSegB != null)
+                {
+                    var segB = foundSegB;
+                    if (segA.start.Equals(segB.start))
+                    {
+                        vertices.Add(segB.end);
+                        vertices.Add(segA.end);
+                    }
 
-            //Adds last bit
-            while (!vertices.Contains(points[thisIndex]))
-            {
-                vertices.Add(points[thisIndex]);
-                thisIndex++;
-                thisIndex %= points.Count;
+                    else if (segA.start.Equals(segB.end))
+                    {
+                        vertices.Add(segB.start);
+                        vertices.Add(segA.end);
+                    }
+
+                    else if (segA.end.Equals(segB.start))
+                    {
+                        vertices.Add(segA.start);
+                        vertices.Add(segB.end);
+                    }
+
+                    else if (segA.end.Equals(segB.end))
+                    {
+                        vertices.Add(segA.start);
+                        vertices.Add(segB.start);
+                    }
+
+                }
+
+                else if (found == 2)
+                {
+                    vertices.Add(segA.start);
+                }
             }
-
-            vertices.Add(vertices[0]);
-	
-            return new Polygon(vertices);	
+            
+            return CreatePolygon(vertices);	
         }
         
     }

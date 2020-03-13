@@ -71,6 +71,11 @@ namespace Utils.PolygonSplitter
         public static List<LineSegment> GetLineSegments(Polygon polygon) {
             var lineSegments = new List<LineSegment>();
 
+            if (polygon.points.Count == 0)
+            {
+                return lineSegments;
+            }
+
             var start = polygon.points[0];
             for (var i = 1; i < polygon.points.Count; i++) {
                 var end = polygon.points[i];
@@ -94,7 +99,7 @@ namespace Utils.PolygonSplitter
 
         public static bool IsPointOnLineSegment(Vector3 p, LineSegment line)
         {
-            return DistanceLineSegmentPoint(p, line) < 0.01;
+            return DistanceLineSegmentPoint(p, line) < 0.001;
         }
         
         public static bool IsPointOnLineSegmentExcludingEndpoints(Vector3 point, LineSegment line) {

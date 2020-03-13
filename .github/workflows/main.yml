@@ -36,11 +36,11 @@ jobs:
           targetPlatform: StandaloneLinux64
           projectPath: CityPCG-unity
 
-      - name: Upload build
-        uses: actions/upload-artifact@v1
-        with:
-          name: Build
-          path: build
+      # - name: Upload build
+      #   uses: actions/upload-artifact@v1
+      #   with:
+      #     name: Build
+      #     path: build
 
       - name: Generate solution
         uses: webbertakken/unity-builder@v0.10

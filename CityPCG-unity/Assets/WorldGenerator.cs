@@ -53,8 +53,5 @@ public class WorldGenerator : MonoBehaviour {
 
     private void Start() {
         InstantiateGenerators();
-
-        GenerateTerrain();
-        GenerateRoads();
     }
 }

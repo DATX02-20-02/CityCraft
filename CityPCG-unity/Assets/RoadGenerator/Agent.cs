@@ -51,7 +51,7 @@ public class Agent : IComparable {
 
     public Vector3 Direction {
         get { return dir; }
-        set { this.dir = value; }
+        set { this.dir = value.normalized; }
     }
 
     public float Angle {
@@ -122,8 +122,8 @@ public class Agent : IComparable {
     public void SetDefaultConfig() {
         this.config = new AgentConfiguration();
 
-        this.config.stepSize = 0.5f;
-        this.config.snapRadius = 0.2f;
+        this.config.stepSize = 5f;
+        this.config.snapRadius = 1f;
 
         this.config.maxStepCount = 40;
         this.config.maxBranchCount = 4;
@@ -145,9 +145,14 @@ public class Agent : IComparable {
     }
 
     public Node PlaceNode(Vector3 pos, Node.NodeType nodeType, ConnectionType connectionType, out ConnectionResult info) {
+        info = null;
+
+        if (!VectorUtil.IsInBounds(VectorUtil.Vector3To2(pos), this.network.Width, this.network.Height)) {
+            return null;
+        }
+
         Node node = new Node(pos, nodeType);
 
-        info = null;
         if (this.prevNode == null) {
             this.network.AddNode(node);
             this.prevNode = node;
@@ -172,8 +177,14 @@ public class Agent : IComparable {
     }
 
     public void Start() {
-        if (this.strategy != null) {
-            this.started = true;
+    }
+
+    public void SetStrategy(AgentStrategy strat) {
+        this.strategy = strat;
+        this.data = null;
+
+        if (!this.strategy.started) {
+            this.strategy.started = true;
             this.strategy.Start(this);
         }
     }
@@ -183,10 +194,19 @@ public class Agent : IComparable {
 
         if (this.strategy == null) return newAgents;
 
+        if (!this.strategy.started) {
+            this.strategy.started = true;
+            this.strategy.Start(this);
+        }
+
         this.strategy.Work(this);
 
+        if (!VectorUtil.IsInBounds(VectorUtil.Vector3To2(this.pos), this.network.Width, this.network.Height)) {
+            this.Terminate();
+        }
+
         this.stepCount++;
-        if (this.strategy.ShouldDie(this, this.prevNode))
+        if (!this.terminated && this.strategy.ShouldDie(this, this.prevNode))
             this.Terminate();
 
         if (!this.terminated) {

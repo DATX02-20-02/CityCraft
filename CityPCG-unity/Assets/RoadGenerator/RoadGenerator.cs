@@ -36,16 +36,35 @@ public class RoadGenerator : MonoBehaviour {
 
 
     // Generates a complete road network.
-    public void Generate(Action<RoadNetwork> callback = null) {
+    public void Generate(Noise population, Action<RoadNetwork> callback = null) {
         this.callback = callback;
         prevQueueCount = 0;
+        areAgentsWorking = false;
 
-        network = new RoadNetwork();
+        network = new RoadNetwork(population, 256, 256);
         queue = new PriorityQueue<Agent>();
 
         IAgentFactory factory = new ParisAgentFactory();
-        factory.Create(this, network, new Vector3(0, 0, 0));
-        factory.Create(this, network, new Vector3(20, 0, 0));
+        factory.Create(this, network, new Vector3(128 - 50, 0, 128));
+        factory.Create(this, network, new Vector3(128 + 50, 0, 128));
+
+
+        // int max = 4;
+        // for (int i = 0; i < max; i++) {
+        //     float rad = (Mathf.PI * 2) / max;
+
+        //     Vector3 dir = new Vector3(Mathf.Cos(rad * i), 0, Mathf.Sin(rad * i));
+            // Vector3 dir = new Vector3(1, 0, 0);
+            // Agent agent = new Agent(
+            //     network,
+            //     new Vector3(128, 0, 128),
+            //     dir,
+            //     new HighwayAgentStrategy(),
+            //     1
+            // );
+            // agent.config.maxBranchCount = 5;
+            // this.AddAgent(agent);
+        // }
     }
 
     // Adds an agent to the pool of active agents.

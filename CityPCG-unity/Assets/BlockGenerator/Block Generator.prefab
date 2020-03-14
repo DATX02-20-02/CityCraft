@@ -45,11 +45,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inset: 0.05
   scale: 100000
-  polygon:
+  debugPolygon:
   - {x: 0, y: 0}
   - {x: 0, y: 1}
-  - {x: 1, y: 0}
-  minBlockArea: 0.005
-  maxBlockArea: 0.8
+  - {x: 0.5, y: 1}
+  - {x: 0.5, y: 0.5}
+  - {x: 0.2, y: 0.2}
+  - {x: 0.5, y: 0.5}
+  - {x: 0.5, y: 1}
+  - {x: 1, y: 1}
+  - {x: 1, y: -1}
+  - {x: 0.48, y: -1}
+  - {x: 0.51, y: -0.8}
+  - {x: 0.35, y: -0.52}
+  - {x: 0.51, y: -0.8}
+  - {x: 0.64, y: -0.67}
+  - {x: 0.51, y: -0.8}
+  - {x: 0.48, y: -1}
+  - {x: 0, y: -1}
+  minBlockArea: 0.025
+  maxBlockArea: 4
   debug: 0
   debugBlock: 0
+  debugInset: 0

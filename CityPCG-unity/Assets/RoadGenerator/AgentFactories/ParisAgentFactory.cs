@@ -4,7 +4,7 @@ using UnityEngine;
 public class ParisAgentFactory : IAgentFactory {
 
     public void Create(RoadGenerator generator, RoadNetwork network, Vector3 origin) {
-        float[] rings = new float[] { 2, 3.5f, 5 };
+        float[] rings = new float[] { 10, 17.5f, 25 };
         Vector2[] directions = new Vector2[] {
             new Vector2(1, 0),
             new Vector2(0, 1),
@@ -41,12 +41,12 @@ public class ParisAgentFactory : IAgentFactory {
                 network,
                 origin,
                 dir,
-                new ParisAgentStrategy(origin, 5, true),
+                new ParisAgentStrategy(origin, 25, true),
                 priority
             );
 
-            ag.config.stepSize = 1f;
-            ag.config.snapRadius = 0.2f;
+            ag.config.stepSize = 5f;
+            ag.config.snapRadius = 1f;
             ag.config.maxStepCount = 20;
 
             generator.AddAgent(ag);

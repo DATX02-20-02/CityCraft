@@ -17,13 +17,14 @@ public class WorldGenerator : MonoBehaviour {
     [SerializeField] private GameObject parkGeneratorPrefab = null;
 
     private TerrainGenerator terrainGenerator;
-    private PopulationGenerator populationGenerator;
+    private NoiseGenerator populationGenerator;
     private RoadGenerator roadGenerator;
     private BlockGenerator blockGenerator;
     private PlotGenerator plotGenerator;
     private BuildingGenerator buildingGenerator;
     private ParkGenerator parkGenerator;
 
+    private Noise populationNoise;
 
     public void Undo() { }
 
@@ -32,7 +33,9 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     public void GenerateRoads() {
-        roadGenerator.Generate((roadNetwork) => blockGenerator.Generate(roadNetwork));
+        populationNoise = populationGenerator.Generate();
+
+        roadGenerator.Generate(populationNoise, (roadNetwork) => blockGenerator.Generate(roadNetwork));
     }
 
     public void GenerateStreets() { }
@@ -40,7 +43,7 @@ public class WorldGenerator : MonoBehaviour {
 
     private void InstantiateGenerators() {
         terrainGenerator = Instantiate(terrainGeneratorPrefab, transform).GetComponent<TerrainGenerator>();
-        populationGenerator = Instantiate(populationGeneratorPrefab, transform).GetComponent<PopulationGenerator>();
+        populationGenerator = Instantiate(populationGeneratorPrefab, transform).GetComponent<NoiseGenerator>();
         roadGenerator = Instantiate(roadGeneratorPrefab, transform).GetComponent<RoadGenerator>();
         blockGenerator = Instantiate(blockGeneratorPrefab, transform).GetComponent<BlockGenerator>();
         plotGenerator = Instantiate(plotGeneratorPrefab, transform).GetComponent<PlotGenerator>();
@@ -50,5 +53,8 @@ public class WorldGenerator : MonoBehaviour {
 
     private void Start() {
         InstantiateGenerators();
+
+        GenerateTerrain();
+        GenerateRoads();
     }
 }

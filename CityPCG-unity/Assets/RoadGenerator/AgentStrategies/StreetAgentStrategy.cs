@@ -48,7 +48,7 @@ public class StreetAgentStrategy : AgentStrategy {
 
         agent.PlaceNode(agent.Position, this.nodeType, this.connectionType, out ConnectionResult info);
 
-        if (!info.success) agent.Terminate();
+        if (info != null && !info.success) agent.Terminate();
     }
 
     public override List<Agent> Branch(Agent agent, Node node) {

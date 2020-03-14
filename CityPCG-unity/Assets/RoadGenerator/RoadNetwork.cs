@@ -6,6 +6,9 @@ using UnityEngine;
 public class RoadNetwork {
     private List<Node> nodes;
     private RBush<Node> tree; // See: https://www.wikiwand.com/en/R-tree
+    private Noise population;
+    private float width;
+    private float height;
 
     public List<Node> Nodes {
         get {
@@ -19,7 +22,20 @@ public class RoadNetwork {
         }
     }
 
-    public RoadNetwork() {
+    public Noise Population {
+        get {
+            return population;
+        }
+    }
+
+    public float Width { get { return width; } }
+    public float Height { get { return height; } }
+
+    public RoadNetwork(Noise population, float width, float height) {
+        this.population = population;
+        this.width = width;
+        this.height = height;
+
         tree = new RBush<Node>();
         nodes = new List<Node>();
     }
@@ -294,6 +310,8 @@ public class RoadNetwork {
                 var color = new Color(1, 0, 0);
                 if (c.type == ConnectionType.Street)
                     color = new Color(0, 1, 0);
+                else if (c.type == ConnectionType.Highway)
+                    color = new Color(0, 0, 1);
 
                 Debug.DrawLine(n.pos, c.node.pos, color);
             }

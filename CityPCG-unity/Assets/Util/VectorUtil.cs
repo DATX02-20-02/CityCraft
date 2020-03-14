@@ -22,6 +22,13 @@ public class VectorUtil {
         return new Vector3(point.X, 0, point.Y);
     }
 
+    public static bool IsInBounds(Vector2 vec, float width, float height) {
+        float mx = vec.x / width;
+        float my = vec.y / height;
+
+        return mx >= 0 && mx < 1 && my >= 0 && my < 1;
+    }
+
     public static Vector2 GetProjectedPointOnLine(Vector2 point, Vector2 from, Vector2 to) {
         float l2 = (to - from).sqrMagnitude;
         if (l2 == 0) return from;

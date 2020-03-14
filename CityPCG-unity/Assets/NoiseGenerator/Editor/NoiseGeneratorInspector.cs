@@ -1,10 +1,10 @@
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(PopulationGenerator))]
-public class PopulationGeneratorInspector : Editor {
+[CustomEditor(typeof(NoiseGenerator))]
+public class NoiseGeneratorInspector : Editor {
     public override void OnInspectorGUI() {
-        PopulationGenerator generator = target as PopulationGenerator;
+        NoiseGenerator generator = target as NoiseGenerator;
 
         DrawDefaultInspector();
         if (GUILayout.Button("Generate map")) {

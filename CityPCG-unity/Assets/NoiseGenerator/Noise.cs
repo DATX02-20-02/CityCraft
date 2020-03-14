@@ -1,78 +1,49 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Noise {
-    private float[] map;
-    private float width;
-    private float height;
+    private Layer[] layers = null;
+    private float seed = 0;
+    private float maxScale = 0;
 
-    private Vector3 position;
+    public Noise(Layer[] layers, float seed = 0) {
+        this.layers = layers;
+        this.seed = seed;
 
-    private int textureWidth;
-    private int textureHeight;
-
-    public Noise(float[] map, Vector3 position, float width, float height, int textureWidth, int textureHeight) {
-        this.map = map;
-        this.position = position;
-
-        this.width = width;
-        this.height = height;
-
-        this.textureWidth = textureWidth;
-        this.textureHeight = textureHeight;
+        foreach (Layer layer in layers) {
+            if (layer.scale > maxScale) maxScale = layer.scale;
+        }
     }
 
-    public float[] Map {
-        get { return this.map; }
-    }
+    public float GetValue(float x, float y)  {
+        float value = 0;
+        float maxMagnitude = 0;
 
-    public float Width { get { return this.width; } }
-    public float Height { get { return this.height; } }
+        foreach (Layer layer in layers) {
+            float nx = x * layer.scale + layer.offset.x + this.seed;
+            float ny = y * layer.scale + layer.offset.y + this.seed;
 
-    public int TextureWidth { get { return this.textureWidth; } }
-    public int TextureHeight { get { return this.textureHeight; } }
-
-    public Vector3 Position { get { return this.position; } }
-
-
-    public Vector2Int MapCoordinates(float x, float y, bool useRelative = false) {
-        if (useRelative) {
-            x = x - this.position.x;
-            y = y - this.position.z;
+            float pvalue = Mathf.Pow(2 * Mathf.PerlinNoise(nx, ny) * layer.magnitude, layer.exponent) / 2;
+            value += pvalue;
+            maxMagnitude += layer.magnitude;
         }
 
-        int mx = (int)(Mathf.Clamp(x / this.width, 0, 1) * this.textureWidth);
-        int my = (int)(Mathf.Clamp(y / this.height, 0, 1) * this.textureHeight);
-        return new Vector2Int(mx, my);
+        return Mathf.Clamp(value / maxMagnitude, 0, 1);
     }
 
-
-    public bool IsInBounds(float x, float y) {
-        float mx = x / this.width;
-        float my = y / this.height;
-
-        return mx >= 0 && mx < 1 && my >= 0 && my < 1;
-    }
-
-    public float GetValue(float x, float y) {
-        Vector2Int mapped = this.MapCoordinates(x, y);
-        return this.map[mapped.x + mapped.y * this.textureWidth];
-    }
-
-    public Vector2 GetSlope(float x, float y) {
-        float maxValue = float.MaxValue;
-        Vector2 max = Vector2.zero;
-
-        for (float i = 0; i <= Mathf.PI * 2; i += (Mathf.PI * 2) / 10) {
+    public Vector2 GetSlope(float x, float y)  {
+        float totalValue = 0;
+        Vector2 avg = Vector2.zero;
+        for (float i = 0; i <= Mathf.PI * 2; i += (Mathf.PI * 2) / 20) {
             Vector2 n = new Vector2(Mathf.Cos(i), Mathf.Sin(i));
-            float value = this.GetValue(x + n.x * 10, y + n.y * 10);
+            float dist = 0.01f / Mathf.Max(1, maxScale / 20);
+            float value = this.GetValue(x + n.x * dist, y + n.y * dist);
 
-            if (value > maxValue) {
-                max = n;
-                maxValue = value;
-            }
+            avg += n * value;
+            totalValue += value;
         }
 
-        return max;
+        return (avg / totalValue).normalized;
     }
 
 }

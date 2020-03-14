@@ -14,7 +14,7 @@ public class RoadGeneratorInspector : Editor {
         if (GUILayout.Button("Generate network")) {
             Undo.RecordObject(generator, "Generate network");
 
-            generator.Generate();
+            // generator.Generate();
 
             EditorUtility.SetDirty(generator);
         }

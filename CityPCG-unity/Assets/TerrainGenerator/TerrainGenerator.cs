@@ -39,18 +39,20 @@ public class TerrainGenerator : MonoBehaviour {
     private Vector2[] uvs;
 
 
-    public void GenerateTerrain() {
-        GenerateTerrain(Random.Range(0f, 10000f), Random.Range(0f, 10000f));
+    public TerrainModel GenerateTerrain() {
+        return GenerateTerrain(Random.Range(0f, 10000f), Random.Range(0f, 10000f));
     }
 
-    private void GenerateTerrain(float xOffset, float zOffset) {
+    private TerrainModel GenerateTerrain(float xOffset, float zOffset) {
         this.xOffset = xOffset;
         this.zOffset = zOffset;
 
         // Store current RNG state.
         var prevRandomState = Random.state;
+        var noise = this.noiseGenerator.Generate();
+        var terrainModel = new TerrainModel(width, depth, maxHeight, noise);
 
-        GenerateVertices();
+        GenerateVertices(terrainModel);
         GenerateTriangles();
         ColorTerrain();
         TextureTerrain();
@@ -58,11 +60,12 @@ public class TerrainGenerator : MonoBehaviour {
 
         // Restore RNG state.
         Random.state = prevRandomState;
+
+        return terrainModel;
     }
 
-    private void GenerateVertices() {
+    private void GenerateVertices(TerrainModel terrainModel) {
         this.vertices = new Vector3[4 * (xResolution) * (zResolution)];
-        var noise = this.noiseGenerator.Generate();
 
         int i = 0;
         for (int z = 0; z < zResolution; z++) {
@@ -74,7 +77,7 @@ public class TerrainGenerator : MonoBehaviour {
                     for (int b = 0; b < 2; b++) {
                         float xPos = (float)((x+a) / (float)xResolution) * width;
                         float zPos = (float)((z+b) / (float)zResolution) * depth;
-                        float yPos = maxHeight * noise.GetValue(xPos + xOffset, zPos + zOffset);
+                        float yPos = terrainModel.GetHeight(xPos + xOffset, zPos + zOffset);
 
                         this.vertices[i++] = new Vector3(xPos, yPos, zPos);
                     }

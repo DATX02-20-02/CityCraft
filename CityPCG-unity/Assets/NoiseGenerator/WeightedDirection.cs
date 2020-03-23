@@ -1,6 +1,6 @@
 using UnityEngine;
 
 struct WeightedDirection {
-    public float value;
+    public float weight;
     public Vector2 dir;
 }

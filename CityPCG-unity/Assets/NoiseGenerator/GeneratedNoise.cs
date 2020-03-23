@@ -69,19 +69,19 @@ public class GeneratedNoise {
         for (float i = 0; i <= Mathf.PI * 2; i += (Mathf.PI * 2) / 20) {
             Vector2 n = new Vector2(Mathf.Cos(i), Mathf.Sin(i));
             float dist = Mathf.Sqrt(2) * 10;
-            float value = this.GetValue((int)(x + n.x * dist), (int)(y + n.y * dist));
+            float weight = this.GetValue((int)(x + n.x * dist), (int)(y + n.y * dist));
 
             WeightedDirection direction;
-            direction.value = value;
+            direction.weight = weight;
             direction.dir = n;
             directions.Add(direction);
 
-            totalValue += value;
+            totalValue += weight;
         }
 
         Vector2 avg = Vector2.zero;
         foreach (WeightedDirection direction in directions) {
-            avg += direction.dir * direction.value / totalValue;
+            avg += direction.dir * direction.weight / totalValue;
         }
 
         return avg.normalized;

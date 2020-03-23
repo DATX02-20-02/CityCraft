@@ -75,8 +75,8 @@ public class TerrainGenerator : MonoBehaviour {
                 // Each quad's vertices form an "N" shape
                 for (int a = 0; a < 2; a++) {
                     for (int b = 0; b < 2; b++) {
-                        float xPos = (float)((x+a) / (float)xResolution) * width;
-                        float zPos = (float)((z+b) / (float)zResolution) * depth;
+                        float xPos = (float)((x + a) / (float)xResolution) * width;
+                        float zPos = (float)((z + b) / (float)zResolution) * depth;
                         float yPos = terrainModel.GetHeight(xPos + xOffset, zPos + zOffset);
 
                         this.vertices[i++] = new Vector3(xPos, yPos, zPos);
@@ -114,7 +114,7 @@ public class TerrainGenerator : MonoBehaviour {
     private void ColorTerrain() {
         this.colors = new Color[this.vertices.Length];
 
-        for(int i = 0; i < this.vertices.Length; i++) {
+        for (int i = 0; i < this.vertices.Length; i++) {
             float height = this.vertices[i].y;
             this.colors[i] = heightGradient.Evaluate(height / maxHeight);
         }
@@ -123,15 +123,15 @@ public class TerrainGenerator : MonoBehaviour {
     private void TextureTerrain() {
         this.uvs = new Vector2[vertices.Length];
 
-        for(int i = 0; i < this.vertices.Length; i += 4) {
+        for (int i = 0; i < this.vertices.Length; i += 4) {
             float size = Random.Range(0.22f, 0.28f);
             float x0 = Random.Range(0, 1 - size);
             float z0 = Random.Range(0, 1 - size);
 
-            this.uvs[i+0] = new Vector2(x0 + 0.0f, z0 + 0.0f);
-            this.uvs[i+1] = new Vector2(x0 + 0.0f, z0 + size);
-            this.uvs[i+2] = new Vector2(x0 + size, z0 + 0.0f);
-            this.uvs[i+3] = new Vector2(x0 + size, z0 + size);
+            this.uvs[i + 0] = new Vector2(x0 + 0.0f, z0 + 0.0f);
+            this.uvs[i + 1] = new Vector2(x0 + 0.0f, z0 + size);
+            this.uvs[i + 2] = new Vector2(x0 + size, z0 + 0.0f);
+            this.uvs[i + 3] = new Vector2(x0 + size, z0 + size);
         }
     }
 
@@ -158,7 +158,7 @@ public class TerrainGenerator : MonoBehaviour {
 
         this.terrainMeshFilter.mesh = mesh;
 
-        if(this.debug) {
+        if (this.debug) {
             GenerateTerrain();
         }
     }

@@ -8,31 +8,37 @@ using UnityEngine;
 
 public class CameraMovement : MonoBehaviour{
     //public Transform cam;
-    [SerializeField] float mouseSensitivity = 200f;
+    [SerializeField] float mouseSensitivity;
+    [SerializeField] float moveSpeed;
     float xRotation = 0f;
     float yRotation = 0f;
     Vector3 up = new Vector3(0f, 1f, 0f);
+
+    void Start(){
+        mouseSensitivity = 500f;
+        moveSpeed = 100f;
+    }
 
     // Update is called once per frame
     void Update(){
 
         if (Input.GetKey("w")){
-            transform.position += transform.forward;
+            transform.position += transform.forward * moveSpeed* Time.deltaTime;
         }
         if (Input.GetKey("a")){
-            transform.position += transform.right * (-1);
+            transform.position -= transform.right * moveSpeed* Time.deltaTime;
         }
         if (Input.GetKey("s")){
-            transform.position += transform.forward * (-1);
+            transform.position -= transform.forward * moveSpeed* Time.deltaTime;
         }
         if (Input.GetKey("d")){
-            transform.position += transform.right;
+            transform.position += transform.right * moveSpeed* Time.deltaTime;
         }
-        if (Input.GetKey(KeyCode.LeftShift)){
-            transform.position -= up;
+        if (Input.GetKey("q")){
+            transform.position -= up * moveSpeed* Time.deltaTime;
         }
-        if (Input.GetKey(KeyCode.Space)){
-            transform.position += up;
+        if (Input.GetKey("e")){
+            transform.position += up * moveSpeed* Time.deltaTime;
         }
 
         if (!Input.GetMouseButton(1)){ // Unlock cursor
@@ -53,3 +59,11 @@ public class CameraMovement : MonoBehaviour{
         }
     }
 }
+
+
+
+
+
+
+
+

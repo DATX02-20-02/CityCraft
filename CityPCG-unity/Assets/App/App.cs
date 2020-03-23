@@ -57,7 +57,7 @@ public class App : MonoBehaviour {
         Directory.CreateDirectory(path);
 
         // Export
-        var exporter = new GLTFSceneExporter(new[] {worldGenerator.transform}, (t) => t.name);
+        var exporter = new GLTFSceneExporter(new[] { worldGenerator.transform }, (t) => t.name);
         exporter.SaveGLTFandBin(path, "World");
         Log("Model exported to: " + path);
     }

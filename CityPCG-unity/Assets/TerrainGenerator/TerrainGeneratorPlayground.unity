@@ -193,26 +193,6 @@ PrefabInstance:
       propertyPath: debug
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 8089825655492616084, guid: f6194860a1ee1a5cb83135cd2f5f103a,
-        type: 3}
-      propertyPath: width
-      value: 600
-      objectReference: {fileID: 0}
-    - target: {fileID: 8089825655492616084, guid: f6194860a1ee1a5cb83135cd2f5f103a,
-        type: 3}
-      propertyPath: depth
-      value: 600
-      objectReference: {fileID: 0}
-    - target: {fileID: 8089825655492616084, guid: f6194860a1ee1a5cb83135cd2f5f103a,
-        type: 3}
-      propertyPath: xResolution
-      value: 150
-      objectReference: {fileID: 0}
-    - target: {fileID: 8089825655492616084, guid: f6194860a1ee1a5cb83135cd2f5f103a,
-        type: 3}
-      propertyPath: zResolution
-      value: 150
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f6194860a1ee1a5cb83135cd2f5f103a, type: 3}
 --- !u!1 &705507993

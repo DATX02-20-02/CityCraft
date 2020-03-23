@@ -23,12 +23,12 @@ public class Noise {
             float nx = x * layer.scale + layer.offset.x + this.seed;
             float ny = y * layer.scale + layer.offset.y + this.seed;
 
-            float pvalue = Mathf.Pow(2 * Mathf.PerlinNoise(nx, ny) * layer.magnitude, layer.exponent) / 2;
+            float pvalue = Mathf.Pow(2.0f * Mathf.Clamp01(Mathf.PerlinNoise(nx, ny)) * layer.magnitude, layer.exponent) / 2.0f;
             value += pvalue;
             maxMagnitude += layer.magnitude;
         }
 
-        return Mathf.Clamp(value / maxMagnitude, 0, 1);
+        return Mathf.Clamp01(value / maxMagnitude);
     }
 
     public Vector2 GetSlope(float x, float y) {

@@ -10,6 +10,7 @@ public class TerrainGenerator : MonoBehaviour {
 
     // Color gradient for different heights.
     [SerializeField] private Gradient heightGradient = null;
+    [SerializeField] private NoiseGenerator noiseGenerator = null;
     [SerializeField] private MeshFilter terrainMeshFilter = null;
     [SerializeField] private Transform sea = null;
 
@@ -24,7 +25,6 @@ public class TerrainGenerator : MonoBehaviour {
 
     // Noise params.
     [SerializeField] private float maxHeight = 80f;
-    [SerializeField] private float frequency = 0.05f;
 
     // Amount of quads used in the terrain.
     [SerializeField] private int xResolution = 100;
@@ -62,6 +62,7 @@ public class TerrainGenerator : MonoBehaviour {
 
     private void GenerateVertices() {
         this.vertices = new Vector3[4 * (xResolution) * (zResolution)];
+        var noise = this.noiseGenerator.Generate();
 
         int i = 0;
         for (int z = 0; z < zResolution; z++) {
@@ -73,7 +74,7 @@ public class TerrainGenerator : MonoBehaviour {
                     for (int b = 0; b < 2; b++) {
                         float xPos = (float)((x+a) / (float)xResolution) * width;
                         float zPos = (float)((z+b) / (float)zResolution) * depth;
-                        float yPos = PerlinFunc(xPos + xOffset, zPos + zOffset, maxHeight, frequency);
+                        float yPos = maxHeight * noise.GetValue(xPos + xOffset, zPos + zOffset);
 
                         this.vertices[i++] = new Vector3(xPos, yPos, zPos);
                     }
@@ -124,9 +125,9 @@ public class TerrainGenerator : MonoBehaviour {
             float x0 = Random.Range(0, 1 - size);
             float z0 = Random.Range(0, 1 - size);
 
-            this.uvs[i+0] = new Vector2(x0 + 0.00f, z0 + 0.00f);
-            this.uvs[i+1] = new Vector2(x0 + 0.00f, z0 + size);
-            this.uvs[i+2] = new Vector2(x0 + size, z0 + 0.00f);
+            this.uvs[i+0] = new Vector2(x0 + 0.0f, z0 + 0.0f);
+            this.uvs[i+1] = new Vector2(x0 + 0.0f, z0 + size);
+            this.uvs[i+2] = new Vector2(x0 + size, z0 + 0.0f);
             this.uvs[i+3] = new Vector2(x0 + size, z0 + size);
         }
     }

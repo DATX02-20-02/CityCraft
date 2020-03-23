@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7024093109867382770}
   - component: {fileID: 8089825655492616084}
+  - component: {fileID: 1828370796}
   m_Layer: 0
   m_Name: Terrain Generator
   m_TagString: Untagged
@@ -74,17 +75,46 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 6
     m_NumAlphaKeys: 2
+  noiseGenerator: {fileID: 1828370796}
   terrainMeshFilter: {fileID: 4572131543444406465}
   sea: {fileID: 391713232}
-  width: 500
-  depth: 500
+  width: 600
+  depth: 600
   xOffset: 0
   zOffset: 0
-  seaLevel: 8
-  maxHeight: 50
-  frequency: 0.01
-  xResolution: 200
-  zResolution: 200
+  seaLevel: 16
+  maxHeight: 80
+  xResolution: 250
+  zResolution: 250
+  debug: 0
+--- !u!114 &1828370796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3803538401388743391}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e797a301bdd38641a87062606437813, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  randomSeed: 1
+  seed: 0
+  layers:
+  - offset: {x: 38, y: 3}
+    scale: 0.01
+    magnitude: 10
+    exponent: 0.84
+  - offset: {x: 7, y: 123}
+    scale: 0.005
+    magnitude: 1.43
+    exponent: 2
+  width: 10
+  height: 10
+  textureWidth: 512
+  textureHeight: 512
+  debugPlane: {fileID: 0}
   debug: 0
 --- !u!1 &6999845469166995743
 GameObject:

@@ -74,8 +74,6 @@ public class NoiseGenerator : MonoBehaviour {
 
             Vector3 mPos = mousePos + Vector3.up * value * 10;
             DrawUtil.DebugDrawCircle(mPos, 2, new Color(1, 0, 0));
-            // DrawUtil.DebugDrawCircle(VectorUtil.Vector2To3(mapped), 1, new Color(0, 1, 0));
-            // Debug.DrawLine(VectorUtil.Vector2To3(mapped), VectorUtil.Vector2To3(mapped) + VectorUtil.Vector2To3(slope) * 10, new Color(0, 1, 0));
             Debug.DrawLine(mPos, mPos + VectorUtil.Vector2To3(slope) * 10, new Color(0, 1, 0));
 
             Debug.DrawLine(Vector3.zero, new Vector3(this.textureWidth, 0, 0), new Color(1, 0, 0));

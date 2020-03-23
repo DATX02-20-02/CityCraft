@@ -9,7 +9,7 @@ public class HighwayAgentStrategy : AgentStrategy {
         public Vector3 startDirection;
     }
 
-    public HighwayAgentStrategy() {}
+    public HighwayAgentStrategy() { }
 
     public override void Start(Agent agent) {
         // Initialize agent data

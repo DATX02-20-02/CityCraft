@@ -54,16 +54,16 @@ public class RoadGenerator : MonoBehaviour {
         //     float rad = (Mathf.PI * 2) / max;
 
         //     Vector3 dir = new Vector3(Mathf.Cos(rad * i), 0, Mathf.Sin(rad * i));
-            // Vector3 dir = new Vector3(1, 0, 0);
-            // Agent agent = new Agent(
-            //     network,
-            //     new Vector3(128, 0, 128),
-            //     dir,
-            //     new HighwayAgentStrategy(),
-            //     1
-            // );
-            // agent.config.maxBranchCount = 5;
-            // this.AddAgent(agent);
+        // Vector3 dir = new Vector3(1, 0, 0);
+        // Agent agent = new Agent(
+        //     network,
+        //     new Vector3(128, 0, 128),
+        //     dir,
+        //     new HighwayAgentStrategy(),
+        //     1
+        // );
+        // agent.config.maxBranchCount = 5;
+        // this.AddAgent(agent);
         // }
     }
 

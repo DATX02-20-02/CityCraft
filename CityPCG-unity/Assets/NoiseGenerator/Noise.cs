@@ -15,7 +15,7 @@ public class Noise {
         }
     }
 
-    public float GetValue(float x, float y)  {
+    public float GetValue(float x, float y) {
         float value = 0;
         float maxMagnitude = 0;
 
@@ -31,7 +31,7 @@ public class Noise {
         return Mathf.Clamp(value / maxMagnitude, 0, 1);
     }
 
-    public Vector2 GetSlope(float x, float y)  {
+    public Vector2 GetSlope(float x, float y) {
         float totalValue = 0;
         Vector2 avg = Vector2.zero;
         for (float i = 0; i <= Mathf.PI * 2; i += (Mathf.PI * 2) / 20) {

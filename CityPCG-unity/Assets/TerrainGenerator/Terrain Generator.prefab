@@ -101,17 +101,13 @@ MonoBehaviour:
   offset: {x: 0, y: 0}
   layers:
   - offset: {x: 38, y: 3}
-    scale: 1.68
-    magnitude: 8
-    exponent: 1
+    scale: 10
+    magnitude: 10
+    exponent: 0.84
   - offset: {x: 7, y: 123}
-    scale: 5.9
-    magnitude: 4
-    exponent: 1
-  - offset: {x: 421, y: 123}
-    scale: 20
-    magnitude: 0.35
-    exponent: 1
+    scale: 5
+    magnitude: 1.43
+    exponent: 2
   width: 600
   height: 600
   textureWidth: 600

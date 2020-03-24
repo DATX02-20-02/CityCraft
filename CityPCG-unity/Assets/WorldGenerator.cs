@@ -28,7 +28,6 @@ public class WorldGenerator : MonoBehaviour {
 
     private Noise populationNoise;
     private TerrainModel terrain;
-    private List<Block> blocks;
 
     public void Undo() { }
 
@@ -39,7 +38,7 @@ public class WorldGenerator : MonoBehaviour {
     public void GenerateRoads() {
         populationNoise = populationGenerator.Generate();
 
-        roadGenerator.Generate(terrain, populationNoise, GenerateBlocks);
+        roadGenerator.Generate(terrain, populationNoise, (roadNetwork) => blockGenerator.Generate(roadNetwork));
     }
 
     public void GenerateStreets() { }

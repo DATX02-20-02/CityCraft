@@ -154,9 +154,6 @@ public class Agent : IComparable {
         Node node = this.network.CreateNode(VectorUtil.Vector3To2(pos), nodeType);
         float yLevel = node.pos.y;
 
-        if (yLevel <= network.Terrain.seaLevel) {
-            return null;
-        }
 
         Vector3 normal = network.Terrain.GetNormal(pos.x, pos.z);
         float steepness = Vector3.Dot(normal, Vector3.up);

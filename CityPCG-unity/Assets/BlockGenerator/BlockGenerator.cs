@@ -328,7 +328,7 @@ public class BlockGenerator : MonoBehaviour {
 
                     finalBlocks.Add(
                         new Block(
-                            finalPoly.Select(v => VectorUtil.IntPointToVector3(v) / scale).ToList()
+                            finalPoly.Select(v => roadNetwork.Terrain.GetPosition(VectorUtil.IntPointToVector2(v) / scale)).ToList()
                         )
                     );
                 }

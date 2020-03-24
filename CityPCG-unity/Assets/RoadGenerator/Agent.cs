@@ -151,7 +151,29 @@ public class Agent : IComparable {
             return null;
         }
 
-        Node node = new Node(pos, nodeType);
+        Node node = this.network.CreateNode(VectorUtil.Vector3To2(pos), nodeType);
+        float yLevel = node.pos.y;
+
+
+        Vector3 normal = network.Terrain.GetNormal(pos.x, pos.z);
+        float steepness = Vector3.Dot(normal, Vector3.up);
+        float angle = 90 - Vector3.Angle(Vector3.up, normal);
+
+        // TODO: Do not hardcode this.
+        if (Mathf.Abs(angle) <= 45) {
+            return null;
+        }
+
+        // This might be used in the future to decide on max height difference
+        // This could occur if we have ravines and stuff in the terrain
+        
+        // if (this.prevNode != null) {
+        //     float prevYLevel = this.prevNode.pos.y;
+
+        //     float yDiff = Mathf.Abs(yLevel - prevYLevel);
+        //     if (yDiff >= 5) return null;
+        // }
+
 
         if (this.prevNode == null) {
             this.network.AddNode(node);

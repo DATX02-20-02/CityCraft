@@ -22,7 +22,7 @@ public class NoiseGenerator : MonoBehaviour {
 
     public float Seed {
         get {
-            return randomSeed ? Random.Range(-100000, 100000) : this.seed;
+            return randomSeed ? Random.Range(-10000.0f, 10000.0f) : this.seed;
         }
         set {
             this.seed = value;

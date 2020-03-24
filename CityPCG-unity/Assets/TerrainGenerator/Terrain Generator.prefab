@@ -103,17 +103,17 @@ MonoBehaviour:
   seed: 0
   layers:
   - offset: {x: 38, y: 3}
-    scale: 0.01
+    scale: 10
     magnitude: 10
     exponent: 0.84
   - offset: {x: 7, y: 123}
-    scale: 0.005
+    scale: 5
     magnitude: 1.43
     exponent: 2
-  width: 10
-  height: 10
-  textureWidth: 512
-  textureHeight: 512
+  width: 600
+  height: 600
+  textureWidth: 600
+  textureHeight: 600
   debugPlane: {fileID: 0}
   debug: 0
 --- !u!1 &6999845469166995743

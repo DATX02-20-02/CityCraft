@@ -43,7 +43,12 @@ public class ParisAgentStrategy : AgentStrategy {
 
             if (!this.straight) pos = center + agent.Direction * radius;
 
-            Node node = agent.Network.AddNodeNearby(new Node(pos), agent.config.snapRadius);
+            Node node = agent.Network.AddNodeNearby(
+                agent.Network.CreateNode(
+                    VectorUtil.Vector3To2(pos), nodeType
+                ),
+                agent.config.snapRadius
+            );
             agent.PreviousNode = node;
         };
     }
@@ -73,6 +78,9 @@ public class ParisAgentStrategy : AgentStrategy {
                     agent.SetStrategy(new HighwayAgentStrategy());
                 }
             }
+            else {
+                agent.Terminate();
+            }
         }
         else {
             agent.Angle += this.angleIncrement;
@@ -89,6 +97,9 @@ public class ParisAgentStrategy : AgentStrategy {
                 if (info.didSnap || info.didIntersect) {
                     agent.Terminate();
                 }
+            }
+            else {
+                agent.Terminate();
             }
         }
     }

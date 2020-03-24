@@ -27,19 +27,19 @@ public class WorldGenerator : MonoBehaviour {
     private ParkGenerator parkGenerator;
 
     private Noise populationNoise;
+    private TerrainModel terrain;
     private List<Block> blocks;
-
 
     public void Undo() { }
 
     public void GenerateTerrain() {
-        terrainGenerator.GenerateTerrain();
+        terrain = terrainGenerator.GenerateTerrain();
     }
 
     public void GenerateRoads() {
         populationNoise = populationGenerator.Generate();
 
-        roadGenerator.Generate(populationNoise, GenerateBlocks);
+        roadGenerator.Generate(terrain, populationNoise, GenerateBlocks);
     }
 
     public void GenerateStreets() { }

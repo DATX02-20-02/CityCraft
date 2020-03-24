@@ -77,7 +77,7 @@ public class TerrainGenerator : MonoBehaviour {
                     for (int b = 0; b < 2; b++) {
                         float xPos = (float)((x + a) / (float)xResolution) * width;
                         float zPos = (float)((z + b) / (float)zResolution) * depth;
-                        float yPos = terrainModel.GetHeight(xPos + xOffset, zPos + zOffset);
+                        float yPos = terrainModel.GetHeight(xPos, zPos);
 
                         this.vertices[i++] = new Vector3(xPos, yPos, zPos);
                     }

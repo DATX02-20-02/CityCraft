@@ -4,11 +4,26 @@ using RBush;
 using UnityEngine;
 
 public class RoadNetwork {
-    private List<Node> nodes;
-    private RBush<Node> tree; // See: https://www.wikiwand.com/en/R-tree
+    private TerrainModel terrain;
     private Noise population;
     private float width;
     private float height;
+
+    private List<Node> nodes;
+    private RBush<Node> tree; // See: https://www.wikiwand.com/en/R-tree
+
+    public TerrainModel Terrain {
+        get {
+            return terrain;
+        }
+    }
+
+    public Noise Population {
+        get {
+            return population;
+        }
+    }
+
 
     public List<Node> Nodes {
         get {
@@ -22,16 +37,11 @@ public class RoadNetwork {
         }
     }
 
-    public Noise Population {
-        get {
-            return population;
-        }
-    }
-
     public float Width { get { return width; } }
     public float Height { get { return height; } }
 
-    public RoadNetwork(Noise population, float width, float height) {
+    public RoadNetwork(TerrainModel terrain, Noise population, float width, float height) {
+        this.terrain = terrain;
         this.population = population;
         this.width = width;
         this.height = height;
@@ -193,7 +203,7 @@ public class RoadNetwork {
         // If there is an intersection, create a ghost node at that point
         if (sortedIntersections.Count > 0) {
             IntersectionInfo info = sortedIntersections.First();
-            finalNode = new Node(VectorUtil.Vector2To3(info.point), node1.type);
+            finalNode = this.CreateNode(info.point, node1.type);
         }
 
         // TODO: These two statements can be merged into one for loop
@@ -278,7 +288,7 @@ public class RoadNetwork {
             // Check if we should cut the connection at the projection point
             float distProj = Vector2.Distance(proj, VectorUtil.Vector3To2(node2.pos));
             if (distProj <= snapRadius) {
-                Node n = new Node(VectorUtil.Vector2To3(proj), node1.type);
+                Node n = this.CreateNode(proj, node1.type);
 
                 AddNode(n);
 
@@ -303,7 +313,7 @@ public class RoadNetwork {
         int idx = 0;
         foreach (Node n in nodes) {
             visited[n] = true;
-
+          
             foreach (NodeConnection c in n.connections) {
                 if (visited.ContainsKey(c.node)) continue;
 
@@ -354,5 +364,10 @@ public class RoadNetwork {
         }
 
         return leastNode;
+    }
+
+    public Node CreateNode(Vector2 pos, Node.NodeType nodeType) {
+        Vector3 terrainPos = new Vector3(pos.x, terrain.GetHeight(pos.x, pos.y), pos.y);
+        return new Node(terrainPos, nodeType);
     }
 }

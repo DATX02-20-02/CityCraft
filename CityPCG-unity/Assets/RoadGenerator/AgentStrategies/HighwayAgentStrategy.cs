@@ -64,6 +64,9 @@ public class HighwayAgentStrategy : AgentStrategy {
                 agent.Terminate();
             }
         }
+        else {
+            agent.Terminate();
+        }
     }
 
     public override List<Agent> Branch(Agent agent, Node node) {

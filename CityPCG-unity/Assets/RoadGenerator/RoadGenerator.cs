@@ -27,26 +27,21 @@ public class RoadGenerator : MonoBehaviour {
     private PriorityQueue<Agent> queue = new PriorityQueue<Agent>();
     private int prevQueueCount = 0;
 
-    private bool prevClick;
-    private Node prevNode;
-    private int increment;
-
     private bool areAgentsWorking = false;
     private Action<RoadNetwork> callback;
 
-
     // Generates a complete road network.
-    public void Generate(Noise population, Action<RoadNetwork> callback = null) {
+    public void Generate(TerrainModel terrain, Noise population, Action<RoadNetwork> callback = null) {
         this.callback = callback;
         prevQueueCount = 0;
         areAgentsWorking = false;
 
-        network = new RoadNetwork(population, 256, 256);
+        network = new RoadNetwork(terrain, population, terrain.width, terrain.depth);
         queue = new PriorityQueue<Agent>();
 
         IAgentFactory factory = new ParisAgentFactory();
-        factory.Create(this, network, new Vector3(128 - 50, 0, 128));
-        factory.Create(this, network, new Vector3(128 + 50, 0, 128));
+        factory.Create(this, network, new Vector3(300 - 150, 0, 300));
+        factory.Create(this, network, new Vector3(300 + 0, 0, 300));
 
 
         // int max = 4;

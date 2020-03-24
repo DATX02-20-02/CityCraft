@@ -1,0 +1,3 @@
+No proper license file, but
+"You are welcome to use it any way you want"
+https://forum.unity.com/threads/standard-shader-with-vertex-colors.316529/page-7

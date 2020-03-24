@@ -1,9 +1,26 @@
 using UnityEngine;
 using System;
 
+
+public class OrientedPoint {
+    public Vector3 position;
+    public Vector3 tangent;
+    public Vector3 normal;
+    public Vector3 binormal;
+
+    public Vector3 localToWorld(Vector3 localPos) {
+        return position + Quaternion.LookRotation(tangent, normal) * localPos;
+    }
+
+    public Vector3 localToWorldVector(Vector3 localPos) {
+        return Quaternion.LookRotation(tangent, normal) * localPos;
+    }
+}
+
 public class BezierSpline : MonoBehaviour
 {
     public bool debugNormals = false;
+    public bool debugDrawSpline = false;
 
     [SerializeField]
     private Vector3[] points;
@@ -37,6 +54,7 @@ public class BezierSpline : MonoBehaviour
 
     public int ControlPointCount {
         get {
+            if (points == null) return 0;
             return points.Length;
         }
     }
@@ -60,39 +78,84 @@ public class BezierSpline : MonoBehaviour
         return i;
     }
 
-    public Vector3 GetPoint(float t)
+    public Vector3 GetPointLocal(float t)
     {
         int i = GetCurveIndex(ref t);
-        Vector3 worldPosition = transform.TransformPoint(PointOnBezier(points[i], points[i + 1], points[i + 2], points[i + 3], t));
+        Vector3 worldPosition = PointOnBezier(points[i], points[i + 1], points[i + 2], points[i + 3], t);
+        return worldPosition;
+    }
+
+    public Vector3 GetTangentLocal(float t)
+    {
+        int i = GetCurveIndex(ref t);
+        Vector3 worldTangent = DerivOnBezier(points[i], points[i + 1], points[i + 2], points[i + 3], t);
+        return worldTangent.normalized;
+    }
+
+    public Vector3 GetBinormalLocal(float t, Vector3 up)
+    {
+        Vector3 tangent = GetTangentLocal(t);
+        Vector3 binormal = Vector3.Cross(up, tangent).normalized;
+        return binormal;
+    }
+
+    public Vector3 GetNormalLocal(float t, Vector3 up)
+    {
+        Vector3 tangent = GetTangentLocal(t);
+        Vector3 binormal = Vector3.Cross(up, tangent).normalized;
+        return Vector3.Cross(tangent, binormal);
+    }
+
+    public Vector3 GetPoint(float t)
+    {
+        Vector3 worldPosition = transform.TransformPoint(GetPointLocal(t));
         return worldPosition;
     }
 
     public Vector3 GetTangent(float t)
     {
         int i = GetCurveIndex(ref t);
-        Vector3 worldTangent = transform.TransformPoint(DerivOnBezier(points[i], points[i + 1], points[i + 2], points[i + 3], t));
+        Vector3 worldTangent = transform.TransformDirection(GetTangentLocal(t));
         return worldTangent.normalized;
     }
 
     public Vector3 GetBinormal(float t, Vector3 up)
     {
         Vector3 tangent = GetTangent(t);
-        Vector3 binormal = transform.TransformPoint(Vector3.Cross(up, tangent)).normalized;
+        Vector3 binormal = Vector3.Cross(up, tangent).normalized;
         return binormal;
     }
 
     public Vector3 GetNormal(float t, Vector3 up)
     {
         Vector3 tangent = GetTangent(t);
-        Vector3 binormal = (Vector3.Cross(up, tangent)).normalized;
+        Vector3 binormal = Vector3.Cross(up, tangent).normalized;
         return Vector3.Cross(tangent, binormal);
     }
 
-    public Quaternion GetOrientation(float t, Vector3 up)
+
+    public OrientedPoint GetOrientedPointLocal(float t, Vector3 up)
     {
-        Vector3 tangent = GetTangent(t);
-        Vector3 normal = GetNormal(t, up);
-        return Quaternion.LookRotation(tangent, normal);
+        OrientedPoint point = new OrientedPoint();
+
+        point.position = GetPointLocal(t);
+        point.tangent = GetTangentLocal(t);
+        point.normal = GetNormalLocal(t, up);
+        point.binormal = GetBinormalLocal(t, up);
+
+        return point;
+    }
+
+    public OrientedPoint GetOrientedPoint(float t, Vector3 up)
+    {
+        OrientedPoint point = new OrientedPoint();
+
+        point.position = GetPoint(t);
+        point.tangent = GetTangent(t);
+        point.normal = GetNormal(t, up);
+        point.binormal = GetBinormal(t, up);
+
+        return point;
     }
 
     public void CalcLengthTableInfo(float[] arr)
@@ -103,7 +166,7 @@ public class BezierSpline : MonoBehaviour
         for (int i = 1; i < arr.Length; i++)
         {
             float t = (float)i / (arr.Length - 1);
-            Vector3 pt = GetPoint(t);
+            Vector3 pt = GetPointLocal(t);
             float distanceDiff = (prev - pt).magnitude;
             totalLength += distanceDiff;
             arr[i] = totalLength;
@@ -141,6 +204,8 @@ public class BezierSpline : MonoBehaviour
 
     public void AddPoint(Vector3 newPoint)
     {
+        newPoint = transform.InverseTransformPoint(newPoint);
+
         Vector3 dir;
         float length;
 
@@ -161,7 +226,6 @@ public class BezierSpline : MonoBehaviour
             return;
         }
 
-
         Vector3 prevprev0 = points.Length < 7 ? points[points.Length - 4] : points[points.Length - 7];
 
         Vector3 prev0 = points[points.Length - 4];
@@ -170,8 +234,7 @@ public class BezierSpline : MonoBehaviour
         Vector3 prev3 = points[points.Length - 1];
 
         dir = (newPoint - prevprev0).normalized;
-        length = (newPoint - prev3).magnitude / 2f;
-        // length = 0f; //nochecking
+        length = (newPoint - prev3).magnitude / 4f;
 
         points[points.Length - 2] = prev3 - dir * length;
 

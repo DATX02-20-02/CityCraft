@@ -25,17 +25,16 @@ public class BezierSplineInspector : Editor
             EditorUtility.SetDirty(spline);
         }
 
-        if (GUILayout.Button("Expand Spline With 5 Random Points")) {
+        if (GUILayout.Button("Expand Spline With Random Point")) {
             Undo.RecordObject(spline, "Add Point");
 
-            if (spline.ControlPointCount < 4)
-            {
+            if (spline.ControlPointCount == 0) {
                 spline.AddPoint(new Vector3(0, 0, 0));
+            }
+            else if (spline.ControlPointCount == 1) {
                 spline.AddCurve();
             }
-
-            for (int i = 0; i < 5; i++)
-            {
+            else {
                 Vector3 end = spline.GetPoint(1f);
                 Vector3 tangent = spline.GetTangent(1f);
                 Vector3 binormal = spline.GetBinormal(1f, Vector3.up);
@@ -77,26 +76,23 @@ public class BezierSplineInspector : Editor
             Handles.DrawLine(p0, p1);
             Handles.DrawLine(p2, p3);
 
-            Handles.DrawBezier(p0, p3, p1, p2, Color.white, null, 2f);
+            if (spline.debugDrawSpline) {
+                Handles.DrawBezier(p0, p3, p1, p2, Color.white, null, 2f);
+            }
             p0 = p3;
         }
 
         const float lineLength = 0.1f;
 
         int samplePoints = spline.CurveCount * 80;
-        float[] arr = new float[samplePoints];
-        spline.CalcLengthTableInfo(arr);
-
         if (spline.debugNormals)
         {
             for (float t = 0.0f; t < 1f; t += (1f / (float)samplePoints))
             {
-                float T = spline.Sample(arr, t);
-
-                Vector3 start = spline.GetPoint(T);
-                Vector3 tangent = spline.GetTangent(T);
-                Vector3 normal = spline.GetNormal(T, Vector3.up);
-                Vector3 binormal = spline.GetBinormal(T, Vector3.up);
+                Vector3 start = spline.GetPoint(t);
+                Vector3 tangent = spline.GetTangent(t);
+                Vector3 normal = spline.GetNormal(t, Vector3.up);
+                Vector3 binormal = spline.GetBinormal(t, Vector3.up);
 
                 Handles.color = Color.green;
                 Handles.DrawLine(start, start + tangent * lineLength);

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,95 +7,105 @@ using UnityEngine;
 public class RoadMesh : MonoBehaviour
 {
     [SerializeField]
-    [Range(0.01f, 1.0f)]
-    private float roadWidth = 0.05f;
+    private Mesh2D crossSectionShape = null;
+
+    [SerializeField]
+    [Range(0.01f, 2.0f)]
+    private float roadWidth = 0.1f;
+
+    public Mesh2D CrossSectionShape {
+        get { return crossSectionShape; }
+    }
+
+    public float RoadWidth {
+        get { return roadWidth; }
+    }
 
     public void Reset()
     {
         MeshFilter meshFilter = GetComponent<MeshFilter>();
-        meshFilter.sharedMesh.Clear();
+        if (meshFilter)
+        {
+            if (meshFilter.sharedMesh) {
+                meshFilter.sharedMesh.Clear();
+            }
+        }
     }
 
     public void GenerateRoadMesh()
     {
         BezierSpline spline = GetComponent<BezierSpline>();
-        if (!spline)
-        {
+        if (!spline) {
             return;
         }
 
-        if (spline.ControlPointCount < 4)
-        {
+        if (spline.ControlPointCount < 4) {
             return;
         }
 
-        int steps = spline.CurveCount * 10;
-        Vector3[] points = new Vector3[steps + 1];
-        points[0] = transform.InverseTransformPoint(spline.GetPoint(0.0f));
-        for (int i = 1; i < steps; i++)
-        {
-            float t = ((float)i / (float)steps);
-            points[i] = transform.InverseTransformPoint(spline.GetPoint(t));
-        }
-        points[steps] = transform.InverseTransformPoint(spline.GetPoint(1f));
         MeshFilter meshFilter = GetComponent<MeshFilter>();
-        meshFilter.sharedMesh = CreateRoadMesh(points, false);
+        meshFilter.sharedMesh = CreateRoadMesh();
     }
 
+    private Mesh CreateRoadMesh() {
+        BezierSpline spline = GetComponent<BezierSpline>();
+        int ringSubdivisionCount = spline.CurveCount * 20;
 
-    private Mesh CreateRoadMesh(Vector3[] nodes, bool isClosed)
-    {
-        Vector3[] verts = new Vector3[nodes.Length * 2];
-        Vector2[] uvs = new Vector2[verts.Length];
-        int numTris = 2 * (nodes.Length - 1) + ((isClosed) ? 2 : 0);
-        int[] tris = new int[numTris * 3];
-        int vertIndex = 0;
-        int triIndex = 0;
+        float[] arr = new float[ringSubdivisionCount];
+        spline.CalcLengthTableInfo(arr);
 
-        for (int i = 0; i < nodes.Length; i++)
+        // Vertices
+        List<Vector3> verts = new List<Vector3>();
+        List<Vector3> normals = new List<Vector3>();
+        List<Vector2> uvs = new List<Vector2>();
+
+        for (int ringIndex = 0; ringIndex < ringSubdivisionCount; ringIndex++)
         {
-            Vector3 forward = Vector2.zero;
-            if (i < nodes.Length - 1 || isClosed)
-            {
-                forward += nodes[(i + 1)%nodes.Length] - nodes[i];
+            float t = (ringIndex / (ringSubdivisionCount - 1f));
+            OrientedPoint p = spline.GetOrientedPointLocal(t, Vector3.up);
+
+            for (int i = 0; i < crossSectionShape.VertexCount; i++) {
+                Vector3 localPoint = CrossSectionShape.vertices[i].point;
+                localPoint.x *= roadWidth;
+                localPoint.y *= roadWidth;
+                verts.Add(p.localToWorld(localPoint));
+                normals.Add(p.localToWorldVector(CrossSectionShape.vertices[i].normal));
+                uvs.Add(new Vector2(CrossSectionShape.vertices[i].u, spline.Sample(arr, t)));
             }
-            if (i > 0 || isClosed)
-            {
-                forward += nodes[i] - nodes[(i - 1 + nodes.Length)%nodes.Length];
+        }
+
+        // Triangles
+        List<int> triangles = new List<int>();
+        for (int ringIndex = 0; ringIndex < ringSubdivisionCount - 1; ringIndex++) {
+            int rootIndex = ringIndex * crossSectionShape.VertexCount;
+            int rootIndexNext = (ringIndex + 1) * CrossSectionShape.VertexCount;
+
+            for (int lineIndex = 0; lineIndex < crossSectionShape.LineCount; lineIndex += 2) {
+
+                int lineStart = crossSectionShape.lineIndices[lineIndex];
+                int lineEnd = crossSectionShape.lineIndices[lineIndex + 1];
+
+                int currentA = rootIndex + lineStart;
+                int currentB = rootIndex + lineEnd;
+
+                int nextA = rootIndexNext + lineStart;
+                int nextB = rootIndexNext + lineEnd;
+
+                triangles.Add(currentA);
+                triangles.Add(nextA);
+                triangles.Add(nextB);
+
+                triangles.Add(currentA);
+                triangles.Add(nextB);
+                triangles.Add(currentB);
             }
-            forward.y = 0;
-
-            forward.Normalize();
-            Vector3 left = new Vector3(-forward.z, 0, forward.x);
-
-            verts[vertIndex] = nodes[i] + left * roadWidth * .5f;
-            verts[vertIndex + 1] = nodes[i] - left * roadWidth * .5f;
-
-            float completionPercent = i / (float)(nodes.Length - 1);
-            float v = 1 - Mathf.Abs(2 * completionPercent - 1);
-            uvs[vertIndex] = new Vector2(0, v);
-            uvs[vertIndex + 1] = new Vector2(1, v);
-
-            if (i < nodes.Length - 1 || isClosed)
-            {
-                tris[triIndex] = vertIndex;
-                tris[triIndex + 1] = (vertIndex + 2) % verts.Length;
-                tris[triIndex + 2] = vertIndex + 1;
-
-                tris[triIndex + 3] = vertIndex + 1;
-                tris[triIndex + 4] = (vertIndex + 2) % verts.Length;
-                tris[triIndex + 5] = (vertIndex + 3)  % verts.Length;
-            }
-
-            vertIndex += 2;
-            triIndex += 6;
         }
 
         Mesh mesh = new Mesh();
-        mesh.vertices = verts;
-        mesh.triangles = tris;
-        mesh.uv = uvs;
-
+        mesh.SetVertices(verts);
+        mesh.SetTriangles(triangles, 0);
+        mesh.SetNormals(normals);
+        mesh.SetUVs(0, uvs);
         return mesh;
     }
 }

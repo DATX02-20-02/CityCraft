@@ -23,7 +23,11 @@ public class RoadGenerator : MonoBehaviour {
     [Range(0, 2.0f)]
     [SerializeField] private float roadMeshTickInterval = 0.2f;
 
+    [SerializeField] private bool debugRoadMeshGeneration = true;
+
     [SerializeField] private List<Vector3> debugPoints = new List<Vector3>();
+
+    [SerializeField] private RoadMeshGenerator meshGenerator = null;
 
     private RoadNetwork network;
 
@@ -48,6 +52,7 @@ public class RoadGenerator : MonoBehaviour {
         queue = new PriorityQueue<Agent>();
 
         IAgentFactory factory = new ParisAgentFactory();
+
         factory.Create(this, network, new Vector3(300 - 150, 0, 300));
         factory.Create(this, network, new Vector3(300 + 0, 0, 300));
 
@@ -68,6 +73,15 @@ public class RoadGenerator : MonoBehaviour {
         // agent.config.maxBranchCount = 5;
         // this.AddAgent(agent);
         // }
+        factory.Create(this, network, new Vector3(0, 0, 0));
+        // factory.Create(this, network, new Vector3(20, 0, 0));
+    }
+
+    // Generates road meshes
+    public void GenerateMesh() {
+        if (meshGenerator == null) return;
+
+        meshGenerator.Generate(network);
     }
 
     public void GenerateStreets(TerrainModel terrain, Noise population, Action<RoadNetwork> callback) {
@@ -164,34 +178,47 @@ public class RoadGenerator : MonoBehaviour {
         GUI.Label(new Rect(10, 40, 100, 20), "tree count: " + network.Tree.Count);
     }
 
-    IEnumerator GenerateRoadMesh()
+    struct RoadStep {
+        public Node n;
+        public Node prev;
+        public BezierSpline spline;
+        public RoadMesh roadMesh;
+
+        public RoadStep(Node n, Node prev = null, BezierSpline spline = null, RoadMesh roadMesh = null) {
+            this.n = n;
+            this.prev = prev;
+            this.spline = spline;
+            this.roadMesh = roadMesh;
+        }
+    }
+
+    public void GenerateRoadMesh()
+    {
+        StartCoroutine("GenerateRoadMeshCoroutine");
+    }
+
+    IEnumerator GenerateRoadMeshCoroutine()
     {
         Dictionary<Node, bool> visited = new Dictionary<Node, bool>();
-        Dictionary<Node, Node> backtrack = new Dictionary<Node, Node>();
-        Dictionary<Node, Dictionary<Node, bool>> placed = new Dictionary<Node, Dictionary<Node, bool>>();
-        Dictionary<Node, BezierSpline> splines = new Dictionary<Node, BezierSpline>();
-        Stack<Node> nodesToVisit = new Stack<Node>();
+        Queue<RoadStep> nodesToVisit = new Queue<RoadStep>();
 
-        nodesToVisit.Push(network.Nodes[0]);
-        Node splineStart = network.Nodes[0];
+        nodesToVisit.Enqueue(new RoadStep(network.Nodes[0]));
         Color color = new Color(0, 0, 1);
 
-        GameObject roadGameObject = null;
-        BezierSpline spline = null;
-        RoadMesh roadMesh = null;
-
-        Node prev = null;
-
+        // Find suitable starting node
         while (nodesToVisit.Count != 0)
         {
-            Node n = nodesToVisit.Pop();
+            RoadStep segment = nodesToVisit.Dequeue();
+            Node n = segment.n;
+            Node prev = segment.prev;
+
             visited[n] = true;
 
-            if (n.connections.Count > 2 || n.connections.Count == 1)
+            if (n.connections.Count > 2)
             {
                 nodesToVisit.Clear();
                 visited.Clear();
-                nodesToVisit.Push(n);
+                nodesToVisit.Enqueue(new RoadStep(n));
                 break;
             }
 
@@ -200,166 +227,73 @@ public class RoadGenerator : MonoBehaviour {
                 if (visited.ContainsKey(c.node)) continue;
                 if (c.type == ConnectionType.Street) continue;
 
-                nodesToVisit.Push(c.node);
+                nodesToVisit.Enqueue(new RoadStep(c.node, n));
             }
         }
 
         while (nodesToVisit.Count != 0)
         {
-            Node n = nodesToVisit.Pop();
-            if (!placed.ContainsKey(n)) {
-                placed[n] = new Dictionary<Node, bool>();
+            RoadStep segment = nodesToVisit.Dequeue();
+            visited[segment.n] = true;
+
+            if (segment.spline == null) {
+                GameObject roadGameObject = new GameObject("Road Mesh");
+                roadGameObject.transform.parent = transform;
+                segment.spline = roadGameObject.AddComponent<BezierSpline>();
+                segment.roadMesh = roadGameObject.AddComponent<RoadMesh>();
             }
 
-            visited[n] = true;
-
-            if (spline == null)
-            {
-                roadGameObject = new GameObject("Road Mesh");
-                spline = roadGameObject.AddComponent<BezierSpline>();
-                roadMesh = roadGameObject.AddComponent<RoadMesh>();
+            if (segment.prev != null) {
+                if (segment.spline.ControlPointCount == 0)
+                {
+                    segment.spline.AddPoint(segment.prev.pos);
+                }
+                segment.spline.AddPoint(segment.n.pos);
+                segment.roadMesh.GenerateRoadMesh();
+            }
+            else {
+                // First node
             }
 
-            spline.AddPoint(n.pos);
-            roadMesh.GenerateRoadMesh();
-
-            if (prev != null)
-                placed[prev][n] = true;
-
-            bool didAdd = false;
-            foreach (NodeConnection c in n.connections)
+            foreach (NodeConnection c in segment.n.connections)
             {
                 if (visited.ContainsKey(c.node))
                 {
-                    // if (spline != null)
-                    // {
-                    //     spline.AddPoint(n.pos);
-                    //     roadMesh.GenerateRoadMesh();
-                    //     spline = null;
-                    // }
-                    // if (spline == null)
-                    // {
-                    //     roadGameObject = new GameObject("Road Mesh");
-                    //     spline = roadGameObject.AddComponent<BezierSpline>();
-                    //     roadMesh = roadGameObject.AddComponent<RoadMesh>();
-
-                    //     roadGameObject.transform.parent = transform;
-
-                    //     spline.AddPoint(n.pos);
-                    //     spline.AddPoint(c.node.PPS);
-                    // }
-
-                    Dictionary<Node, bool> b = placed.ContainsKey(c.node) ?
-                        placed[c.node] : new Dictionary<Node, bool>();
-
-                    if (!b.ContainsKey(n)) {
-                        if (n.connections.Count == 2) {
-                            if (spline) {
-                                Debug.Log("hej");
-                                spline.AddPoint(c.node.pos);
-                                roadMesh.GenerateRoadMesh();
-                                spline = null;
-                                prev = null;
-                            }
+                    if (c.node != segment.prev)
+                    {
+                        if (segment.n.connections.Count == 1) {
+                        }
+                        else if (segment.n.connections.Count == 2) {
+                            // segment.spline.AddPoint(c.node.pos);
+                            // segment.roadMesh.GenerateRoadMesh();
                         }
                         else {
-                            GameObject newRoadGameObject = new GameObject("Road Mesh");
-                            BezierSpline newSpline = newRoadGameObject.AddComponent<BezierSpline>();
-                            RoadMesh newRoadMesh = newRoadGameObject.AddComponent<RoadMesh>();
+                            // GameObject newRoadGameObject = new GameObject("Road Mesh");
+                            // BezierSpline newSpline = newRoadGameObject.AddComponent<BezierSpline>();
+                            // RoadMesh newRoadMesh = newRoadGameObject.AddComponent<RoadMesh>();
 
-                            newRoadGameObject.transform.parent = transform;
+                            // newRoadGameObject.transform.parent = transform;
 
-                            newSpline.AddPoint(n.pos);
-                            newSpline.AddPoint(c.node.pos);
-                            newRoadMesh.GenerateRoadMesh();
+                            // newSpline.AddPoint(segment.n.pos);
+                            // newSpline.AddPoint(c.node.pos);
+                            // newRoadMesh.GenerateRoadMesh();
                         }
                     }
 
                     continue;
                 }
-                // if (c.type == Node.ConnectionType.Street) continue;
 
-                nodesToVisit.Push(c.node);
-
-                didAdd = true;
+                bool shouldCreateNew = segment.n.connections.Count > 2;
+                RoadStep newRoadstep = new RoadStep(c.node, segment.n, shouldCreateNew ? null : segment.spline, shouldCreateNew ? null : segment.roadMesh);
+                nodesToVisit.Enqueue(newRoadstep);
             }
 
-            prev = n;
-            if (n.connections.Count == 1 || !didAdd)
-            {
-                spline = null;
-                prev = null;
+            if (debugRoadMeshGeneration) {
+                yield return new WaitForSeconds(roadMeshTickInterval);
             }
-            if (n.connections.Count == 2)
-            {
-            }
-            if (n.connections.Count > 2)
-            {
-                if (didAdd) {
-                    roadGameObject = new GameObject("Road Mesh");
-                    spline = roadGameObject.AddComponent<BezierSpline>();
-                    roadMesh = roadGameObject.AddComponent<RoadMesh>();
-
-                    roadGameObject.transform.parent = transform;
-
-                    spline.AddPoint(n.pos);
-                }
-            }
-
-            // foreach (Node.NodeConnection c in n.connections)
-            // {
-            //     if (visited.ContainsKey(c.node)) {
-            //         // roadGameObject = new GameObject("Road Mesh");
-            //         // spline = roadGameObject.AddComponent<BezierSpline>();
-            //         // roadMesh = roadGameObject.AddComponent<RoadMesh>();
-
-            //         // roadGameObject.transform.parent = transform;
-
-            //         continue;
-            //     };
-            //     if (c.type == Node.ConnectionType.Street) continue;
-
-            //     nodesToVisit.Push(c.node);
-            // }
-
-            // if (n.connections.Count > 2) {
-            //     foreach (Node.NodeConnection c in n.connections) {
-            //         roadGameObject = new GameObject("Road Mesh Junction");
-            //         spline = roadGameObject.AddComponent<BezierSpline>();
-            //         roadMesh = roadGameObject.AddComponent<RoadMesh>();
-
-            //         roadGameObject.transform.parent = transform;
-
-            //         spline.AddPoint(n.pos);
-            //         spline.AddPoint(c.node.pos);
-            //         splines[c.node] = spline;
-
-            //         if (visited.ContainsKey(c.node)) continue;
-            //         if (c.type == Node.ConnectionType.Street) continue;
-
-            //         nodesToVisit.Push(c.node);
-            //     }
-            // }
-            // if (n.connections.Count == 2) {
-            //     foreach (Node.NodeConnection c in n.connections) {
-
-
-            //         if (visited.ContainsKey(c.node)) continue;
-            //         if (c.type == Node.ConnectionType.Street) continue;
-            //         nodesToVisit.Push(c.node);
-            //     }
-            //     spline.AddPoint(n.pos);
-            //     spline.AddPoint(c.node.pos);
-            // }
-            // if (n.connections.Count == 1) {
-            //     spline.AddPoint(n.pos);
-            //     spline.AddPoint(c.node.pos);
-            // }
-
-
-            yield return new WaitForSeconds(roadMeshTickInterval);
         }
-        // yield return true;
+
+        yield return true;
     }
 
     private void Start() {
@@ -375,11 +309,6 @@ public class RoadGenerator : MonoBehaviour {
 
         foreach (Vector3 p in debugPoints) {
             DrawUtil.DebugDrawCircle(p, 0.03f, new Color(1, 0.5f, 0));
-        }
-
-        bool doMeshGeneration = Input.GetButtonDown("Jump");
-        if (doMeshGeneration) {
-            StartCoroutine("GenerateRoadMesh");
         }
     }
 }

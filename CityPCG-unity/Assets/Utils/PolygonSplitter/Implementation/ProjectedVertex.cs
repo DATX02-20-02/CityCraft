@@ -1,4 +1,4 @@
-﻿using Vector3 = UnityEngine.Vector3;
+using Vector3 = UnityEngine.Vector3;
 
 namespace Utils.PolygonSplitter.Implementation {
 

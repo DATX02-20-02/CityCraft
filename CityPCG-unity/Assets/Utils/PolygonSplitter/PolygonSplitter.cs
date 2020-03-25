@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using Utils.PolygonSplitter.Implementation;
 using static Utils.PolygonSplitter.Implementation.PolygonUtils;
@@ -63,7 +63,7 @@ namespace Utils.PolygonSplitter {
             }
 
             //TODO Neither should this ever happen
-            if(shortestCut.cutAway == null) {
+            if (shortestCut.cutAway == null) {
                 return polygon;
             }
 

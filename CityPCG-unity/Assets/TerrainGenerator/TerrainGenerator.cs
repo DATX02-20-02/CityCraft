@@ -19,8 +19,6 @@ public class TerrainGenerator : MonoBehaviour {
     [SerializeField] private int depth = 400;
 
     // Terrain properties.
-    [SerializeField] private float xOffset = 0f;
-    [SerializeField] private float zOffset = 0f;
     [SerializeField] private float seaLevel = 0f;
 
     // Noise params.
@@ -38,15 +36,7 @@ public class TerrainGenerator : MonoBehaviour {
     private Color[] colors;
     private Vector2[] uvs;
 
-
     public TerrainModel GenerateTerrain() {
-        return GenerateTerrain(Random.Range(0f, 10000f), Random.Range(0f, 10000f));
-    }
-
-    private TerrainModel GenerateTerrain(float xOffset, float zOffset) {
-        this.xOffset = xOffset;
-        this.zOffset = zOffset;
-
         // Store current RNG state.
         var prevRandomState = Random.state;
         var noise = this.noiseGenerator.Generate();
@@ -168,6 +158,6 @@ public class TerrainGenerator : MonoBehaviour {
         sea.localScale = new Vector3(width, 1, depth);
 
         if (this.debug)
-            GenerateTerrain(this.xOffset, this.zOffset);
+            GenerateTerrain();
     }
 }

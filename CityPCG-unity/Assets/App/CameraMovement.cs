@@ -8,9 +8,9 @@ using UnityEngine;
 
 public class CameraMovement : MonoBehaviour {
 
-    [SerializeField] private float mouseSensitivity;
-    [SerializeField] private float moveSpeed;
-    [SerializeField] private float rotationSnapLimit;
+    [SerializeField] private float mouseSensitivity = 0f;
+    [SerializeField] private float moveSpeed = 0f;
+    [SerializeField] private float rotationSnapLimit = 0f;
 
     private float xRotation = 0f;
     private float yRotation = 0f;

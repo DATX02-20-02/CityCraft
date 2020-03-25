@@ -130,10 +130,14 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -7889922274085798087, guid: 680a13e90fac6189e88d40ffc9bdf239,
         type: 3}
-      propertyPath: buildingGeneratorPrefab
-      value: 
-      objectReference: {fileID: 4532669883070966013, guid: fa4dc189d22e6801fb12d974f0bcf130,
+      propertyPath: debug
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -7889922274085798087, guid: 680a13e90fac6189e88d40ffc9bdf239,
         type: 3}
+      propertyPath: debugSeed
+      value: 123
+      objectReference: {fileID: 0}
     - target: {fileID: 2663700008211637056, guid: 680a13e90fac6189e88d40ffc9bdf239,
         type: 3}
       propertyPath: m_LocalPosition.x

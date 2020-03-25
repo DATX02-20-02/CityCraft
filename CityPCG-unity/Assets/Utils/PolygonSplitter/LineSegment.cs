@@ -77,6 +77,10 @@ namespace Utils.PolygonSplitter {
             return start == ls.start && end == ls.end;
         }
 
+        public override int GetHashCode() {
+            return base.GetHashCode();
+        }
+
         public bool EqualsOneTopo(LineSegment other) {
             return start.Equals(other.start) || end.Equals(other.end)
                 || start.Equals(other.end) || end.Equals(other.start);

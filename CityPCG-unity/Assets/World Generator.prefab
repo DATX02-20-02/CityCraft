@@ -53,7 +53,7 @@ MonoBehaviour:
     type: 3}
   plotGeneratorPrefab: {fileID: 83576912329849916, guid: 1bc11a39b9ada17119cb80f4d1520089,
     type: 3}
-  buildingGeneratorPrefab: {fileID: 1765607083662276006, guid: fa4dc189d22e6801fb12d974f0bcf130,
+  buildingGeneratorPrefab: {fileID: 4532669883070966013, guid: fa4dc189d22e6801fb12d974f0bcf130,
     type: 3}
   parkGeneratorPrefab: {fileID: 9182401937566038333, guid: 260a0700a5adccf9794839ae765ed5c6,
     type: 3}

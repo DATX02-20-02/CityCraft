@@ -12,7 +12,7 @@ namespace Utils.PolygonSplitter {
         }
 
         /**
-         * Basically adds the first point again to the end to create a loop. 
+         * Basically adds the first point again to the end to create a loop.
          */
         public static Polygon CreatePolygon(List<Vector3> vertices) {
             if (vertices.Count <= 2) {
@@ -250,7 +250,7 @@ namespace Utils.PolygonSplitter {
         }
 
         //This function returns a point which is a projection from a point to a line segment.
-        //If the projected point lies outside of the line segment, the projected point will 
+        //If the projected point lies outside of the line segment, the projected point will
         //be clamped to the appropriate line edge.
         //If the line is infinite instead of a segment, use ProjectPointOnLine() instead.
         public static Vector3 GetProjectedPoint(LineSegment edge, Vector3 point, IntersectionPosition intersectionPosition) {

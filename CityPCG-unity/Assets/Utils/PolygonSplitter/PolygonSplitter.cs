@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using static Utils.PolygonSplitter.PolygonUtils;
 
@@ -56,8 +56,7 @@ namespace Utils.PolygonSplitter {
             }
 
             if(shortestCut.cutAway == null) {
-                Debug.Log(polygon);
-                Debug.Log("Cutout is null");
+                return polygon;
             }
 
             resultList.Add(shortestCut.cutAway);

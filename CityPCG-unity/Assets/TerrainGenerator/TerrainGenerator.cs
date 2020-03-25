@@ -36,7 +36,6 @@ public class TerrainGenerator : MonoBehaviour {
     private Color[] colors;
     private Vector2[] uvs;
 
-
     public TerrainModel GenerateTerrain() {
         float x = Random.Range(-10000f, 10000f);
         float z = Random.Range(-10000f, 10000f);

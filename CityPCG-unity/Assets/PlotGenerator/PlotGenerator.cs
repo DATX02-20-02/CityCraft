@@ -23,10 +23,8 @@ public class PlotGenerator : MonoBehaviour {
         return plots;
     }
 
-    private void DrawPlot(Plot p)
-    {
-        for (int i = 0; i < p.vertices.Count; i++)
-        {
+    private void DrawPlot(Plot p) {
+        for (int i = 0; i < p.vertices.Count; i++) {
             var position = transform.position;
 
             var cur = p.vertices[i] + position;

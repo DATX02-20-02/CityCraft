@@ -1,61 +1,50 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
-namespace Utils.PolygonSplitter
-{
-    public class PolygonUtils 
-    {
-        public static Polygon CreateTriangle(Vector3 v1, Vector3 v2, Vector3 v3)
-        {
-            return new Polygon(new List<Vector3>() {v1, v2, v3, v1});
+namespace Utils.PolygonSplitter {
+    public class PolygonUtils {
+        public static Polygon CreateTriangle(Vector3 v1, Vector3 v2, Vector3 v3) {
+            return new Polygon(new List<Vector3>() { v1, v2, v3, v1 });
         }
 
         /**
          * Basically adds the first point again to the end to create a loop. 
          */
-        public static Polygon CreatePolygon(List<Vector3> vertices)
-        {
-            if (vertices.Count <= 2)
-            {
+        public static Polygon CreatePolygon(List<Vector3> vertices) {
+            if (vertices.Count <= 2) {
                 return null;
             }
-            var copy = new List<Vector3>(vertices) {vertices[0]};
+            var copy = new List<Vector3>(vertices) { vertices[0] };
             return new Polygon(copy);
         }
 
 
-        public static Polygon GetSubPolygon(Polygon polygonToSplit, Vector3 startVertex, Vector3 endVertex) 
-        {
+        public static Polygon GetSubPolygon(Polygon polygonToSplit, Vector3 startVertex, Vector3 endVertex) {
             //TODO:
             // Check if startVertex and endVertex actually exists inside of polygonToSplit
-            
+
             var vertices = new List<Vector3>();
             var started = false;
 
-            for (var i = 0; i < polygonToSplit.points.Count; i++)
-            {
+            for (var i = 0; i < polygonToSplit.points.Count; i++) {
                 var vertex = polygonToSplit.points[i];
-                if (vertex.Equals(startVertex))
-                {
+                if (vertex.Equals(startVertex)) {
                     started = true;
                 }
 
-                if (started)
-                {
+                if (started) {
                     vertices.Add(vertex);
 
-                    if (vertex.Equals(endVertex))
-                    {
+                    if (vertex.Equals(endVertex)) {
                         break;
                     }
                 }
 
-                if (i == polygonToSplit.points.Count - 1)
-                {
+                if (i == polygonToSplit.points.Count - 1) {
                     i = -1;
                 }
             }
@@ -71,8 +60,7 @@ namespace Utils.PolygonSplitter
         public static List<LineSegment> GetLineSegments(Polygon polygon) {
             var lineSegments = new List<LineSegment>();
 
-            if (polygon.points.Count == 0)
-            {
+            if (polygon.points.Count == 0) {
                 return lineSegments;
             }
 
@@ -84,31 +72,29 @@ namespace Utils.PolygonSplitter
             }
             return lineSegments;
         }
-        
+
         // Distance to point (p) from line segment (end points a b)
-        public static float DistanceLineSegmentPoint(Vector3 p, LineSegment line)
-        {
+        public static float DistanceLineSegmentPoint(Vector3 p, LineSegment line) {
             if (line.start == line.end)
                 return Vector3.Distance(line.start, p);
-     
+
             // Line segment to point distance equation
             var ba = line.end - line.start;
             var pa = line.start - p;
             return (pa - ba * (Vector3.Dot(pa, ba) / Vector3.Dot(ba, ba))).magnitude;
         }
 
-        public static bool IsPointOnLineSegment(Vector3 p, LineSegment line)
-        {
+        public static bool IsPointOnLineSegment(Vector3 p, LineSegment line) {
             return DistanceLineSegmentPoint(p, line) < 0.001;
         }
-        
+
         public static bool IsPointOnLineSegmentExcludingEndpoints(Vector3 point, LineSegment line) {
             if (point.Equals(line.start) || point.Equals(line.end)) {
                 return false;
             }
             return IsPointOnLineSegment(point, line);
         }
-        
+
         public static Polygon SlicePolygon(Polygon polygonToSlice, Vector3 startPoint, Vector3 endPoint) {
             var vertices = new List<Vector3>();
 
@@ -152,65 +138,65 @@ namespace Utils.PolygonSplitter
             return CreatePolygon(vertices);
         }
 
-        public static bool LineLineIntersection(LineSegment lineA, LineSegment lineB)
-        {
+        public static bool LineLineIntersection(LineSegment lineA, LineSegment lineB) {
             var p1 = lineA.start;
             var p2 = lineA.end;
             var p3 = lineB.start;
             var p4 = lineB.end;
-            
+
             Vector2 a = p2 - p1;
             Vector2 b = p3 - p4;
             Vector2 c = p1 - p3;
-   
-            var alphaNumerator = b.y*c.x - b.x*c.y;
-            var alphaDenominator = a.y*b.x - a.x*b.y;
-            var betaNumerator  = a.x*c.y - a.y*c.x;
-            var betaDenominator  = a.y*b.x - a.x*b.y;
-   
+
+            var alphaNumerator = b.y * c.x - b.x * c.y;
+            var alphaDenominator = a.y * b.x - a.x * b.y;
+            var betaNumerator = a.x * c.y - a.y * c.x;
+            var betaDenominator = a.y * b.x - a.x * b.y;
+
             var doIntersect = true;
-   
+
             if (Math.Abs(alphaDenominator) < float.Epsilon || Math.Abs(betaDenominator) < float.Epsilon) {
                 doIntersect = false;
-            } else {
-       
+            }
+            else {
+
                 if (alphaDenominator > 0) {
                     if (alphaNumerator < 0 || alphaNumerator > alphaDenominator) {
                         doIntersect = false;
-               
+
                     }
-                } else if (alphaNumerator > 0 || alphaNumerator < alphaDenominator) {
+                }
+                else if (alphaNumerator > 0 || alphaNumerator < alphaDenominator) {
                     doIntersect = false;
                 }
-       
+
                 if (doIntersect && betaDenominator > 0) {
                     if (betaNumerator < 0 || betaNumerator > betaDenominator) {
                         doIntersect = false;
                     }
-                } else if (betaNumerator > 0 || betaNumerator < betaDenominator) {
+                }
+                else if (betaNumerator > 0 || betaNumerator < betaDenominator) {
                     doIntersect = false;
                 }
             }
- 
+
             return doIntersect;
         }
-        
-        public static IntersectionPosition _GetIntersectionPoint(LineSegment lineA, LineSegment lineB)
-        {
+
+        public static IntersectionPosition _GetIntersectionPoint(LineSegment lineA, LineSegment lineB) {
             var p1 = lineA.start;
             var p2 = lineA.end;
             var p3 = lineB.start;
             var p4 = lineB.end;
-            
+
             var tmp = (p4.x - p3.x) * (p2.z - p1.z) - (p4.z - p3.z) * (p2.x - p1.x);
- 
-            if (Math.Abs(tmp) < float.Epsilon)
-            {
+
+            if (Math.Abs(tmp) < float.Epsilon) {
                 return new IntersectionPosition(Vector3.zero, lineA, lineB);
             }
- 
+
             var mu = ((p1.x - p3.x) * (p2.z - p1.z) - (p1.z - p3.z) * (p2.x - p1.x)) / tmp;
-            
+
             return new IntersectionPosition(new Vector3(p3.x + (p4.x - p3.x) * mu, 0, p3.z + (p4.z - p3.z) * mu), lineA, lineB);
         }
 
@@ -220,62 +206,61 @@ namespace Utils.PolygonSplitter
         //Returns 0 if point is on the line segment.
         //Returns 1 if point is outside of the line segment and located on the side of linePoint1.
         //Returns 2 if point is outside of the line segment and located on the side of linePoint2.
-        public static int PointOnWhichSideOfLineSegment(Vector3 linePoint1, Vector3 linePoint2, Vector3 point){
- 
+        public static int PointOnWhichSideOfLineSegment(Vector3 linePoint1, Vector3 linePoint2, Vector3 point) {
+
             Vector3 lineVec = linePoint2 - linePoint1;
             Vector3 pointVec = point - linePoint1;
- 
+
             float dot = Vector3.Dot(pointVec, lineVec);
- 
+
             //point is on side of linePoint2, compared to linePoint1
-            if(dot > 0){
- 
+            if (dot > 0) {
+
                 //point is on the line segment
-                if(pointVec.magnitude <= lineVec.magnitude){
- 
+                if (pointVec.magnitude <= lineVec.magnitude) {
+
                     return 0;
                 }
- 
+
                 //point is not on the line segment and it is on the side of linePoint2
-                else{
- 
+                else {
+
                     return 2;
                 }
             }
- 
+
             //Point is not on side of linePoint2, compared to linePoint1.
             //Point is not on the line segment and it is on the side of linePoint1.
-            else{
- 
+            else {
+
                 return 1;
             }
         }
 
         //This function returns a point which is a projection from a point to a line.
         //The line is regarded infinite. If the line is finite, use ProjectPointOnLineSegment() instead.
-        public static Vector3 ProjectPointOnLine(Vector3 linePoint, Vector3 lineVec, Vector3 point){		
- 
+        public static Vector3 ProjectPointOnLine(Vector3 linePoint, Vector3 lineVec, Vector3 point) {
+
             //get vector from point on line to point in space
             Vector3 linePointToPoint = point - linePoint;
- 
+
             float t = Vector3.Dot(linePointToPoint, lineVec);
- 
+
             return linePoint + lineVec * t;
         }
-        
+
         //This function returns a point which is a projection from a point to a line segment.
         //If the projected point lies outside of the line segment, the projected point will 
         //be clamped to the appropriate line edge.
         //If the line is infinite instead of a segment, use ProjectPointOnLine() instead.
-        public static Vector3 GetProjectedPoint(LineSegment edge, Vector3 point, IntersectionPosition intersectionPosition){
+        public static Vector3 GetProjectedPoint(LineSegment edge, Vector3 point, IntersectionPosition intersectionPosition) {
             var vector = edge.end - edge.start;
- 
+
             var projectedPoint = ProjectPointOnLine(edge.start, vector.normalized, point);
- 
+
             var side = PointOnWhichSideOfLineSegment(edge.start, edge.end, projectedPoint);
 
-            switch (side)
-            {
+            switch (side) {
                 //The projected point is on the line segment
                 case 0:
                     return projectedPoint;
@@ -287,8 +272,8 @@ namespace Utils.PolygonSplitter
                     //output is invalid
                     return Vector3.zero;
             }
-        }	
-        
+        }
+
         /**
          * Determines a projection of vertex on opposing edge at an angle perpendicular to angle-bisector of the edges
          * @param vertex
@@ -332,25 +317,22 @@ namespace Utils.PolygonSplitter
                 return IsPointOnLineSegmentExcludingEndpoints(closestPointOnOpposingLine, opposingEdge) ? closestPointOnOpposingLine : Vector3.zero;
             }
         }*/
-        
+
         private static Vector3 GetFurtherEnd(Vector3 point, LineSegment lineSegment) {
             return Vector3.Distance(point, lineSegment.start) > Vector3.Distance(point, lineSegment.end) ? lineSegment.start : lineSegment.end;
         }
 
-        public static bool IsIntersectingPolygon(LineSegment line, Polygon polygon)
-        {
+        public static bool IsIntersectingPolygon(LineSegment line, Polygon polygon) {
             var polygonSegments = GetLineSegments(polygon);
-            foreach (var segment in polygonSegments)
-            {
-                if (GetIntersectionPoint(segment, line) != null)
-                {
+            foreach (var segment in polygonSegments) {
+                if (GetIntersectionPoint(segment, line) != null) {
                     return true;
                 }
             }
 
             return false;
         }
-        
+
         public static IntersectionPosition GetIntersectionPoint(LineSegment lineA, LineSegment lineB) {
             var x1 = lineA.start.x;
             var z1 = lineA.start.z;
@@ -378,33 +360,28 @@ namespace Utils.PolygonSplitter
             var z = Det(det1And2, z1LessZ2, det3And4, z3LessZ4) / det1Less2And3Less4;
             return new IntersectionPosition(new Vector3(x, 0, z), lineA, lineB);
         }
-        
+
         private static float Det(float a, float b, float c, float d) {
             return a * d - b * c;
         }
 
-        public static bool IsPolygonIntersectingPolygon(Polygon small, Polygon big)
-        {
-            foreach (var smallPoint in small.points)
-            {
+        public static bool IsPolygonIntersectingPolygon(Polygon small, Polygon big) {
+            foreach (var smallPoint in small.points) {
                 var found = false;
-                foreach (var bigLS in GetLineSegments(big))
-                {
-                    if (IsPointOnLineSegment(smallPoint, bigLS))
-                    {
+                foreach (var bigLS in GetLineSegments(big)) {
+                    if (IsPointOnLineSegment(smallPoint, bigLS)) {
                         found = true;
                         break;
                     }
                 }
 
-                if (!found)
-                {
+                if (!found) {
                     return false;
                 }
             }
 
             return true;
         }
-        
+
     }
 }

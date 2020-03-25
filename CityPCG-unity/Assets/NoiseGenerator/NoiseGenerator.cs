@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class NoiseGenerator : MonoBehaviour {
     [Header("Generator settings")]
-    [SerializeField] private bool randomSeed = true;
-    [SerializeField] private float seed = 0;
+    [SerializeField] private bool randomOffset = true;
+    [SerializeField] private Vector2 offset;
     [SerializeField] private Layer[] layers = null;
 
     [Header("Debug settings")]
@@ -20,36 +20,47 @@ public class NoiseGenerator : MonoBehaviour {
 
     private Texture2D texture = null;
 
-    public float Seed {
+    public Vector2 Offset {
         get {
-            return randomSeed ? Random.Range(-10000.0f, 10000.0f) : this.seed;
+            return offset;
         }
         set {
-            this.seed = value;
+            this.offset = value;
         }
     }
 
     public Noise Generate() {
-        if (this.debugPlane != null) {
+        if (debug && this.debugPlane != null) {
             if (this.texture == null)
                 this.texture = new Texture2D(this.textureWidth, this.textureHeight);
 
             this.texture.Resize(this.textureWidth, this.textureHeight);
         }
 
-        Color[] colors = new Color[this.textureWidth * this.textureHeight];
+        // Lets remember the old state so as to not mess with other generators
+        Random.State oldRandomState = Random.state;
+        Random.InitState(System.DateTime.Now.Millisecond);
 
-        this.noise = new Noise(this.layers, this.Seed);
+        Vector2 offset = randomOffset ? new Vector2(
+            Random.Range(-10000.0f, 10000.0f),
+            Random.Range(-10000.0f, 10000.0f)
+        ) : this.offset;
 
-        for (int x = 0; x < this.textureWidth; x++) {
-            for (int y = 0; y < this.textureHeight; y++) {
-                float value = this.noise.GetValue(x / (float)this.textureWidth, y / (float)this.textureHeight);
+        // Restore old state
+        Random.state = oldRandomState;
 
-                colors[x + y * this.textureWidth] = new Color(value, value, value);
+        this.noise = new Noise(this.layers, offset);
+
+        if (debug && this.debugPlane != null) {
+            Color[] colors = new Color[this.textureWidth * this.textureHeight];
+            for (int x = 0; x < this.textureWidth; x++) {
+                for (int y = 0; y < this.textureHeight; y++) {
+                    float value = this.noise.GetValue(x / (float)this.textureWidth, y / (float)this.textureHeight);
+
+                    colors[x + y * this.textureWidth] = new Color(value, value, value);
+                }
             }
-        }
 
-        if (this.debugPlane != null) {
             this.texture.SetPixels(colors);
             this.texture.Apply();
 

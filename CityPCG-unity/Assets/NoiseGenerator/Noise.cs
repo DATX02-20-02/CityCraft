@@ -3,25 +3,27 @@ using UnityEngine;
 
 public class Noise {
     private Layer[] layers = null;
-    private float seed = 0;
+    private Vector2 offset;
     private float maxScale = 0;
 
-    public Noise(Layer[] layers, float seed = 0) {
+    public Noise(Layer[] layers, Vector2 offset) {
         this.layers = layers;
-        this.seed = seed;
+        this.offset = offset;
 
         foreach (Layer layer in layers) {
             if (layer.scale > maxScale) maxScale = layer.scale;
         }
     }
 
+    public Noise(Layer[] layers) : this(layers, Vector2.zero) {}
+
     public float GetValue(float x, float y) {
         float value = 0;
         float maxMagnitude = 0;
 
         foreach (Layer layer in layers) {
-            float nx = x * layer.scale + layer.offset.x + this.seed;
-            float ny = y * layer.scale + layer.offset.y + this.seed;
+            float nx = (x + layer.offset.x + this.offset.x) * layer.scale;
+            float ny = (y + layer.offset.y + this.offset.y) * layer.scale;
 
             float pvalue = Mathf.Pow(2.0f * Mathf.Clamp01(Mathf.PerlinNoise(nx, ny)) * layer.magnitude, layer.exponent) / 2.0f;
             value += pvalue;

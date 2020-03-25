@@ -1,45 +1,38 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using static Utils.PolygonSplitter.PolygonUtils;
 
-namespace Utils.PolygonSplitter
-{
+namespace Utils.PolygonSplitter {
     [Serializable]
-    public class Polygon
-    {
+    public class Polygon {
         public List<Vector3> points;
-        public Polygon(List<Vector3> points)
-        {
+        public Polygon(List<Vector3> points) {
             this.points = points;
         }
 
-        public float GetArea()
-        {
+        public float GetArea() {
             var result = Vector3.zero;
-            for(int p = points.Count-1, q = 0; q < points.Count; p = q++) {
+            for (int p = points.Count - 1, q = 0; q < points.Count; p = q++) {
                 result += Vector3.Cross(points[q], points[p]);
             }
             result *= 0.5f;
-            
+
             return result.magnitude;
             //return GeometryUtility.CalculateBounds(points, Matrix4x4.identity);
         }
-        
-        public override string ToString()
-        {
+
+        public override string ToString() {
             var sb = new StringBuilder();
 
             sb.Append("[" + GetArea() + "] ");
 
-            for (var i = 0; i < points.Count; i++)
-            {
+            for (var i = 0; i < points.Count; i++) {
                 var point = points[i];
                 sb.Append(point);
 
-                if (i + 1 < points.Count)
-                {
+                if (i + 1 < points.Count) {
                     sb.Append(" ---> ");
                 }
             }
@@ -47,26 +40,20 @@ namespace Utils.PolygonSplitter
         }
 
         //https://stackoverflow.com/a/4833823
-        public bool Contains(Polygon polygon)
-        {
+        public bool Contains(Polygon polygon) {
             var p1Segments = GetLineSegments(this);
             var p2Segments = GetLineSegments(polygon);
 
-            foreach (var ls1 in p1Segments)
-            {
-                foreach (var ls2 in p2Segments)
-                {
-                    if (LineLineIntersection(ls1, ls2))
-                    {
+            foreach (var ls1 in p1Segments) {
+                foreach (var ls2 in p2Segments) {
+                    if (LineLineIntersection(ls1, ls2)) {
                         return false;
                     }
                 }
             }
 
-            foreach (var line in p2Segments)
-            {
-                if (Contains(line.end))
-                {
+            foreach (var line in p2Segments) {
+                if (Contains(line.end)) {
                     return true;
                 }
             }
@@ -74,21 +61,17 @@ namespace Utils.PolygonSplitter
             return false;
 
         }
-        
-        public bool Contains(Vector3 p)
-        {
-            foreach (var point in points)
-            {
-                if (point == p)
-                {
+
+        public bool Contains(Vector3 p) {
+            foreach (var point in points) {
+                if (point == p) {
                     return true;
                 }
             }
-            
+
             var j = points.Count - 1;
             var inside = false;
-            for (var i = 0; i < points.Count; j = i++)
-            {
+            for (var i = 0; i < points.Count; j = i++) {
                 var pi = points[i];
                 var pj = points[j];
                 if (((pi.z <= p.z && p.z < pj.z) || (pj.z <= p.z && p.z < pi.z)) &&
@@ -97,7 +80,7 @@ namespace Utils.PolygonSplitter
             }
             return inside;
         }
-        
+
         public Polygon Difference(Polygon otherPolygon) {
             var vertices = new List<Vector3>();
 
@@ -106,29 +89,29 @@ namespace Utils.PolygonSplitter
 
             // 1. Find all lines from the original that strictly isn't in the slice.
             var segs = new List<LineSegment>();
-            foreach(var a in segmentsA) {
+            foreach (var a in segmentsA) {
                 bool isOutside = true;
-                foreach(var b in segmentsB) {
-                    if(a.EqualsTopo(b))
+                foreach (var b in segmentsB) {
+                    if (a.EqualsTopo(b))
                         isOutside = false;
                 }
 
-                if(isOutside)
+                if (isOutside)
                     segs.Add(a);
             }
 
             // 2. Find overlapping lines (if any) and shorten segments in segs.
-            foreach(var a in segmentsA) {
-                foreach(var b in segmentsB) {
-                    if(IsPointOnLineSegment(b.start, a) && IsPointOnLineSegment(b.end, a)) {
+            foreach (var a in segmentsA) {
+                foreach (var b in segmentsB) {
+                    if (IsPointOnLineSegment(b.start, a) && IsPointOnLineSegment(b.end, a)) {
                         // Shorten a, such that it doesn't equal b.
-                        if(a.start == b.start)
+                        if (a.start == b.start)
                             a.start = b.end;
-                        else if(a.end == b.end)
+                        else if (a.end == b.end)
                             a.end = b.start;
-                        else if(a.start == b.end)
+                        else if (a.start == b.end)
                             a.start = b.start;
-                        else if(a.end == b.start)
+                        else if (a.end == b.start)
                             a.end = b.end;
                     }
                 }
@@ -136,19 +119,19 @@ namespace Utils.PolygonSplitter
 
             // 3. Add all unique vertices.
             var hasAdded = new HashSet<Vector3>();
-            foreach(var s in segs) {
-                if(!hasAdded.Contains(s.start)) {
+            foreach (var s in segs) {
+                if (!hasAdded.Contains(s.start)) {
                     hasAdded.Add(s.start);
                     vertices.Add(s.start);
                 }
-                if(!hasAdded.Contains(s.end)) {
+                if (!hasAdded.Contains(s.end)) {
                     hasAdded.Add(s.end);
                     vertices.Add(s.end);
                 }
             }
 
-            return CreatePolygon(vertices);	
+            return CreatePolygon(vertices);
         }
-        
+
     }
 }

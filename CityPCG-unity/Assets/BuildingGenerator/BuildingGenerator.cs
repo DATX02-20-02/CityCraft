@@ -1,8 +1,7 @@
 using UnityEngine;
 
-public class BuildingGenerator : MonoBehaviour
-{
-	public GameObject building;
+public class BuildingGenerator : MonoBehaviour {
+    public GameObject building;
 
     public void Generate(Plot plot) {
         var b = Instantiate(building, transform);
@@ -13,8 +12,7 @@ public class BuildingGenerator : MonoBehaviour
         var plotLength = plot.vertices.Count;
 
         var meshVertices = new Vector3[plotLength * 2];
-        for (var i = 0; i < plotLength; i++)
-        {
+        for (var i = 0; i < plotLength; i++) {
             meshVertices[i] = plot.vertices[i];
         }
 
@@ -31,8 +29,7 @@ public class BuildingGenerator : MonoBehaviour
         var numVert = meshVertices.Length;
 
         //Walls
-        for (var i = 0; i < plotLength; i++)
-        {
+        for (var i = 0; i < plotLength; i++) {
             var j = i * 6;
 
             wallIndices[j] = i;
@@ -45,23 +42,20 @@ public class BuildingGenerator : MonoBehaviour
         }
 
         var k = (plotLength - 1) * 6 + 4;
-        if (wallIndices[k] == 0)
-        {
+        if (wallIndices[k] == 0) {
             wallIndices[k] = plotLength;
         }
 
-        var triangulator  = new Triangulator(topVertices);
+        var triangulator = new Triangulator(topVertices);
         var roofIndices = triangulator.Triangulate();
 
         var indices = new int[wallIndices.Length + roofIndices.Length];
 
-        for (var i = 0; i < wallIndices.Length; i++)
-        {
+        for (var i = 0; i < wallIndices.Length; i++) {
             indices[i] = wallIndices[i];
         }
 
-        for (var (i, j)= (0, wallIndices.Length); i < roofIndices.Length; i++, j++)
-        {
+        for (var (i, j) = (0, wallIndices.Length); i < roofIndices.Length; i++, j++) {
             indices[j] = roofIndices[i] + plotLength;
         }
 

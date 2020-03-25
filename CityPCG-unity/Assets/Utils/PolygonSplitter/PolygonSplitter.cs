@@ -55,6 +55,11 @@ namespace Utils.PolygonSplitter {
                 }
             }
 
+            if(shortestCut.cutAway == null) {
+                Debug.Log(polygon);
+                Debug.Log("Cutout is null");
+            }
+
             resultList.Add(shortestCut.cutAway);
             return polygon.Difference(shortestCut.cutAway);
         }

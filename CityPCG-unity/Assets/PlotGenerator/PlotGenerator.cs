@@ -7,8 +7,9 @@ using static Utils.PolygonSplitter.PolygonUtils;
 
 public class PlotGenerator : MonoBehaviour {
 
-    public bool debug;
-    public int parts = 3;
+    [SerializeField] private bool debug = false;
+    [SerializeField] private int parts = 3;
+
 
     public List<Plot> Generate(Block block, Noise populationNoise) {
         var plots = Split(CreatePolygon(block.vertices), parts).ConvertAll((polygon => new Plot(polygon.points)));

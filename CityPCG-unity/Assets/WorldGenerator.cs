@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,6 +15,8 @@ public class WorldGenerator : MonoBehaviour {
     [SerializeField] private GameObject plotGeneratorPrefab = null;
     [SerializeField] private GameObject buildingGeneratorPrefab = null;
     [SerializeField] private GameObject parkGeneratorPrefab = null;
+    [SerializeField] private bool debug = false;
+    [SerializeField] private int debugSeed = 0;
 
     private TerrainGenerator terrainGenerator;
     private NoiseGenerator populationGenerator;
@@ -26,7 +27,8 @@ public class WorldGenerator : MonoBehaviour {
     private ParkGenerator parkGenerator;
 
     private Noise populationNoise;
-    private List<Plot> plots;
+    private List<Block> blocks;
+
 
     public void Undo() { }
 
@@ -40,23 +42,24 @@ public class WorldGenerator : MonoBehaviour {
         roadGenerator.Generate(populationNoise, GenerateBlocks);
     }
 
-    private void GenerateBlocks(RoadNetwork roadNetwork) {
-        var blocks = blockGenerator.Generate(roadNetwork);
-        plots = new List<Plot>();
-        blocks.ForEach(GeneratePlots);
-    }
-
-    private void GeneratePlots(Block block) {
-        plots.AddRange(plotGenerator.Generate(block, populationNoise));
-    }
+    public void GenerateStreets() { }
 
     public void GenerateBuildings() {
-        foreach (var plot in plots) {
-            buildingGenerator.Generate(plot);
+        foreach (var block in this.blocks) {
+            // Split each block into plots
+            var plots = plotGenerator.Generate(block, populationNoise);
+
+            // Generate buildings in each plot.
+            foreach (var plot in plots) {
+                buildingGenerator.Generate(plot);
+            }
         }
     }
 
-    public void GenerateStreets() { }
+    private void GenerateBlocks(RoadNetwork roadNetwork) {
+        this.blocks = blockGenerator.Generate(roadNetwork);
+    }
+
     private void InstantiateGenerators() {
         terrainGenerator = Instantiate(terrainGeneratorPrefab, transform).GetComponent<TerrainGenerator>();
         populationGenerator = Instantiate(populationGeneratorPrefab, transform).GetComponent<NoiseGenerator>();
@@ -65,6 +68,11 @@ public class WorldGenerator : MonoBehaviour {
         plotGenerator = Instantiate(plotGeneratorPrefab, transform).GetComponent<PlotGenerator>();
         buildingGenerator = Instantiate(buildingGeneratorPrefab, transform).GetComponent<BuildingGenerator>();
         parkGenerator = Instantiate(parkGeneratorPrefab, transform).GetComponent<ParkGenerator>();
+    }
+
+    private void Awake() {
+        if(debug)
+            Random.InitState(debugSeed);
     }
 
     private void Start() {

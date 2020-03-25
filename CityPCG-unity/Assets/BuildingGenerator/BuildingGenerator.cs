@@ -72,5 +72,4 @@ public class BuildingGenerator : MonoBehaviour
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
     }
-
 }

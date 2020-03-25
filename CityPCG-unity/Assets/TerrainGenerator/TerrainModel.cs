@@ -2,12 +2,14 @@ using UnityEngine;
 
 public struct TerrainModel {
     public float width, depth;
+    public float seaLevel;
     private float maxHeight;
     private Noise noise;
 
-    public TerrainModel(float width, float depth, float maxHeight, Noise noise) {
+    public TerrainModel(float width, float depth, float seaLevel, float maxHeight, Noise noise) {
         this.width = width;
         this.depth = depth;
+        this.seaLevel = seaLevel;
         this.maxHeight = maxHeight;
         this.noise = noise;
     }

@@ -40,7 +40,7 @@ public class TerrainGenerator : MonoBehaviour {
         // Store current RNG state.
         var prevRandomState = Random.state;
         var noise = this.noiseGenerator.Generate();
-        var terrainModel = new TerrainModel(width, depth, maxHeight, noise);
+        var terrainModel = new TerrainModel(width, depth, seaLevel, maxHeight, noise);
 
         GenerateVertices(terrainModel);
         GenerateTriangles();

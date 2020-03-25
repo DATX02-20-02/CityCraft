@@ -43,9 +43,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2360f3ba3a30c5801af157b621e60584, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  plot:
-    area:
-    - {x: 0, y: 0, z: 0}
-    - {x: 0, y: 0, z: 1}
-    - {x: 1, y: 0, z: 1}
-    - {x: 1, y: 0, z: 0}
+  building: {fileID: 7591115104409776841, guid: 77a16410abebefd438bccaa95b3f3688,
+    type: 3}

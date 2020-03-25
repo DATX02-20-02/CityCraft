@@ -128,6 +128,12 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -7889922274085798087, guid: 680a13e90fac6189e88d40ffc9bdf239,
+        type: 3}
+      propertyPath: buildingGeneratorPrefab
+      value: 
+      objectReference: {fileID: 4532669883070966013, guid: fa4dc189d22e6801fb12d974f0bcf130,
+        type: 3}
     - target: {fileID: 2663700008211637056, guid: 680a13e90fac6189e88d40ffc9bdf239,
         type: 3}
       propertyPath: m_LocalPosition.x

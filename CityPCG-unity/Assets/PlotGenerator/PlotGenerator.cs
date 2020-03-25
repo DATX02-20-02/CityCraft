@@ -1,93 +1,38 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Utils.PolygonSplitter;
 using static Utils.PolygonSplitter.PolygonSplitter;
 using static Utils.PolygonSplitter.PolygonUtils;
 
-public class PlotGenerator : MonoBehaviour
-{
+public class PlotGenerator : MonoBehaviour {
 
-    public Polygon polygon;
-    public int parts;
+    public bool debug;
+    public int parts = 3;
 
-    private List<Polygon> polygons;
-    private List<Color> colors;
+    public List<Plot> Generate(Block block, Noise populationNoise) {
+        var plots = Split(CreatePolygon(block.vertices), parts).ConvertAll((polygon => new Plot(polygon.points)));
 
-    void Start()
-    {
-        polygon = CreatePolygon(polygon.points);
-        polygons = Split(polygon, parts);
-        colors = new List<Color>();
-
-        if (polygons != null)
-            for (var index = 0; index < polygons.Count; index++)
-            {
-                colors.Add(new Color(
-                                     Random.Range(0f, 1f),
-                                     Random.Range(0f, 1f),
-                                     Random.Range(0f, 1f)
-                                     ));
-            }
-    }
-
-    void Update()
-    {
-        if (polygons != null)
-        {
-            for (var index = 0; index < polygons.Count; index++)
-            {
-                var p = polygons[index];
-                if (p == null)
-                {
-                    Debug.Log("A polygon is null");
-                }
-                else
-                {
-                    DrawPolygon(p, colors[index]);
-                }
-            }
+        if (debug) {
+            plots.ForEach(DrawPlot);
         }
+
+        //Removes the duplicate point at the end that is created via Split function
+        plots.ForEach(plot => plot.vertices.RemoveAt(plot.vertices.Count - 1));
+
+        return plots;
     }
 
-    private void DrawPolygon(Polygon p, Color c, int d = 1000000, Vector3 p2 = default)
+    private void DrawPlot(Plot p)
     {
-        for (int i = 0; i < p.points.Count; i++)
+        for (int i = 0; i < p.vertices.Count; i++)
         {
-            var position = transform.position + p2;
+            var position = transform.position;
 
-            var cur = p.points[i] + position;
-            var next = p.points[(i + 1) % p.points.Count] + position;
+            var cur = p.vertices[i] + position;
+            var next = p.vertices[(i + 1) % p.vertices.Count] + position;
 
-            Debug.DrawLine(cur, next, c, d);
-        }
-    }
-
-    private void DrawEdge(LineSegment line, Color c)
-    {
-        DrawEdge(line.start, line.end, c);
-    }
-
-    private void DrawEdge(Vector3 start, Vector3 end, Color c)
-    {
-        var d = 1000000;
-
-        Debug.DrawLine(start, end, c, d);
-    }
-
-    public static void DrawCircle(Vector3 pos, Color color, float radius = 0.1f, float fidelity = 10)
-    {
-        var d = 1000000;
-
-        var step = 2 * Mathf.PI / fidelity;
-        for (var i = 0; i < fidelity; i++)
-        {
-            var x = Mathf.Sin(step * i) * radius;
-            var z = Mathf.Cos(step * i) * radius;
-
-            var nx = Mathf.Sin(step * (i + 1)) * radius;
-            var nz = Mathf.Cos(step * (i + 1)) * radius;
-
-            Debug.DrawLine(pos + new Vector3(x, 0, z), pos + new Vector3(nx, 0, nz), color, d);
+            Debug.DrawLine(cur, next, Color.yellow, 10000000);
         }
     }
 }

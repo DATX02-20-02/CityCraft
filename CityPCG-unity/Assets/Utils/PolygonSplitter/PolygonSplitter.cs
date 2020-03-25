@@ -1,8 +1,15 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using static Utils.PolygonSplitter.PolygonUtils;
+using Utils.PolygonSplitter.Implementation;
+using static Utils.PolygonSplitter.Implementation.PolygonUtils;
 
 namespace Utils.PolygonSplitter {
+
+    /**
+     * Has the ability to take a Polygon and split it into a given number of equal sub polygons.
+     *
+     * Heavily inspired by the project Polysplit made by Gediminas Rimša, read more in ./license.txt.
+     */
     public static class PolygonSplitter {
 
         public static List<Polygon> Split(Polygon originalPolygon, int parts) {
@@ -55,6 +62,7 @@ namespace Utils.PolygonSplitter {
                 }
             }
 
+            //TODO Neither should this ever happen
             if(shortestCut.cutAway == null) {
                 return polygon;
             }

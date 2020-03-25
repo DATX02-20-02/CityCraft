@@ -1,15 +1,19 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using static Utils.PolygonSplitter.PolygonUtils;
+using static Utils.PolygonSplitter.Implementation.PolygonUtils;
 
-namespace Utils.PolygonSplitter {
+namespace Utils.PolygonSplitter.Implementation {
+
+    /**
+     * Represents three possible polygons where the minimum cut can be located
+     *
+     * Heavily inspired by the project Polysplit made by Gediminas Rimša, read more in license.txt.
+     */
     public class EdgePairSubPolygons {
         private readonly LineSegment edgeA;
         private readonly LineSegment edgeB;
 
-        public readonly Polygon leftTriangle;
-        public readonly Polygon trapezoid;
-        public readonly Polygon rightTriangle;
+        private readonly Polygon trapezoid;
 
         private readonly float leftTriangleArea;
         private readonly float trapezoidArea;
@@ -18,30 +22,16 @@ namespace Utils.PolygonSplitter {
         private readonly ProjectedVertex leftTriangleProjectedVertex;
         private readonly ProjectedVertex rightTriangleProjectedVertex;
 
-        private void DrawPolygon(Polygon p, Color c) {
-            var d = 1000000;
-
-            for (int i = 0; i < p.points.Count; i++) {
-                var position = Vector3.zero;
-
-                var cur = p.points[i] + position;
-                var next = p.points[(i + 1) % p.points.Count] + position;
-
-                Debug.DrawLine(cur, next, c, d);
-            }
-        }
-
-
         public EdgePairSubPolygons(LineSegment edgeA, LineSegment edgeB, ProjectedVertex projected0, ProjectedVertex projected1) {
             this.edgeA = edgeA;
             this.edgeB = edgeB;
 
             // build triangles if corresponding projected points are valid
-            leftTriangle = projected0.valid ? CreateTriangle(edgeA.end, projected0.vertex, edgeB.start) : null;
+            var leftTriangle = projected0.valid ? CreateTriangle(edgeA.end, projected0.vertex, edgeB.start) : null;
             leftTriangleProjectedVertex = leftTriangle != null ? projected0 : null;
             leftTriangleArea = leftTriangle?.GetArea() ?? 0;
 
-            rightTriangle = projected1.valid ? CreateTriangle(edgeA.start, projected1.vertex, edgeB.end) : null;
+            var rightTriangle = projected1.valid ? CreateTriangle(edgeA.start, projected1.vertex, edgeB.end) : null;
             rightTriangleProjectedVertex = rightTriangle != null ? projected1 : null;
             rightTriangleArea = rightTriangle?.GetArea() ?? 0;
 
@@ -51,18 +41,17 @@ namespace Utils.PolygonSplitter {
             // 3) if projected0 is on edgeB, add projected0, else add edgeB.start
             // 4) if projected1 is on edgeB, add projected1, else add edgeB.end
             // 5) close the polygon
-            var coord1 = projected1.IsOnEdge(edgeA) ? projected1.vertex : edgeA.start;
-            var coord2 = projected0.IsOnEdge(edgeA) ? projected0.vertex : edgeA.end;
-            var coord3 = projected0.IsOnEdge(edgeB) ? projected0.vertex : edgeB.start;
-            var coord4 = projected1.IsOnEdge(edgeB) ? projected1.vertex : edgeB.end;
-            trapezoid = PolygonUtils.CreatePolygon(new List<Vector3> { coord1, coord2, coord3, coord4 });
+            var coordinate1 = projected1.IsOnEdge(edgeA) ? projected1.vertex : edgeA.start;
+            var coordinate2 = projected0.IsOnEdge(edgeA) ? projected0.vertex : edgeA.end;
+            var coordinate3 = projected0.IsOnEdge(edgeB) ? projected0.vertex : edgeB.start;
+            var coordinate4 = projected1.IsOnEdge(edgeB) ? projected1.vertex : edgeB.end;
+            trapezoid = CreatePolygon(new List<Vector3> { coordinate1, coordinate2, coordinate3, coordinate4 });
             trapezoidArea = trapezoid.GetArea();
         }
 
-        public float GetTotalArea() {
+        private float GetTotalArea() {
             return leftTriangleArea + trapezoidArea + rightTriangleArea;
         }
-
 
         public List<Cut> GetCuts(Polygon polygon, float singlePartArea) {
             var cuts = new List<Cut>(2);
@@ -145,7 +134,7 @@ namespace Utils.PolygonSplitter {
                     lineOfCut = IsPointOnLineSegment(pointOfCut, edgeA) ? new LineSegment(pointOfCut, edgeB.end) : new LineSegment(edgeA.start, pointOfCut);
                 }
 
-                if (lineOfCut != null) {// && !IsIntersectingPolygon(lineOfCut, polygon)) { 
+                if (lineOfCut != null) {// && !IsIntersectingPolygon(lineOfCut, polygon)) {
                     // only consider cuts that do not intersect the exterior ring of the polygon
                     var cutAwayPolygon = SlicePolygon(polygon, lineOfCut.start, lineOfCut.end);
                     cuts.Add(new Cut(lineOfCut.GetLength(), cutAwayPolygon));
@@ -195,7 +184,7 @@ namespace Utils.PolygonSplitter {
                     lineOfCut = IsPointOnLineSegment(pointOfCut, edgeA) ? new LineSegment(edgeB.start, pointOfCut) : new LineSegment(pointOfCut, edgeA.end);
                 }
 
-                if (lineOfCut != null) {// && !IsIntersectingPolygon(lineOfCut, polygon)) { 
+                if (lineOfCut != null) {// && !IsIntersectingPolygon(lineOfCut, polygon)) {
                     // only consider cuts that do not intersect the exterior ring of the polygon
                     var cutAwayPolygon = SlicePolygon(polygon, lineOfCut.start, lineOfCut.end);
                     if (cutAwayPolygon == null || cutAwayPolygon.points.Count > 3) {

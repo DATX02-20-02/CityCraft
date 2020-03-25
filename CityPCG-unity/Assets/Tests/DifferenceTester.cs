@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
 using UnityEngine;
 using Utils.PolygonSplitter;
-using Vector3 = UnityEngine.Vector3;
+using Utils.PolygonSplitter.Implementation;
 
-namespace DefaultNamespace {
+namespace Tests
+{
     public class DifferenceTester : MonoBehaviour {
 
         public PolygonDifferenceTester p1;
@@ -19,7 +19,7 @@ namespace DefaultNamespace {
         public PolygonDifferenceTester p8;
 
 
-        public void Start() {
+        private void Start() {
             p1.Init(Vector3.zero);
             p2.Init(new Vector3(1 * 2.3f, 0, 0));
             p3.Init(new Vector3(2 * 2.3f, 0, 0));
@@ -30,7 +30,7 @@ namespace DefaultNamespace {
             p8.Init(new Vector3(7 * 2.3f, 0, 0));
         }
 
-        public void Update() {
+        private void Update() {
             p1.Render();
             p2.Render();
             p3.Render();
@@ -129,5 +129,4 @@ namespace DefaultNamespace {
             }
         }
     }
-
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Utils.PolygonSplitter;
 
 // What? Generates the world, including terrain, roads, and cities.
 // Why? The many generators need a pipeline that handles the IO between generators.
@@ -25,6 +26,7 @@ public class WorldGenerator : MonoBehaviour {
     private ParkGenerator parkGenerator;
 
     private Noise populationNoise;
+    private List<Plot> plots;
 
     public void Undo() { }
 
@@ -35,12 +37,26 @@ public class WorldGenerator : MonoBehaviour {
     public void GenerateRoads() {
         populationNoise = populationGenerator.Generate();
 
-        roadGenerator.Generate(populationNoise, (roadNetwork) => blockGenerator.Generate(roadNetwork));
+        roadGenerator.Generate(populationNoise, GenerateBlocks);
+    }
+
+    private void GenerateBlocks(RoadNetwork roadNetwork) {
+        var blocks = blockGenerator.Generate(roadNetwork);
+        plots = new List<Plot>();
+        blocks.ForEach(GeneratePlots);
+    }
+
+    private void GeneratePlots(Block block) {
+        plots.AddRange(plotGenerator.Generate(block, populationNoise));
+    }
+
+    public void GenerateBuildings() {
+        foreach (var plot in plots) {
+            buildingGenerator.Generate(plot);
+        }
     }
 
     public void GenerateStreets() { }
-    public void GenerateBuildings() { }
-
     private void InstantiateGenerators() {
         terrainGenerator = Instantiate(terrainGeneratorPrefab, transform).GetComponent<TerrainGenerator>();
         populationGenerator = Instantiate(populationGeneratorPrefab, transform).GetComponent<NoiseGenerator>();

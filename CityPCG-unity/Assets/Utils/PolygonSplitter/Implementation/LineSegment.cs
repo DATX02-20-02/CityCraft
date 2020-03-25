@@ -1,7 +1,12 @@
-using System;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Utils.PolygonSplitter {
+namespace Utils.PolygonSplitter.Implementation {
+
+    /**
+     * Represents a line from start position to end position.
+     *
+     * Heavily inspired by the project Polysplit made by Gediminas Rimša, read more in license.txt.
+     */
     public class LineSegment {
         public Vector3 start;
         public Vector3 end;

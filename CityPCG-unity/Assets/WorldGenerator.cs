@@ -71,8 +71,9 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     private void Awake() {
-        if(debug)
+        if (debug) {
             Random.InitState(debugSeed);
+        }
     }
 
     private void Start() {

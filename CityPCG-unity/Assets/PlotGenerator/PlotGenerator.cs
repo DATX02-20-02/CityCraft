@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using Utils.PolygonSplitter;
 using static Utils.PolygonSplitter.PolygonSplitter;
-using static Utils.PolygonSplitter.PolygonUtils;
+using static Utils.PolygonSplitter.Implementation.PolygonUtils;
 
 public class PlotGenerator : MonoBehaviour {
 

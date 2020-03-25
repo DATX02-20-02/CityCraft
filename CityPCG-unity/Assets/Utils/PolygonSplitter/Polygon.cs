@@ -2,9 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static Utils.PolygonSplitter.PolygonUtils;
+using Utils.PolygonSplitter.Implementation;
+using static Utils.PolygonSplitter.Implementation.PolygonUtils;
 
 namespace Utils.PolygonSplitter {
+
+    /**
+     * Represents a polygon via the List<Vector3> points
+     */
     [Serializable]
     public class Polygon {
         public List<Vector3> points;
@@ -20,7 +25,6 @@ namespace Utils.PolygonSplitter {
             result *= 0.5f;
 
             return result.magnitude;
-            //return GeometryUtility.CalculateBounds(points, Matrix4x4.identity);
         }
 
         public override string ToString() {

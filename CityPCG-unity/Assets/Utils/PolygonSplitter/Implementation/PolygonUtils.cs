@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;

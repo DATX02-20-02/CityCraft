@@ -1,6 +1,7 @@
-﻿namespace Utils.PolygonSplitter.Implementation {
+namespace Utils.PolygonSplitter.Implementation {
     /**
-     * Represents a cut from a polygon. The cut is a completely inside the parent polygon.
+     * Represents one of the possible cuts that a Polygon can be split into.
+     * The cut is completely inside the parent polygon.
      *
      * Heavily inspired by the project Polysplit made by Gediminas Rimša, read more in license.txt.
      */

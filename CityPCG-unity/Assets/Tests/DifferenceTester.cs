@@ -1,11 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Utils.PolygonSplitter;
 using Utils.PolygonSplitter.Implementation;
 
-namespace Tests
-{
+namespace Tests {
     public class DifferenceTester : MonoBehaviour {
 
         public PolygonDifferenceTester p1;

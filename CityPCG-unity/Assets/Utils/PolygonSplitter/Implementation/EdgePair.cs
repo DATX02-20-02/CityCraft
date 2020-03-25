@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using static Utils.PolygonSplitter.Implementation.PolygonUtils;
 
 namespace Utils.PolygonSplitter.Implementation {

@@ -22,7 +22,7 @@ public class NoiseGenerator : MonoBehaviour {
 
     public Vector2 Offset {
         get {
-            return randomSeed ? Random.Range(-10000.0f, 10000.0f) : this.seed;
+            return offset;
         }
         set {
             this.offset = value;

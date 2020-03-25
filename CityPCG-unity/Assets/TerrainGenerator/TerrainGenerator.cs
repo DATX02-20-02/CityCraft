@@ -47,7 +47,6 @@ public class TerrainGenerator : MonoBehaviour {
         var prevRandomState = Random.state;
         this.noiseGenerator.Offset = offset;
         var noise = this.noiseGenerator.Generate();
-
         var terrainModel = new TerrainModel(width, depth, seaLevel, maxHeight, noise);
 
         GenerateVertices(terrainModel);

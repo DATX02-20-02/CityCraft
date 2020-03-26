@@ -63,7 +63,7 @@ namespace Utils.PolygonSplitter.Implementation {
         public static List<LineSegment> GetLineSegments(Polygon polygon) {
             var lineSegments = new List<LineSegment>();
 
-            if (polygon.points.Count == 0) {
+            if (polygon == null || polygon.points == null || polygon.points.Count == 0) {
                 return lineSegments;
             }
 

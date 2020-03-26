@@ -13,7 +13,8 @@ public class BuildingGenerator : MonoBehaviour {
 
         var meshVertices = new Vector3[plotLength * 2];
         for (var i = 0; i < plotLength; i++) {
-            meshVertices[i] = plot.vertices[i];
+            var plotVector = plot.vertices[i];
+            meshVertices[i] = new Vector3(plotVector.x, 0, plotVector.y);
         }
 
         var up = new Vector3(0, 5, 0);

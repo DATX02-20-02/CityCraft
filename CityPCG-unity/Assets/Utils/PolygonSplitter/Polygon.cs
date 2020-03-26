@@ -8,23 +8,20 @@ using static Utils.PolygonSplitter.Implementation.PolygonUtils;
 namespace Utils.PolygonSplitter {
 
     /**
-     * Represents a polygon via the List<Vector3> points
+     * Represents a polygon via the List<Vector2> points
      */
     [Serializable]
     public class Polygon {
-        public List<Vector3> points;
-        public Polygon(List<Vector3> points) {
+        public List<Vector2> points;
+        public Polygon(List<Vector2> points) {
             this.points = points;
         }
-
         public float GetArea() {
-            var result = Vector3.zero;
-            for (int p = points.Count - 1, q = 0; q < points.Count; p = q++) {
-                result += Vector3.Cross(points[q], points[p]);
-            }
-            result *= 0.5f;
+            var area = 0.0f;
+            for (var i = 0; i < points.Count; i++)
+                area += points[i].x * (points[(i + 1) % points.Count].y - points[(i - 1 + points.Count) % points.Count].y);
 
-            return result.magnitude;
+            return Mathf.Abs(area / 2.0f);
         }
 
         public override string ToString() {
@@ -66,7 +63,7 @@ namespace Utils.PolygonSplitter {
 
         }
 
-        public bool Contains(Vector3 p) {
+        public bool Contains(Vector2 p) {
             foreach (var point in points) {
                 if (point == p) {
                     return true;
@@ -78,15 +75,15 @@ namespace Utils.PolygonSplitter {
             for (var i = 0; i < points.Count; j = i++) {
                 var pi = points[i];
                 var pj = points[j];
-                if (((pi.z <= p.z && p.z < pj.z) || (pj.z <= p.z && p.z < pi.z)) &&
-                    (p.x < (pj.x - pi.x) * (p.z - pi.z) / (pj.z - pi.z) + pi.x))
+                if (((pi.y <= p.y && p.y < pj.y) || (pj.y <= p.y && p.y < pi.y)) &&
+                    (p.x < (pj.x - pi.x) * (p.y - pi.y) / (pj.y - pi.y) + pi.x))
                     inside = !inside;
             }
             return inside;
         }
 
         public Polygon Difference(Polygon otherPolygon) {
-            var vertices = new List<Vector3>();
+            var vertices = new List<Vector2>();
 
             var segmentsA = GetLineSegments(this);
             var segmentsB = GetLineSegments(otherPolygon);
@@ -122,7 +119,7 @@ namespace Utils.PolygonSplitter {
             }
 
             // 3. Add all unique vertices.
-            var hasAdded = new HashSet<Vector3>();
+            var hasAdded = new HashSet<Vector2>();
             foreach (var s in segs) {
                 if (!hasAdded.Contains(s.start)) {
                     hasAdded.Add(s.start);

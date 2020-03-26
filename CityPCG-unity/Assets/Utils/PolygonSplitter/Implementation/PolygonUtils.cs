@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Vector2 = UnityEngine.Vector2;
-using Vector3 = UnityEngine.Vector3;
+using UnityEngine;
 
 namespace Utils.PolygonSplitter.Implementation {
 
@@ -11,26 +10,26 @@ namespace Utils.PolygonSplitter.Implementation {
      * Somewhat inspired by the project Polysplit made by Gediminas Rimša, read more in license.txt.
      */
     public static class PolygonUtils {
-        public static Polygon CreateTriangle(Vector3 v1, Vector3 v2, Vector3 v3) {
-            return new Polygon(new List<Vector3>() { v1, v2, v3, v1 });
+        public static Polygon CreateTriangle(Vector2 v1, Vector2 v2, Vector2 v3) {
+            return new Polygon(new List<Vector2>() { v1, v2, v3, v1 });
         }
 
         /**
          * Basically adds the first point again to the end to create a loop.
          */
-        public static Polygon CreatePolygon(List<Vector3> vertices) {
+        public static Polygon CreatePolygon(List<Vector2> vertices) {
             if (vertices.Count <= 2) {
                 return null;
             }
-            var copy = new List<Vector3>(vertices) { vertices[0] };
+            var copy = new List<Vector2>(vertices) { vertices[0] };
             return new Polygon(copy);
         }
 
 
         //TODO: Check if startVertex and endVertex actually exists inside of polygonToSplit
-        public static Polygon GetSubPolygon(Polygon polygonToSplit, Vector3 startVertex, Vector3 endVertex) {
+        public static Polygon GetSubPolygon(Polygon polygonToSplit, Vector2 startVertex, Vector2 endVertex) {
 
-            var vertices = new List<Vector3>();
+            var vertices = new List<Vector2>();
             var started = false;
 
             for (var i = 0; i < polygonToSplit.points.Count; i++) {
@@ -77,23 +76,23 @@ namespace Utils.PolygonSplitter.Implementation {
         }
 
         // Distance to point (p) from line segment (end points a b)
-        public static float DistanceLineSegmentPoint(Vector3 p, LineSegment line) {
+        private static float DistanceLineSegmentPoint(Vector2 p, LineSegment line) {
             if (line.start == line.end) {
-                return Vector3.Distance(line.start, p);
+                return Vector2.Distance(line.start, p);
             }
 
             // Line segment to point distance equation
             var ba = line.end - line.start;
             var pa = line.start - p;
-            return (pa - ba * (Vector3.Dot(pa, ba) / Vector3.Dot(ba, ba))).magnitude;
+            return (pa - ba * (Vector2.Dot(pa, ba) / Vector2.Dot(ba, ba))).magnitude;
         }
 
-        public static bool IsPointOnLineSegment(Vector3 p, LineSegment line) {
+        public static bool IsPointOnLineSegment(Vector2 p, LineSegment line) {
             return DistanceLineSegmentPoint(p, line) < 0.001;
         }
 
-        public static Polygon SlicePolygon(Polygon polygonToSlice, Vector3 startPoint, Vector3 endPoint) {
-            var vertices = new List<Vector3>();
+        public static Polygon SlicePolygon(Polygon polygonToSlice, Vector2 startPoint, Vector2 endPoint) {
+            var vertices = new List<Vector2>();
 
             var started = false;
             var finished = false;
@@ -185,12 +184,12 @@ namespace Utils.PolygonSplitter.Implementation {
         //Returns 0 if point is on the line segment.
         //Returns 1 if point is outside of the line segment and located on the side of linePoint1.
         //Returns 2 if point is outside of the line segment and located on the side of linePoint2.
-        private static int PointOnWhichSideOfLineSegment(Vector3 linePoint1, Vector3 linePoint2, Vector3 point) {
+        private static int PointOnWhichSideOfLineSegment(Vector2 linePoint1, Vector2 linePoint2, Vector2 point) {
 
             var lineVec = linePoint2 - linePoint1;
             var pointVec = point - linePoint1;
 
-            var dot = Vector3.Dot(pointVec, lineVec);
+            var dot = Vector2.Dot(pointVec, lineVec);
 
             //point is on side of linePoint2, compared to linePoint1
             if (dot > 0) {
@@ -212,12 +211,12 @@ namespace Utils.PolygonSplitter.Implementation {
 
         //This function returns a point which is a projection from a point to a line.
         //The line is regarded infinite. If the line is finite, use ProjectPointOnLineSegment() instead.
-        private static Vector3 ProjectPointOnLine(Vector3 linePoint, Vector3 lineVec, Vector3 point) {
+        private static Vector2 ProjectPointOnLine(Vector2 linePoint, Vector2 lineVec, Vector2 point) {
 
             //get vector from point on line to point in space
             var linePointToPoint = point - linePoint;
 
-            var t = Vector3.Dot(linePointToPoint, lineVec);
+            var t = Vector2.Dot(linePointToPoint, lineVec);
 
             return linePoint + lineVec * t;
         }
@@ -226,7 +225,7 @@ namespace Utils.PolygonSplitter.Implementation {
         //If the projected point lies outside of the line segment, the projected point will
         //be clamped to the appropriate line edge.
         //If the line is infinite instead of a segment, use ProjectPointOnLine() instead.
-        public static Vector3 GetProjectedPoint(LineSegment edge, Vector3 point) {
+        public static Vector2 GetProjectedPoint(LineSegment edge, Vector2 point) {
             var vector = edge.end - edge.start;
 
             var projectedPoint = ProjectPointOnLine(edge.start, vector.normalized, point);
@@ -243,7 +242,7 @@ namespace Utils.PolygonSplitter.Implementation {
                     return edge.end;
                 default:
                     //output is invalid
-                    return Vector3.zero;
+                    return Vector2.zero;
             }
         }
 

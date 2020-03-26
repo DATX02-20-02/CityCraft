@@ -13,20 +13,12 @@ namespace Tests {
         public PolygonDifferenceTester p4;
         public PolygonDifferenceTester p5;
 
-        public PolygonDifferenceTester p6;
-        public PolygonDifferenceTester p7;
-        public PolygonDifferenceTester p8;
-
-
         private void Start() {
             p1.Init(Vector3.zero);
             p2.Init(new Vector3(1 * 2.3f, 0, 0));
             p3.Init(new Vector3(2 * 2.3f, 0, 0));
             p4.Init(new Vector3(3 * 2.3f, 0, 0));
             p5.Init(new Vector3(4 * 2.3f, 0, 0));
-            p6.Init(new Vector3(5 * 2.3f, 0, 0));
-            p7.Init(new Vector3(6 * 2.3f, 0, 0));
-            p8.Init(new Vector3(7 * 2.3f, 0, 0));
         }
 
         private void Update() {
@@ -35,9 +27,6 @@ namespace Tests {
             p3.Render();
             p4.Render();
             p5.Render();
-            p6.Render();
-            p7.Render();
-            p8.Render();
         }
     }
 
@@ -47,7 +36,7 @@ namespace Tests {
         public Polygon polygon;
 
         // The two points that the subPolygon will slice from polygon
-        public Vector3 p1, p2;
+        public Vector2 p1, p2;
 
         // The subPolygon generated via PolygonUtils.SlicePolygon
         private Polygon subPolygon;
@@ -83,12 +72,12 @@ namespace Tests {
                 Debug.Log(p);
 
             //Outline to clearly differentiate the tests
-            outline = new Polygon(new List<Vector3>()
+            outline = new Polygon(new List<Vector2>()
             {
-                new Vector3(-0.1f, 0, -1.2f),
-                new Vector3(2.2f, 0, -1.2f),
-                new Vector3(2.2f, 0, 1.2f),
-                new Vector3(-0.1f, 0, 1.2f),
+                new Vector2(-0.1f, -1.2f),
+                new Vector2(2.2f, -1.2f),
+                new Vector2(2.2f, 1.2f),
+                new Vector2(-0.1f, 1.2f),
             });
         }
 
@@ -96,8 +85,8 @@ namespace Tests {
             DrawPolygon(outline, Color.black);
 
             DrawPolygon(polygon, Color.blue);
-            DrawCircle(position + p1, Color.white);
-            DrawCircle(position + p2, Color.white);
+            DrawCircle(position + new Vector3(p1.x, 0, p1.y), Color.white);
+            DrawCircle(position + new Vector3(p2.x, 0, p2.y), Color.white);
 
             DrawPolygon(subPolygon, Color.red, level1);
             DrawPolygon(difference, Color.green, level2);
@@ -106,10 +95,15 @@ namespace Tests {
             DrawPolygon(difference, Color.green, level3);
         }
 
-        private void DrawPolygon(Polygon p, Color c, Vector3 p2 = default) {
+        private void DrawPolygon(Polygon p, Color c, Vector3 translation = default) {
+
+
             for (var i = 0; i < p.points.Count; i++) {
-                var cur = p.points[i] + position + p2;
-                var next = p.points[(i + 1) % p.points.Count] + position + p2;
+                var p1 = p.points[i];
+                var p2 = p.points[(i + 1) % p.points.Count];
+
+                var cur = new Vector3(p1.x, 0, p1.y) + position + translation;
+                var next =  new Vector3(p2.x, 0, p2.y) + position + translation;
 
                 Debug.DrawLine(cur, next, c);
             }

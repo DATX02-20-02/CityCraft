@@ -50,9 +50,9 @@ namespace Utils.PolygonSplitter.Implementation {
             }
         }
 
-        private static ProjectedVertex GetProjectedVertex(Vector3 point, LineSegment edge) {
+        private static ProjectedVertex GetProjectedVertex(Vector2 point, LineSegment edge) {
             var projectionPoint = GetProjectedPoint(edge, point);
-            return projectionPoint != Vector3.zero ? new ProjectedVertex(projectionPoint, edge) : ProjectedVertex.INVALID;
+            return projectionPoint != Vector2.zero ? new ProjectedVertex(projectionPoint, edge) : ProjectedVertex.INVALID;
         }
 
         public EdgePairSubPolygons GetSubPolygons() {

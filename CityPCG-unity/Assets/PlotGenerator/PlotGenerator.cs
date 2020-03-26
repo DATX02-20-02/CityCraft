@@ -12,7 +12,9 @@ public class PlotGenerator : MonoBehaviour {
 
 
     public List<Plot> Generate(Block block, Noise populationNoise) {
-        var plots = Split(CreatePolygon(block.vertices), parts).ConvertAll((polygon => new Plot(polygon.points)));
+        var plots =
+            Split(CreatePolygon(block.vertices.ConvertAll(vec3 => new Vector2(vec3.x, vec3.z))), parts)
+            .ConvertAll((polygon => new Plot(polygon.points)));
 
         if (debug) {
             plots.ForEach(DrawPlot);
@@ -25,13 +27,13 @@ public class PlotGenerator : MonoBehaviour {
     }
 
     private void DrawPlot(Plot p) {
-        for (int i = 0; i < p.vertices.Count; i++) {
-            var position = transform.position;
+        var position = new Vector2(transform.position.x, transform.position.z);
 
+        for (int i = 0; i < p.vertices.Count; i++) {
             var cur = p.vertices[i] + position;
             var next = p.vertices[(i + 1) % p.vertices.Count] + position;
 
-            Debug.DrawLine(cur, next, Color.yellow, 10000000);
+            Debug.DrawLine(new Vector3(cur.x, 0, cur.y),  new Vector3(next.x, 0, next.y), Color.yellow, 10000000);
         }
     }
 }

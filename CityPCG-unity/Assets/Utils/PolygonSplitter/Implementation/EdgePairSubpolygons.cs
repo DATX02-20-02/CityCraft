@@ -45,7 +45,7 @@ namespace Utils.PolygonSplitter.Implementation {
             var coordinate2 = projected0.IsOnEdge(edgeA) ? projected0.vertex : edgeA.end;
             var coordinate3 = projected0.IsOnEdge(edgeB) ? projected0.vertex : edgeB.start;
             var coordinate4 = projected1.IsOnEdge(edgeB) ? projected1.vertex : edgeB.end;
-            trapezoid = CreatePolygon(new List<Vector3> { coordinate1, coordinate2, coordinate3, coordinate4 });
+            trapezoid = CreatePolygon(new List<Vector2> { coordinate1, coordinate2, coordinate3, coordinate4 });
             trapezoidArea = trapezoid.GetArea();
         }
 

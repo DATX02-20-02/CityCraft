@@ -1,4 +1,4 @@
-using Vector3 = UnityEngine.Vector3;
+using UnityEngine;
 
 namespace Utils.PolygonSplitter.Implementation {
 
@@ -7,7 +7,7 @@ namespace Utils.PolygonSplitter.Implementation {
      */
     public class ProjectedVertex {
         public readonly bool valid;
-        public readonly Vector3 vertex;
+        public readonly Vector2 vertex;
 
         public static readonly ProjectedVertex INVALID = new ProjectedVertex();
 
@@ -19,7 +19,7 @@ namespace Utils.PolygonSplitter.Implementation {
             vertex = Vector3.zero;
         }
 
-        public ProjectedVertex(Vector3 vertex, LineSegment edge) {
+        public ProjectedVertex(Vector2 vertex, LineSegment edge) {
             this.edge = edge;
             valid = true;
             this.vertex = vertex;

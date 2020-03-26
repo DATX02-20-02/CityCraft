@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class BuildingGeneratorTest : MonoBehaviour {
 
-    public List<Vector3> vertices;
+    public List<Vector2> vertices;
     public BuildingGenerator buildingGenerator;
 
     public void Start() {

@@ -3,68 +3,87 @@ using UnityEngine;
 public class BuildingGenerator : MonoBehaviour {
     public GameObject building;
 
-    public void Generate(Plot plot) {
+    public GameObject Generate(Plot plot) {
         var b = Instantiate(building, transform);
         var mesh = b.GetComponent<MeshFilter>().mesh;
 
         mesh.Clear();
 
-        var plotLength = plot.vertices.Count;
+        int plotLength = plot.vertices.Count;
+        Vector3 up = Vector3.up;
+        float buildingHeight = 5; //Random.Range(3, 8);
 
-        var meshVertices = new Vector3[plotLength * 2];
+        Vector3[] meshVertices = new Vector3[plotLength * 2];
         for (var i = 0; i < plotLength; i++) {
             var plotVector = plot.vertices[i];
-            meshVertices[i] = new Vector3(plotVector.x, 0, plotVector.y);
+            meshVertices[i] = VectorUtil.Vector2To3(plotVector);
+        }
+        int[] wallIndices = new int[(plotLength * 6 + 6)];
+
+        Vector3[] topVertices = new Vector3[plotLength];
+
+        float highestPoint = float.MinValue;
+        foreach (Vector3 vert in plot.vertices) {
+            if (highestPoint < vert.y) {
+                highestPoint = vert.y;
+            }
         }
 
-        var up = new Vector3(0, 5, 0);
-        var topVertices = new Vector3[plotLength];
+        int meshIdx = 0;
+        int triIdx = 0;
+        int topIdx = 0;
+        for (int i = 0; i < plotLength; i++) {
+            Vector3 vert0 = plot.vertices[i];
+            Vector3 vert1 = plot.vertices[(i + 1) % plotLength];
 
-        for (var i = plotLength; i < meshVertices.Length; i++) {
-            var newVert = meshVertices[i - plotLength] + up;
-            topVertices[i - plotLength] = newVert;
-            meshVertices[i] = newVert;
-        }
+            Vector3 eVert0 = new Vector3(vert0.x, highestPoint, vert0.z);
+            Vector3 eVert1 = new Vector3(vert1.x, highestPoint, vert1.z);
 
-        var wallIndices = new int[plotLength * 6];
-        var numVert = meshVertices.Length;
+            meshVertices[meshIdx + 0] = vert0;
+            meshVertices[meshIdx + 1] = vert1;
 
-        //Walls
-        for (var i = 0; i < plotLength; i++) {
-            var j = i * 6;
+            meshVertices[meshIdx + 2] = eVert1 + up * buildingHeight;
+            meshVertices[meshIdx + 3] = eVert0 + up * buildingHeight;
 
-            wallIndices[j] = i;
-            wallIndices[j + 1] = (i + plotLength) % numVert;
-            wallIndices[j + 2] = (i + 1) % plotLength;
+            wallIndices[triIdx + 0] = meshIdx + 2;
+            wallIndices[triIdx + 1] = meshIdx + 1;
+            wallIndices[triIdx + 2] = meshIdx + 0;
 
-            wallIndices[j + 3] = (i + plotLength) % numVert;
-            wallIndices[j + 4] = (i + plotLength + 1) % numVert;
-            wallIndices[j + 5] = (i + 1) % plotLength;
-        }
+            wallIndices[triIdx + 3] = meshIdx + 3;
+            wallIndices[triIdx + 4] = meshIdx + 2;
+            wallIndices[triIdx + 5] = meshIdx + 0;
 
-        var k = (plotLength - 1) * 6 + 4;
-        if (wallIndices[k] == 0) {
-            wallIndices[k] = plotLength;
+            topVertices[topIdx] = meshVertices[meshIdx + 3];
+
+            meshIdx += 4;
+            triIdx += 6;
+            topIdx++;
         }
 
         var triangulator = new Triangulator(topVertices);
-        var roofIndices = triangulator.Triangulate();
+        int[] roofIndices = triangulator.Triangulate();
 
-        var indices = new int[wallIndices.Length + roofIndices.Length];
+        int[] meshIndices = new int[wallIndices.Length + roofIndices.Length];
 
-        for (var i = 0; i < wallIndices.Length; i++) {
-            indices[i] = wallIndices[i];
+
+        for (int i = 0; i < topVertices.Length; i++) {
+            meshVertices[plotLength * 4 + 4 + i] = topVertices[i];
         }
 
-        for (var (i, j) = (0, wallIndices.Length); i < roofIndices.Length; i++, j++) {
-            indices[j] = roofIndices[i] + plotLength;
+        for (int i = 0; i < wallIndices.Length; i++) {
+            meshIndices[i] = wallIndices[i];
         }
 
+        for (int i = 0; i < roofIndices.Length; i++) {
+            meshIndices[wallIndices.Length + i] = plotLength * 4 + 4 + roofIndices[i];
+        }
 
         mesh.vertices = meshVertices;
-        mesh.triangles = indices;
+        mesh.triangles = meshIndices;
 
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
+
+        return b;
     }
 }

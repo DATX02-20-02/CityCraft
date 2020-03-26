@@ -97,7 +97,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e797a301bdd38641a87062606437813, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  randomOffset: 1
+  randomOffset: 0
   offset: {x: 0, y: 0}
   layers:
   - offset: {x: 38, y: 3}

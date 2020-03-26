@@ -12,10 +12,10 @@ public class PlotGenerator : MonoBehaviour {
 
 
     public List<Plot> Generate(Block block, Noise populationNoise) {
-        var plots =
-            Split(CreatePolygon(block.vertices.ConvertAll(vec3 => new Vector2(vec3.x, vec3.z))), parts)
-            .ConvertAll((polygon => new Plot(polygon.points)));
-
+        var vec2Vertices = block.vertices.ConvertAll(vec3 => new Vector2(vec3.x, vec3.z));
+        var polygons = Split(CreatePolygon(vec2Vertices), parts);
+        var plots = polygons.ConvertAll(polygon => new Plot(polygon.points));
+        
         if (debug) {
             plots.ForEach(DrawPlot);
         }

@@ -13,17 +13,19 @@ public class BuildingGenerator : MonoBehaviour {
         Vector3 up = Vector3.up;
         float buildingHeight = 5; //Random.Range(3, 8);
 
-        Vector3[] meshVertices = new Vector3[plotLength * 2];
+        Vector3[] plotVertices = new Vector3[plotLength];
         for (var i = 0; i < plotLength; i++) {
             var plotVector = plot.vertices[i];
-            meshVertices[i] = VectorUtil.Vector2To3(plotVector);
+            plotVertices[i] = VectorUtil.Vector2To3(plotVector);
         }
+
+        Vector3[] meshVertices = new Vector3[plotLength * 4 + 4 + plotLength];
         int[] wallIndices = new int[(plotLength * 6 + 6)];
 
         Vector3[] topVertices = new Vector3[plotLength];
 
         float highestPoint = float.MinValue;
-        foreach (Vector3 vert in plot.vertices) {
+        foreach (Vector3 vert in plotVertices) {
             if (highestPoint < vert.y) {
                 highestPoint = vert.y;
             }
@@ -33,8 +35,8 @@ public class BuildingGenerator : MonoBehaviour {
         int triIdx = 0;
         int topIdx = 0;
         for (int i = 0; i < plotLength; i++) {
-            Vector3 vert0 = plot.vertices[i];
-            Vector3 vert1 = plot.vertices[(i + 1) % plotLength];
+            Vector3 vert0 = plotVertices[i];
+            Vector3 vert1 = plotVertices[(i + 1) % plotLength];
 
             Vector3 eVert0 = new Vector3(vert0.x, highestPoint, vert0.z);
             Vector3 eVert1 = new Vector3(vert1.x, highestPoint, vert1.z);

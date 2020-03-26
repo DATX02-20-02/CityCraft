@@ -42,7 +42,7 @@ namespace Utils.PolygonSplitter.Implementation {
                 return false;
             }
 
-            var ls = (LineSegment) obj;
+            var ls = (LineSegment)obj;
             return start == ls.start && end == ls.end;
         }
 

@@ -103,7 +103,7 @@ namespace Tests {
                 var p2 = p.points[(i + 1) % p.points.Count];
 
                 var cur = new Vector3(p1.x, 0, p1.y) + position + translation;
-                var next =  new Vector3(p2.x, 0, p2.y) + position + translation;
+                var next = new Vector3(p2.x, 0, p2.y) + position + translation;
 
                 Debug.DrawLine(cur, next, c);
             }

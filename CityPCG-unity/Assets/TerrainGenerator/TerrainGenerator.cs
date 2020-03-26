@@ -36,6 +36,7 @@ public class TerrainGenerator : MonoBehaviour {
     private Color[] colors;
     private Vector2[] uvs;
 
+
     public TerrainModel GenerateTerrain() {
         float x = Random.Range(-10000f, 10000f);
         float z = Random.Range(-10000f, 10000f);
@@ -47,6 +48,7 @@ public class TerrainGenerator : MonoBehaviour {
         var prevRandomState = Random.state;
         this.noiseGenerator.Offset = offset;
         var noise = this.noiseGenerator.Generate();
+
         var terrainModel = new TerrainModel(width, depth, seaLevel, maxHeight, noise);
 
         GenerateVertices(terrainModel);

@@ -15,7 +15,7 @@ public class PlotGenerator : MonoBehaviour {
         var vec2Vertices = block.vertices.ConvertAll(vec3 => new Vector2(vec3.x, vec3.z));
         var polygons = Split(CreatePolygon(vec2Vertices), parts);
         var plots = polygons.ConvertAll(polygon => new Plot(polygon.points));
-        
+
         if (debug) {
             plots.ForEach(DrawPlot);
         }
@@ -33,7 +33,7 @@ public class PlotGenerator : MonoBehaviour {
             var cur = p.vertices[i] + position;
             var next = p.vertices[(i + 1) % p.vertices.Count] + position;
 
-            Debug.DrawLine(new Vector3(cur.x, 0, cur.y),  new Vector3(next.x, 0, next.y), Color.yellow, 10000000);
+            Debug.DrawLine(new Vector3(cur.x, 0, cur.y), new Vector3(next.x, 0, next.y), Color.yellow, 10000000);
         }
     }
 }

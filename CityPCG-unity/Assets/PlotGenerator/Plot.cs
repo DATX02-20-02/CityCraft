@@ -9,3 +9,11 @@ public class Plot {
         this.vertices = vertices;
     }
 }
+
+public class ElevatedPlot {
+    public List<Vector3> vertices;
+
+    public ElevatedPlot(List<Vector3> vertices) {
+        this.vertices = vertices;
+    }
+}

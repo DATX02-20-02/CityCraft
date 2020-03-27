@@ -3,7 +3,7 @@ using UnityEngine;
 public class BuildingGenerator : MonoBehaviour {
     public GameObject building;
 
-    public GameObject Generate(Plot plot) {
+    public GameObject Generate(ElevatedPlot plot) {
         var b = Instantiate(building, transform);
         var mesh = b.GetComponent<MeshFilter>().mesh;
 
@@ -11,7 +11,7 @@ public class BuildingGenerator : MonoBehaviour {
 
         int plotLength = plot.vertices.Count;
         Vector3 up = Vector3.up;
-        float buildingHeight = 5; //Random.Range(3, 8);
+        float buildingHeight = Random.Range(4, 5);
 
         Vector3[] meshVertices = new Vector3[plotLength * 4 + 4 + plotLength];
         int[] wallIndices = new int[(plotLength * 6 + 6)];

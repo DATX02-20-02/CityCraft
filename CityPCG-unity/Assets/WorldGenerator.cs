@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Utils.PolygonSplitter;
 
@@ -27,6 +28,7 @@ public class WorldGenerator : MonoBehaviour {
     private ParkGenerator parkGenerator;
 
     private Noise populationNoise;
+    private RoadNetwork roadNetwork;
     private TerrainModel terrain;
 
     public void Undo() { }
@@ -44,18 +46,23 @@ public class WorldGenerator : MonoBehaviour {
     public void GenerateStreets() { }
 
     public void GenerateBuildings() {
-        foreach (var block in this.blocks) {
+        foreach (Block block in this.blocks) {
             // Split each block into plots
             var plots = plotGenerator.Generate(block, populationNoise);
 
             // Generate buildings in each plot.
-            foreach (var plot in plots) {
-                buildingGenerator.Generate(plot);
+            foreach (Plot plot in plots) {
+                ElevatedPlot elevatedPlot = new ElevatedPlot(
+                    plot.vertices.Select(v => roadNetwork.Terrain.GetPosition(v)).ToList()
+                );
+
+                buildingGenerator.Generate(elevatedPlot);
             }
         }
     }
 
     private void GenerateBlocks(RoadNetwork roadNetwork) {
+        this.roadNetwork = roadNetwork;
         this.blocks = blockGenerator.Generate(roadNetwork);
     }
 

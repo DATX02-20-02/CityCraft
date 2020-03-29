@@ -7,18 +7,44 @@ using UnityEngine;
 public class RoadMesh : MonoBehaviour
 {
     [SerializeField]
-    private Mesh2D crossSectionShape = null;
+    private RoadIntersectionMesh roadEnd = null;
+    [SerializeField]
+    private RoadIntersectionMesh roadStart = null;
+
+    [SerializeField]
+    [Range(0.01f, 6.0f)]
+    private float roadWidth = 2f;
 
     [SerializeField]
     [Range(0.01f, 2.0f)]
-    private float roadWidth = 0.1f;
+    private float sidewalkWidth = 0.5f;
 
-    public Mesh2D CrossSectionShape {
-        get { return crossSectionShape; }
-    }
+    [SerializeField]
+    [Range(0.01f, 0.5f)]
+    private float precision = 0.02f;
 
     public float RoadWidth {
         get { return roadWidth; }
+    }
+
+    public float SideWalkWidth {
+        get { return sidewalkWidth; }
+    }
+
+    public float Width {
+        get { return roadWidth + (sidewalkWidth * 2); }
+    }
+
+    public BezierSpline Spline {
+        get { return GetComponent<BezierSpline>(); }
+    }
+
+    public RoadIntersectionMesh RoadEnd {
+        get => roadEnd;
+    }
+
+    public RoadIntersectionMesh RoadStart {
+        get => roadStart;
     }
 
     public void Reset()
@@ -49,7 +75,7 @@ public class RoadMesh : MonoBehaviour
 
     private Mesh CreateRoadMesh() {
         BezierSpline spline = GetComponent<BezierSpline>();
-        int ringSubdivisionCount = spline.CurveCount * 20;
+        int ringSubdivisionCount = Mathf.RoundToInt(1f / precision);
 
         float[] arr = new float[ringSubdivisionCount];
         spline.CalcLengthTableInfo(arr);
@@ -59,46 +85,59 @@ public class RoadMesh : MonoBehaviour
         List<Vector3> normals = new List<Vector3>();
         List<Vector2> uvs = new List<Vector2>();
 
+        int AddVertex(Vector3 pos, Vector3 normal, Vector2 uv) {
+            verts.Add(pos);
+            normals.Add(normal);
+            uvs.Add(uv);
+
+            return verts.Count - 1;
+        }
+
         for (int ringIndex = 0; ringIndex < ringSubdivisionCount; ringIndex++)
         {
             float t = (ringIndex / (ringSubdivisionCount - 1f));
             OrientedPoint p = spline.GetOrientedPointLocal(t, Vector3.up);
+            float splineDistance = spline.Sample(arr, t);
 
-            for (int i = 0; i < crossSectionShape.VertexCount; i++) {
-                Vector3 localPoint = CrossSectionShape.vertices[i].point;
-                localPoint.x *= roadWidth;
-                localPoint.y *= roadWidth;
-                verts.Add(p.localToWorld(localPoint));
-                normals.Add(p.localToWorldVector(CrossSectionShape.vertices[i].normal));
-                uvs.Add(new Vector2(CrossSectionShape.vertices[i].u, spline.Sample(arr, t)));
-            }
+            Vector3 localLeft = Vector3.left * roadWidth / 2f;
+            AddVertex(p.localToWorld(localLeft), p.normal, new Vector2(0f, splineDistance));
+
+            Vector3 localRight = Vector3.right * roadWidth / 2f;
+            AddVertex(p.localToWorld(localRight), p.normal, new Vector2(1f, splineDistance));
+
+            Vector3 localLeftSidewalkLeft = localLeft + Vector3.left * sidewalkWidth;
+            Vector3 localLeftSidewalkRight = localLeft;
+            Vector3 localRightSidewalkLeft = localRight;
+            Vector3 localRightSidewalkRight = localRight + Vector3.right * sidewalkWidth;
+
+            AddVertex(p.localToWorld(localLeftSidewalkLeft), p.normal, new Vector2(0.2f, splineDistance));
+            AddVertex(p.localToWorld(localLeftSidewalkRight), p.normal, new Vector2(0.2f, splineDistance));
+            AddVertex(p.localToWorld(localRightSidewalkLeft), p.normal, new Vector2(0.2f, splineDistance));
+            AddVertex(p.localToWorld(localRightSidewalkRight), p.normal, new Vector2(0.2f, splineDistance));
         }
+
+        int verticesPerRing = verts.Count / ringSubdivisionCount;
 
         // Triangles
         List<int> triangles = new List<int>();
+
+        void AddQuad(int currentLeft, int currentRight, int nextLeft, int nextRight) {
+            triangles.Add(currentLeft);
+            triangles.Add(nextLeft);
+            triangles.Add(nextRight);
+
+            triangles.Add(currentLeft);
+            triangles.Add(nextRight);
+            triangles.Add(currentRight);
+        }
+
         for (int ringIndex = 0; ringIndex < ringSubdivisionCount - 1; ringIndex++) {
-            int rootIndex = ringIndex * crossSectionShape.VertexCount;
-            int rootIndexNext = (ringIndex + 1) * CrossSectionShape.VertexCount;
+            int rootIndex = ringIndex * verticesPerRing;
+            int rootIndexNext = (ringIndex + 1) * verticesPerRing;
 
-            for (int lineIndex = 0; lineIndex < crossSectionShape.LineCount; lineIndex += 2) {
-
-                int lineStart = crossSectionShape.lineIndices[lineIndex];
-                int lineEnd = crossSectionShape.lineIndices[lineIndex + 1];
-
-                int currentA = rootIndex + lineStart;
-                int currentB = rootIndex + lineEnd;
-
-                int nextA = rootIndexNext + lineStart;
-                int nextB = rootIndexNext + lineEnd;
-
-                triangles.Add(currentA);
-                triangles.Add(nextA);
-                triangles.Add(nextB);
-
-                triangles.Add(currentA);
-                triangles.Add(nextB);
-                triangles.Add(currentB);
-            }
+            AddQuad(rootIndex,     rootIndex + 1, rootIndexNext,     rootIndexNext + 1);
+            AddQuad(rootIndex + 2, rootIndex + 3, rootIndexNext + 2, rootIndexNext + 3); // left sidewalk
+            AddQuad(rootIndex + 4, rootIndex + 5, rootIndexNext + 4, rootIndexNext + 5); // right sidewalk
         }
 
         Mesh mesh = new Mesh();

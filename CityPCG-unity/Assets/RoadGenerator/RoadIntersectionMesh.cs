@@ -4,51 +4,36 @@ using UnityEngine;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class RoadIntersectionMesh : MonoBehaviour {
-    [SerializeField] private float roadWidth = 1f;
-    [SerializeField] private float[] angles = new float[] {0f, 120f, 180f};
+    [System.Serializable]
+    public class RoadMeshConnection {
+        public RoadMesh roadMesh;
+        public bool isStart;
+    }
+
+    [SerializeField] private RoadMeshConnection[] connectedRoads;
+    private RoadSegment[] connectionPoints = null;
+
+    [SerializeField] private float arcRadius = 2f;
+    [SerializeField] private int arcPrecision = 10;
     [SerializeField] private bool debugView = false;
 
-    enum IntersectionCornerType {
-        Overlap,
-        Center,
+
+    public RoadSegment[] IntersectionState {
+        get => connectionPoints;
     }
 
-    class IntersectionCorner {
-        public IntersectionCornerType type;
-        public Vector3 start;
-        public Vector3 end;
-        public Vector3 center;
-        public Vector3 intersection;
-
-        public IntersectionCorner(IntersectionCornerType type, Vector3 center, Vector3 start, Vector3 end) {
-            this.type = type;
-            this.center = center;
-            this.start = start;
-            this.end = end;
-        }
-
-        public List<Vector3> GetPoints() {
-            List<Vector3> ps = new List<Vector3>();
-            float circleRadius = Vector3.Distance(center, start);
-            Vector3 startDir = (start - center).normalized;
-            Vector3 endDir = (end - center).normalized;
-            int steps = 10;
-            float angleStep = Vector3.SignedAngle(startDir, endDir, Vector3.up) / (float)steps ;
-
-            Vector3 curDir = startDir;
-            for (int i = 0; i < steps; i++) {
-                Vector3 p = center + curDir * circleRadius;
-                DrawUtil.DebugDrawCircle(p, 0.02f, Color.red, 20);
-                ps.Add(p);
-                curDir = Quaternion.Euler(Vector3.up * angleStep) * curDir;
-            }
-            ps.Add(end);
-
-            return ps;
-        }
+    public class IntersectionCorner {
+        public Vector3 sidewalkIntersection;
+        public Vector3 sidewalkStartLeft;
+        public Vector3 sidewalkStartRight;
+        public Vector3 streetIntersection;
+        public Vector3 streetStartLeft;
+        public Vector3 streetStartRight;
     }
 
-    class RoadSegment {
+    public class RoadSegment {
+        public RoadMesh r;
+        public BezierSpline s;
         public Vector3 p;
         public Vector3 tangent;
         public Vector3 binormal;
@@ -58,71 +43,72 @@ public class RoadIntersectionMesh : MonoBehaviour {
         public Vector3 leftEnd;
         public Vector3 rightEnd;
 
+        public Vector3 sidewalkLeft;
+        public Vector3 sidewalkRight;
+
+        public Vector3 startSidewalkLeft;
+        public Vector3 startSidewalkRight;
+        public Vector3 endSidewalkLeft;
+        public Vector3 endSidewalkRight;
+
         public IntersectionCorner cornerLeft;
         public IntersectionCorner cornerRight;
+
+        public bool isIntersectingLeftCornerFirst;
     }
 
-    public float RoadWidth {
-        get => roadWidth;
+    private void DrawLine(Vector3 start, Vector3 end, Color color) => Debug.DrawLine(start, end, color);
+    private void DrawPoint(Vector3 pos, float radius, Color color) => DrawUtil.DebugDrawCircle(pos, radius, color, 20);
+
+    [ContextMenu("Update intersection mesh")]
+    public void UpdateMesh() {
+        UpdateIntersectionState();
+        GetComponent<MeshFilter>().sharedMesh = CreateMesh();
     }
 
-    public float[] Angles {
-        get => angles;
-    }
+    private void UpdateIntersectionState() {
+        if (connectedRoads.Length < 3) return;
 
-    private RoadIntersectionMesh(float roadWidth, float[] angles) {
-        this.roadWidth = roadWidth;
-        this.angles = angles;
-    }
+        bool IsStart(RoadMesh r) {
+            if (r.RoadStart != this && r.RoadEnd != this) {
+                Debug.LogWarning("Interaction and road connection needs to be bidirectional.");
+            }
 
-    public RoadIntersectionMesh(float roadWidth, float angle1, float angle2, float angle3)
-        : this(roadWidth, new float[] {angle1, angle2, angle3}) {}
-
-    public RoadIntersectionMesh(float roadWidth, float angle1, float angle2, float angle3, float angle4)
-        : this(roadWidth, new float[] {angle1, angle2, angle3, angle4}) {}
-
-    public void Update() {
-        GetComponent<MeshFilter>().sharedMesh = GenerateMesh();
-    }
-
-    public Mesh GenerateMesh() {
-
-        void DrawLine(Vector3 start, Vector3 end, Color color) => Debug.DrawLine(start, end, color);
-        void DrawPoint(Vector3 pos, float radius, Color color) => DrawUtil.DebugDrawCircle(pos, radius, color, 20);
-
-        float intersectionRadius = roadWidth * 2f;
-        float innerIntersectionRadius = roadWidth / 2f;
-
-        if (debugView) {
-            DrawPoint(transform.position, intersectionRadius, Color.green);
-            DrawPoint(transform.position, innerIntersectionRadius, Color.cyan);
+            return r.RoadStart == this;
         }
 
-        Vector3 center = transform.position;
-
-        RoadSegment[] connectionPoints = new RoadSegment[angles.Length];
-        for (int i = 0; i < angles.Length; i++) {
-            RoadSegment c = new RoadSegment();
-
-            float angle = angles[i];
-            float radians = Mathf.Deg2Rad * angle;
-            c.p = center + (new Vector3(Mathf.Cos(radians), 0f, Mathf.Sin(radians))) * intersectionRadius;
-            c.tangent = (center - c.p).normalized;
-
-            c.binormal = Vector3.Cross(Vector3.up, c.tangent);
-            c.left = c.p - c.binormal * innerIntersectionRadius;
-            c.right = c.p + c.binormal * innerIntersectionRadius;
-
-            c.length = Vector3.Distance(center, c.p);
-            c.leftEnd = c.left + c.tangent * c.length;
-            c.rightEnd = c.right + c.tangent * c.length;
-
-            if (debugView) {
-                DrawLine(c.left, c.right, Color.black);
-                DrawLine(c.left, c.leftEnd, Color.black);
-                DrawLine(c.right, c.rightEnd, Color.black);
-                DrawLine(c.leftEnd, c.rightEnd, Color.black);
+        Vector3 SplineDirectionOfAttack(RoadSegment r) {
+            if (IsStart(r.r)) {
+                return r.s.GetTangent(0f) * (-1f);
             }
+            else {
+                return r.s.GetTangent(1f);
+            }
+        }
+
+        Vector3 GetSplineConnectionPoint(RoadSegment r) {
+            float t = IsStart(r.r) ? 0f : 1f;
+            return r.s.GetPoint(t);
+        }
+
+
+        void SetSplineConnectedPosition(RoadSegment c, Vector3 globalPosition) {
+            if (IsStart(c.r)) {
+                c.s[0] = c.s.transform.InverseTransformPoint(globalPosition);
+            }
+            else {
+                c.s[c.s.ControlPointCount - 1] = c.s.transform.InverseTransformPoint(globalPosition);
+            }
+            c.r.GenerateRoadMesh();
+        }
+
+        connectionPoints = new RoadSegment[connectedRoads.Length];
+        for (int i = 0; i < connectionPoints.Length; i++) {
+            RoadSegment c  = new RoadSegment();
+            c.r = connectedRoads[i].roadMesh;
+            c.s = c.r.GetComponent<BezierSpline>();
+            c.tangent = SplineDirectionOfAttack(c) * (-1f);
+            c.binormal = Vector3.Cross(Vector3.up, c.tangent);
 
             connectionPoints[i] = c;
         }
@@ -131,106 +117,172 @@ public class RoadIntersectionMesh : MonoBehaviour {
         for (int i = 0; i < connectionPoints.Length; i++) {
             RoadSegment right = connectionPoints[i];
 
-            Vector2 intersectionOut = new Vector2();
-            if (LineSegmentsIntersection(VectorUtil.Vector3To2(left.right), VectorUtil.Vector3To2(left.rightEnd), VectorUtil.Vector3To2(right.left), VectorUtil.Vector3To2(right.leftEnd), out intersectionOut)) {
-                Vector3 intersection = VectorUtil.Vector2To3(intersectionOut);
+            IntersectionCorner corner = new IntersectionCorner();
 
-                if (debugView) DrawPoint(intersection, 0.01f, Color.gray);
+            LineIntersection.Result GetRoadIntersection(float leftOffset, float rightOffset) {
+                Vector3 leftSideWalkOffset = left.binormal * leftOffset;
+                Vector3 leftSideWalkStart = transform.position - leftSideWalkOffset;
+                // DrawLine(leftSideWalkStart, leftSideWalkStart + left.tangent * 10f, Color.cyan);
 
-                Vector3 bisectorPoint = left.right + (right.left - left.right) * 0.5f;
-                Vector3 projectedPointLeft = VectorUtil.Vector2To3(VectorUtil.GetProjectedPointOnLine(VectorUtil.Vector3To2(bisectorPoint), intersectionOut, VectorUtil.Vector3To2(left.right)));
-                float distanceToProj = Vector3.Distance(intersection, projectedPointLeft);
-                Vector3 projectedPointRight = intersection + (right.left - intersection).normalized * distanceToProj;
-
-                if (debugView) {
-                    DrawPoint(bisectorPoint, Vector3.Distance(bisectorPoint, projectedPointLeft), Color.gray);
-                    DrawPoint(projectedPointLeft, 0.01f, Color.red);
-                    DrawPoint(projectedPointRight, 0.01f, Color.red);
-                }
-
-                IntersectionCorner corner = new IntersectionCorner(IntersectionCornerType.Overlap, bisectorPoint, projectedPointLeft, projectedPointRight);
-                left.cornerRight = corner;
-                right.cornerLeft = corner;
-                corner.intersection = intersection;
+                Vector3 rightSideWalkOffset = right.binormal * rightOffset;
+                Vector3 rightSideWalkStart = transform.position + rightSideWalkOffset;
+                // DrawLine(rightSideWalkStart, rightSideWalkStart + right.tangent * 10f, Color.green);
+                return LineIntersection.LineTest(
+                    VectorUtil.Vector3To2(leftSideWalkStart - left.tangent * 1000f),
+                    VectorUtil.Vector3To2(leftSideWalkStart + left.tangent * 1000f),
+                    VectorUtil.Vector3To2(rightSideWalkStart - right.tangent * 1000f),
+                    VectorUtil.Vector3To2(rightSideWalkStart + right.tangent * 1000f)
+                );
             }
-            else {
-                IntersectionCorner corner = new IntersectionCorner(IntersectionCornerType.Center, center, left.rightEnd, right.leftEnd);
-                left.cornerRight = corner;
-                right.cornerLeft = corner;
+
+            LineIntersection.Result intersection;
+
+            intersection = GetRoadIntersection(left.r.Width / 2f, right.r.Width/ 2f);
+            if (intersection.type == LineIntersection.Type.Intersecting) {
+                Vector3 sidewalkIntersectionPoint = VectorUtil.Vector2To3(intersection.point);
+                DrawPoint(sidewalkIntersectionPoint, 0.03f, Color.red);
+                corner.sidewalkIntersection = sidewalkIntersectionPoint;
             }
+
+            intersection = GetRoadIntersection(left.r.RoadWidth / 2f, right.r.RoadWidth / 2f);
+            if (intersection.type == LineIntersection.Type.Intersecting) {
+                Vector3 streetIntersectionPoint = VectorUtil.Vector2To3(intersection.point);
+                DrawPoint(streetIntersectionPoint, 0.03f, Color.red);
+                corner.streetIntersection = streetIntersectionPoint;
+            }
+
+            left.cornerRight = corner;
+            right.cornerLeft = corner;
 
             left = right;
         }
 
-        List<Vector3> verts = new List<Vector3>();
-        List<int> triangles = new List<int>();
-
-        void AddVertice(Vector3 vert) => verts.Add(transform.InverseTransformPoint(vert));
 
         foreach (RoadSegment c in connectionPoints) {
+            Vector3 splineEndPoint = new Vector3();
+            c.isIntersectingLeftCornerFirst = Vector3.Distance(transform.position, c.cornerLeft.sidewalkIntersection) > Vector3.Distance(transform.position, c.cornerRight.sidewalkIntersection);
 
-
-            if (c.cornerRight.type == IntersectionCornerType.Overlap) {
-
-            }
-
-            int rootIdx = verts.Count;
-            AddVertice(c.left);
-            AddVertice(c.right);
-            AddVertice(c.leftEnd);
-            AddVertice(c.rightEnd);
-
-            triangles.Add(rootIdx);
-            triangles.Add(rootIdx + 2);
-            triangles.Add(rootIdx + 1);
-
-            triangles.Add(rootIdx + 1);
-            triangles.Add(rootIdx + 2);
-            triangles.Add(rootIdx + 3);
-
-            if (c.cornerRight.type == IntersectionCornerType.Overlap) {
-                if (c.cornerLeft.type == IntersectionCornerType.Center) {
-
-                }
-
-                int cornerCenterIdx = verts.Count;
-                AddVertice(c.cornerRight.intersection);
-                List<Vector3> ps = c.cornerRight.GetPoints();
-                AddVertice(ps[0]);
-                for (int arcIdx = 1; arcIdx < ps.Count; arcIdx++) {
-                    AddVertice(ps[arcIdx]);
-                    triangles.Add(verts.Count - 2);
-                    triangles.Add(cornerCenterIdx);
-                    triangles.Add(verts.Count - 1);
-                    if (debugView) {
-                        float a = (ps.Count - arcIdx) / (float)ps.Count;
-                        DrawLine(ps[arcIdx - 1], ps[arcIdx], new Color(a, 0f, 0f, 1f));
-                    }
-                }
-
+            if (c.isIntersectingLeftCornerFirst) {
+                splineEndPoint = c.cornerLeft.sidewalkIntersection - c.binormal * c.r.Width / 2f;
             }
             else {
-                int cornerCenterIdx = verts.Count;
-                AddVertice(center);
-                List<Vector3> ps = c.cornerRight.GetPoints();
-                AddVertice(ps[0]);
-                for (int arcIdx = 1; arcIdx < ps.Count; arcIdx++) {
-                    AddVertice(ps[arcIdx]);
-                    triangles.Add(verts.Count - 2);
-                    triangles.Add(cornerCenterIdx);
-                    triangles.Add(verts.Count - 1);
+                splineEndPoint = c.cornerRight.sidewalkIntersection + c.binormal * c.r.Width / 2f;
+            }
 
-                    if (debugView) {
-                        float a = (ps.Count - arcIdx) / (float)ps.Count;
-                        DrawLine(ps[arcIdx - 1], ps[arcIdx], new Color(a, 0f, 0f, 1f));
-                    }
-                }
+            DrawPoint(splineEndPoint, 0.05f, Color.blue);
+            SetSplineConnectedPosition(c, splineEndPoint);
+
+            c.cornerRight.streetStartLeft = splineEndPoint - c.binormal * c.r.RoadWidth / 2f;
+            c.cornerLeft.streetStartRight = splineEndPoint + c.binormal * c.r.RoadWidth / 2f;
+
+            c.cornerRight.sidewalkStartLeft = splineEndPoint - c.binormal * c.r.Width / 2f;
+            c.cornerLeft.sidewalkStartRight = splineEndPoint + c.binormal * c.r.Width / 2f;
+
+            DrawPoint(c.cornerRight.streetStartLeft, 0.08f, Color.green);
+            DrawPoint(c.cornerLeft.streetStartRight, 0.08f, Color.green);
+        }
+
+    }
+
+    public Mesh CreateMesh() {
+        if (connectedRoads.Length < 3) return null;
+
+        Vector2 whiteUV = new Vector2(0.85f, 0.0f);
+
+        List<Vector3> verts = new List<Vector3>();
+        List<Vector3> normals = new List<Vector3>();
+        List<Vector2> uvs = new List<Vector2>();
+        List<int> triangles = new List<int>();
+
+        int AddVertice(Vector3 vert, Vector2 uv) {
+            verts.Add(transform.InverseTransformPoint(vert));
+            normals.Add(Vector3.up);
+            uvs.Add(uv);
+
+            return verts.Count - 1;
+        }
+
+        foreach (RoadSegment c in connectionPoints) {
+            // Construct right corner
+            IntersectionCorner corner = c.cornerRight;
+            if (c.cornerRight.sidewalkIntersection == c.cornerRight.sidewalkStartLeft && c.cornerRight.sidewalkIntersection == c.cornerRight.sidewalkStartRight) {
+                int idx = AddVertice(corner.streetIntersection, whiteUV);
+                AddVertice(corner.streetStartRight, whiteUV);
+                AddVertice(corner.streetStartLeft, whiteUV);
+                AddVertice(corner.sidewalkIntersection, whiteUV);
+                triangles.Add(idx + 0);
+                triangles.Add(idx + 1);
+                triangles.Add(idx + 2);
+
+                triangles.Add(idx + 1);
+                triangles.Add(idx + 3);
+                triangles.Add(idx + 2);
+            }
+            else {
+                int idx = AddVertice(corner.sidewalkStartLeft, Vector2.one);
+                AddVertice(corner.streetStartLeft, Vector2.one);
+
+                AddVertice(corner.sidewalkIntersection, Vector2.one);
+                AddVertice(corner.streetIntersection, Vector2.one);
+
+                AddVertice(corner.sidewalkStartRight, Vector2.one);
+                AddVertice(corner.streetStartRight, Vector2.one);
+
+                // TODO: This is an unecessary triangle for some cases - figure it out!
+                triangles.Add(idx + 0);
+                triangles.Add(idx + 1);
+                triangles.Add(idx + 2);
+
+                triangles.Add(idx + 1);
+                triangles.Add(idx + 3);
+                triangles.Add(idx + 2);
+
+                triangles.Add(idx + 2);
+                triangles.Add(idx + 3);
+                triangles.Add(idx + 4);
+
+                triangles.Add(idx + 3);
+                triangles.Add(idx + 5);
+                triangles.Add(idx + 4);
+            }
+
+            // Connect road to center of intersection
+            {
+                int idx = AddVertice(c.cornerRight.streetStartLeft, Vector2.one);
+                AddVertice(c.cornerLeft.streetStartRight, Vector2.one);
+                AddVertice(c.cornerRight.streetIntersection, Vector2.one);
+                AddVertice(c.cornerLeft.streetIntersection, Vector2.one);
+
+                triangles.Add(idx + 0);
+                triangles.Add(idx + 1);
+                triangles.Add(idx + 2);
+
+                triangles.Add(idx + 1);
+                triangles.Add(idx + 3);
+                triangles.Add(idx + 2);
+              }
+        }
+
+        // Build center mesh
+        {
+            int centerRoot = verts.Count;
+            for (int i = connectionPoints.Length - 1; i >= 0; i--) {
+                IntersectionCorner corner = connectionPoints[i].cornerRight;
+                AddVertice(corner.streetIntersection, Vector2.one);
+            }
+
+            for (int tri = 0; tri < connectionPoints.Length - 2; tri++) {
+                triangles.Add(centerRoot);
+                triangles.Add(centerRoot + tri + 1);
+                triangles.Add(centerRoot + tri + 2);
             }
         }
 
         Mesh mesh = new Mesh();
         mesh.SetVertices(verts);
         mesh.SetTriangles(triangles, 0);
+        mesh.SetNormals(normals);
+        mesh.SetUVs(0, uvs);
         return mesh;
     }
 

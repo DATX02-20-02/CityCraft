@@ -76,6 +76,11 @@ public class RoadMeshGenerator : MonoBehaviour {
     private bool isTraversing = false;
 
     public void Generate(RoadNetwork network) {
+        if (this.network == null) {
+            Debug.LogWarning("Failed to generate road meshes! Given network does not exist.");
+            return;
+        }
+
         this.queue = new LinkedList<Traverser>();
         this.visited = new Dictionary<Node, bool>();
         this.placed = new Dictionary<Node, Dictionary<Node, bool>>();

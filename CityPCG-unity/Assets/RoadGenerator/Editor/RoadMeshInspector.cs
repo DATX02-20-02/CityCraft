@@ -23,7 +23,6 @@ public class RoadMeshInspector : Editor {
             EditorUtility.SetDirty(road);
         }
 
-        // testT = GUILayout.HorizontalSlider(testT, 0f, 1f);
         float newTestT = EditorGUILayout.Slider(testT, 0f, 1f);
         if (testT != newTestT) {
             testT = newTestT;
@@ -41,17 +40,5 @@ public class RoadMeshInspector : Editor {
 
         OrientedPoint orientedPoint = spline.GetOrientedPoint(testT, Vector3.up);
         Handles.PositionHandle(orientedPoint.position, Quaternion.LookRotation(orientedPoint.tangent, orientedPoint.normal));
-
-        if (road.CrossSectionShape == null) return;
-
-        void DrawLine(Vector2 localPosA, Vector2 localPosB) => Handles.DrawLine(orientedPoint.localToWorld(localPosA), orientedPoint.localToWorld(localPosB));
-
-        Mesh2D shape = road.CrossSectionShape;
-        Handles.color = Color.white;
-        for (int i = 0; i < road.CrossSectionShape.lineIndices.Length; i += 2) {
-            Vector3 a = shape.vertices[shape.lineIndices[i]].point;
-            Vector3 b = shape.vertices[shape.lineIndices[i + 1]].point;
-            DrawLine(a, b);
-        }
     }
 }

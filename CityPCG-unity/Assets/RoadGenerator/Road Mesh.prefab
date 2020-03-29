@@ -60,7 +60,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4dd46842aae4bc1bca8a7469599e9ac4, type: 2}
+  - {fileID: 2100000, guid: 13ea995ccc300946280d0e0834e24396, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -94,7 +94,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debugNormals: 0
-  points: []
+  debugDrawSpline: 0
+  points:
+  - {x: -0.25, y: 0, z: 0.18}
+  - {x: 3.0347867, y: 0, z: 0.31568164}
+  - {x: 16.607285, y: 0, z: 0.93462664}
+  - {x: 21.209705, y: 0, z: 0.5960446}
 --- !u!114 &5191599167567484709
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -108,4 +113,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   crossSectionShape: {fileID: 11400000, guid: 634049e6660b23b82bafbe23c8a5cf45, type: 2}
-  roadWidth: 0.02
+  roadWidth: 2
+  sidewalkWidth: 0.56
+  precision: 0.02

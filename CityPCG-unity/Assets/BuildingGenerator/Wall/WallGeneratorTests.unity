@@ -150,11 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5649aa81d5bd1f42a613324f86bb385, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wallBounds:
-  - {x: 0, y: 0}
-  - {x: 0, y: 1}
-  - {x: 1, y: 1}
-  - {x: 1, y: 0}
+  floorsType: 00000000010000000100000002000000
 --- !u!4 &626513751
 Transform:
   m_ObjectHideFlags: 0

@@ -20,10 +20,29 @@ public class WallGenerator : MonoBehaviour {
         foreach (var floorType in input) {
             switch (floorType) {
                 case FloorType.First:
-                    output.Add(firstFloorSegmentSystem.Run(WallSegmentType.Corner));
+                    var firstSegments = new List<WallSegmentType>();
+
+                    var halfFirstResult = firstFloorSegmentSystem.Run(WallSegmentType.Corner, new WallData(1.5f));
+                    firstSegments.AddRange(halfFirstResult);
+
+                    //Other half
+                    halfFirstResult.Remove(WallSegmentType.Door);
+                    halfFirstResult.Reverse();
+                    firstSegments.AddRange(halfFirstResult);
+
+                    output.Add(firstSegments);
                     break;
                 case FloorType.Normal:
-                    output.Add(normalSegmentSystem.Run(WallSegmentType.Corner));
+                    var normalSegments = new List<WallSegmentType>();
+
+                    var halfNormalResult = normalSegmentSystem.Run(WallSegmentType.Corner, new WallData(1.5f));
+                    normalSegments.AddRange(halfNormalResult);
+
+                    //Other half
+                    halfNormalResult.Reverse();
+                    normalSegments.AddRange(halfNormalResult);
+
+                    output.Add(normalSegments);
                     break;
                 case FloorType.Roof:
                     output.Add(new List<WallSegmentType>() { WallSegmentType.Roof });
@@ -38,12 +57,10 @@ public class WallGenerator : MonoBehaviour {
 
     private void Start() {
         segments = Generate(floorsType);
-
-        Debug.Log(segments);
     }
 
     private void Update() {
-        for (var i = 0; i < segments.Count; i++) {
+        for (var i = 0; i < segments?.Count; i++) {
             DrawFloor(segments[i], new Vector2(0, i));
         }
     }
@@ -116,48 +133,69 @@ public class WallGenerator : MonoBehaviour {
         }
     }
 
-    private LSystem<WallSegmentType> GetNormalSegmentSystem() {
-        var normalSegmentSystem = new LSystem<WallSegmentType>();
+    private class WallData {
+        public readonly float widthLeft;
+
+        public WallData(float widthLeft) {
+            this.widthLeft = widthLeft;
+        }
+    }
+
+    private LSystem<WallSegmentType, WallData> GetNormalSegmentSystem() {
+        var normalSegmentSystem = new LSystem<WallSegmentType, WallData>();
+
+        const float cornerWidth = 0.5f;
+        const float windowWidth = 0.5f;
+        const float wallWidth = 0.5f;
+
+        normalSegmentSystem.ShouldContinue(value => value.widthLeft > 0);
 
         normalSegmentSystem.CreateRules(WallSegmentType.Corner)
             .Add(0.5f, WallSegmentType.Wall)
-            .Add(0.5f, WallSegmentType.Window);
+            .Add(0.5f, WallSegmentType.Window)
+            .OnAccepted(value => new WallData(value.widthLeft - cornerWidth));
 
         normalSegmentSystem.CreateRules(WallSegmentType.Window)
-            .Add(0.4f, WallSegmentType.Wall)
-            .Add(0.4f, WallSegmentType.Window)
-            .Add(0.2f, WallSegmentType.EndCorner);
+            .Add(0.5f, WallSegmentType.Wall)
+            .Add(0.5f, WallSegmentType.Window)
+            .ShouldAccept(value => value.widthLeft >= windowWidth)
+            .OnAccepted(value => new WallData(value.widthLeft - windowWidth));
 
         normalSegmentSystem.CreateRules(WallSegmentType.Wall)
-            .Add(0.4f, WallSegmentType.Wall)
-            .Add(0.4f, WallSegmentType.Window)
-            .Add(0.2f, WallSegmentType.EndCorner);
-
-        normalSegmentSystem.CreateRules(WallSegmentType.EndCorner);
+            .Add(0.5f, WallSegmentType.Wall)
+            .Add(0.5f, WallSegmentType.Window)
+            .ShouldAccept(value => value.widthLeft >= wallWidth)
+            .OnAccepted(value => new WallData(value.widthLeft - wallWidth));
 
         return normalSegmentSystem;
     }
 
-    private LSystem<WallSegmentType> GetFirstFloorSegmentSystem() {
-        var firstFloorSegmentSystem = new LSystem<WallSegmentType>();
+    private LSystem<WallSegmentType, WallData> GetFirstFloorSegmentSystem() {
+        var firstFloorSegmentSystem = new LSystem<WallSegmentType, WallData>();
+
+        const float cornerWidth = 0.5f;
+        const float shopWindowWidth = 1.5f;
+        const float wallWidth = 0.5f;
 
         firstFloorSegmentSystem.CreateRules(WallSegmentType.Corner)
-            .Add(1.0f, WallSegmentType.ShopWindow);
+            .Add(1.0f, WallSegmentType.ShopWindow)
+            .OnAccepted(value => new WallData(value.widthLeft - cornerWidth));
 
         firstFloorSegmentSystem.CreateRules(WallSegmentType.ShopWindow)
             .Add(0.4f, WallSegmentType.Wall)
             .Add(0.4f, WallSegmentType.ShopWindow)
-            .Add(0.2f, WallSegmentType.Door);
+            .Add(0.2f, WallSegmentType.Door)
+            .ShouldAccept(value => value.widthLeft >= shopWindowWidth)
+            .OnAccepted(value => new WallData(value.widthLeft - shopWindowWidth));
 
         firstFloorSegmentSystem.CreateRules(WallSegmentType.Wall)
             .Add(0.4f, WallSegmentType.Wall)
             .Add(0.4f, WallSegmentType.ShopWindow)
-            .Add(0.2f, WallSegmentType.Door);
+            .Add(0.2f, WallSegmentType.Door)
+            .ShouldAccept(value => value.widthLeft > wallWidth)
+            .OnAccepted(value => new WallData(value.widthLeft - wallWidth));
 
-        firstFloorSegmentSystem.CreateRules(WallSegmentType.Door)
-            .Add(1.0f, WallSegmentType.EndCorner);
-
-        firstFloorSegmentSystem.CreateRules(WallSegmentType.EndCorner);
+        firstFloorSegmentSystem.CreateRules(WallSegmentType.Door);
 
         return firstFloorSegmentSystem;
     }

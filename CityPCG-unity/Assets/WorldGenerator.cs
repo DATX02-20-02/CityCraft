@@ -42,7 +42,7 @@ public class WorldGenerator : MonoBehaviour {
     public void GenerateRoads() {
         populationNoise = populationGenerator.Generate();
 
-        roadGenerator.Generate(terrain, populationNoise, (roadNetwork) => blockGenerator.Generate(roadNetwork));
+        roadGenerator.Generate(terrain, populationNoise, (roadNetwork) => GenerateBlocks(roadNetwork));
     }
 
     public void GenerateStreets() { }

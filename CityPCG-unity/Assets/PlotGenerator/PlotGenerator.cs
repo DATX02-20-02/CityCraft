@@ -12,7 +12,7 @@ public class PlotGenerator : MonoBehaviour {
 
 
     public List<Plot> Generate(Block block, Noise populationNoise) {
-        var plots = Split(CreatePolygon(block.vertices), parts)
+        var plots = Split(CreatePolygon(block.Vertices2D()), parts)
             .Where(polygon => polygon != null).ToList()
             .ConvertAll(
                 polygon => new Plot(polygon.points)

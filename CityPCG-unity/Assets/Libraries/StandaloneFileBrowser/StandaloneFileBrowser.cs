@@ -35,7 +35,7 @@ namespace SFB {
         /// <param name="multiselect">Allow multiple file selection</param>
         /// <returns>Returns array of chosen paths. Zero length array when cancelled</returns>
         public static string[] OpenFilePanel(string title, string directory, string extension, bool multiselect) {
-            var extensions = string.IsNullOrEmpty(extension) ? null : new [] { new ExtensionFilter("", extension) };
+            var extensions = string.IsNullOrEmpty(extension) ? null : new[] { new ExtensionFilter("", extension) };
             return OpenFilePanel(title, directory, extensions, multiselect);
         }
 
@@ -60,7 +60,7 @@ namespace SFB {
         /// <param name="multiselect">Allow multiple file selection</param>
         /// <param name="cb">Callback")</param>
         public static void OpenFilePanelAsync(string title, string directory, string extension, bool multiselect, Action<string[]> cb) {
-            var extensions = string.IsNullOrEmpty(extension) ? null : new [] { new ExtensionFilter("", extension) };
+            var extensions = string.IsNullOrEmpty(extension) ? null : new[] { new ExtensionFilter("", extension) };
             OpenFilePanelAsync(title, directory, extensions, multiselect, cb);
         }
 
@@ -108,8 +108,8 @@ namespace SFB {
         /// <param name="defaultName">Default file name</param>
         /// <param name="extension">File extension</param>
         /// <returns>Returns chosen path. Empty string when cancelled</returns>
-        public static string SaveFilePanel(string title, string directory, string defaultName , string extension) {
-            var extensions = string.IsNullOrEmpty(extension) ? null : new [] { new ExtensionFilter("", extension) };
+        public static string SaveFilePanel(string title, string directory, string defaultName, string extension) {
+            var extensions = string.IsNullOrEmpty(extension) ? null : new[] { new ExtensionFilter("", extension) };
             return SaveFilePanel(title, directory, defaultName, extensions);
         }
 
@@ -133,8 +133,8 @@ namespace SFB {
         /// <param name="defaultName">Default file name</param>
         /// <param name="extension">File extension</param>
         /// <param name="cb">Callback")</param>
-        public static void SaveFilePanelAsync(string title, string directory, string defaultName , string extension, Action<string> cb) {
-            var extensions = string.IsNullOrEmpty(extension) ? null : new [] { new ExtensionFilter("", extension) };
+        public static void SaveFilePanelAsync(string title, string directory, string defaultName, string extension, Action<string> cb) {
+            var extensions = string.IsNullOrEmpty(extension) ? null : new[] { new ExtensionFilter("", extension) };
             SaveFilePanelAsync(title, directory, defaultName, extensions, cb);
         }
 

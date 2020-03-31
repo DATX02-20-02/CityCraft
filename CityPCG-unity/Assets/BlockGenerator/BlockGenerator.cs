@@ -55,12 +55,16 @@ public class BlockGenerator : MonoBehaviour {
     private List<Block> blocks;
     private List<Block> insetBlocks;
 
+    public void Reset() {
+        this.blocks = new List<Block>();
+        this.insetBlocks = new List<Block>();
+    }
 
     // Entrypoint to the generator.
     public List<Block> Generate(RoadNetwork roadNetwork) {
+        this.Reset();
+
         this.roadNetwork = roadNetwork;
-        this.blocks = new List<Block>();
-        this.insetBlocks = new List<Block>();
 
         ExtractPolygons();
         InsetBlocks();

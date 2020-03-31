@@ -26,6 +26,7 @@ public class App : MonoBehaviour {
 
     public void Undo() {
         worldGenerator.Undo();
+        worldGenerator.PreviousState();
         PrevMenu();
     }
 

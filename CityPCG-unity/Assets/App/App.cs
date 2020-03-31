@@ -63,16 +63,13 @@ public class App : MonoBehaviour {
     }
     
     public void OceanSlider(float depth) {
-        Debug.Log(depth);
         worldGenerator.ModifyTerrain(0,depth);
     }
     
     public void TerrainSliderX(float x) {
-        Debug.Log(x);
         worldGenerator.ModifyTerrain(1,x);
     }
     public void TerrainSliderZ(float z) {
-        Debug.Log(z);
         worldGenerator.ModifyTerrain(2,z);
     }
 

@@ -67,15 +67,15 @@ public class WorldGenerator : MonoBehaviour {
         switch (currentState) {
             case State.Streets:
                 if (this.roadNetworkSnapshot != null) {
-                    this.roadNetwork = this.roadNetworkSnapshot;
-                    this.roadGenerator.Network = this.roadNetwork;
+                    this.roadNetwork = this.roadGenerator.Network = this.roadNetworkSnapshot;
                     this.roadNetworkSnapshot = null;
                 }
+
+                this.blockGenerator.Reset();
                 break;
 
             case State.Roads:
-                this.roadNetwork = null;
-                this.roadGenerator.Network = null;
+                this.roadNetwork = this.roadGenerator.Network = null;
                 this.roadNetworkSnapshot = null;
                 break;
         }
@@ -95,15 +95,14 @@ public class WorldGenerator : MonoBehaviour {
         roadGenerator.Generate(
             terrain, populationNoise,
             (RoadNetwork network) => {
-                this.roadNetwork = network;
+                this.roadNetwork = this.roadGenerator.Network = network;
             }
         );
     }
 
     public void GenerateStreets() {
         if (this.roadNetworkSnapshot != null) {
-            this.roadNetwork = this.roadNetworkSnapshot;
-            roadGenerator.Network = this.roadNetwork;
+            this.roadNetwork = this.roadGenerator.Network = this.roadNetworkSnapshot;
         }
 
         this.roadNetworkSnapshot = roadNetwork.Snapshot();

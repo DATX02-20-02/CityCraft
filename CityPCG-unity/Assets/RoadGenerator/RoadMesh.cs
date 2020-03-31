@@ -7,17 +7,17 @@ using UnityEngine;
 public class RoadMesh : MonoBehaviour
 {
     [SerializeField]
-    private RoadIntersectionMesh roadEnd = null;
-    [SerializeField]
     private RoadIntersectionMesh roadStart = null;
+    [SerializeField]
+    private RoadIntersectionMesh roadEnd = null;
 
     [SerializeField]
-    [Range(0.01f, 6.0f)]
-    private float roadWidth = 2f;
+    [Range(0.001f, 1.0f)]
+    private float roadWidth = 0.4f;
 
     [SerializeField]
-    [Range(0.01f, 2.0f)]
-    private float sidewalkWidth = 0.5f;
+    [Range(0.001f, 1.0f)]
+    private float sidewalkWidth = 0.005f;
 
     [SerializeField]
     [Range(0.01f, 0.5f)]

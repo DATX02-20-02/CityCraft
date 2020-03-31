@@ -51,8 +51,12 @@ public class RoadIntersectionMesh : MonoBehaviour {
         public bool isIntersectingLeftCornerFirst;
     }
 
-    private void DrawLine(Vector3 start, Vector3 end, Color color) => Debug.DrawLine(start, end, color);
-    private void DrawPoint(Vector3 pos, float radius, Color color) => DrawUtil.DebugDrawCircle(pos, radius, color, 20);
+    private void DrawLine(Vector3 start, Vector3 end, Color color) {
+        if (debugView) Debug.DrawLine(start, end, color);
+    }
+    private void DrawPoint(Vector3 pos, float radius, Color color) {
+        if (debugView) DrawUtil.DebugDrawCircle(pos, radius, color, 20);
+    }
 
     public void Awake() {
         connectedRoads = new List<RoadMesh>();
@@ -109,14 +113,11 @@ public class RoadIntersectionMesh : MonoBehaviour {
                 return r1Angle.CompareTo(r2Angle); // Mathf.RoundToInt(r2Angle - r1Angle);
             });
 
-            string angles = "";
             for (int i = 0; i < connectedRoads.Count; i++) {
                 RoadMesh r = connectedRoads[i];
                 Vector3 dir = SplineDirectionOfAttack(r) * (-1f);
                 float angle = Mathf.Atan2(dir.z, dir.x) * Mathf.Rad2Deg;
-                angles += angle + ", ";
             }
-            Debug.Log("Sorted roads angles: " + angles);
         }
 
         Vector3 GetSplineConnectionPoint(RoadMesh r) {
@@ -155,42 +156,53 @@ public class RoadIntersectionMesh : MonoBehaviour {
             LineIntersection.Result GetRoadIntersection(float leftOffset, float rightOffset) {
                 Vector3 leftSideWalkOffset = left.binormal * leftOffset;
                 Vector3 leftSideWalkStart = transform.position - leftSideWalkOffset;
-                // DrawLine(leftSideWalkStart, leftSideWalkStart + left.tangent * 10f, Color.cyan);
+                Vector3 leftLineStart = leftSideWalkStart - left.tangent * 1000f;
+                Vector3 leftLineEnd = leftSideWalkStart + left.tangent * 1000f;
+                DrawLine(leftLineStart, leftLineEnd, Color.cyan);
 
                 Vector3 rightSideWalkOffset = right.binormal * rightOffset;
                 Vector3 rightSideWalkStart = transform.position + rightSideWalkOffset;
-                // DrawLine(rightSideWalkStart, rightSideWalkStart + right.tangent * 10f, Color.green);
+                Vector3 rightLineStart = rightSideWalkStart - right.tangent * 1000f;
+                Vector3 rightLineEnd = rightSideWalkStart + right.tangent * 1000f;
+                DrawLine(rightLineStart, rightLineEnd, Color.green);
+
                 return LineIntersection.LineTest(
-                    VectorUtil.Vector3To2(leftSideWalkStart - left.tangent * 1000f),
-                    VectorUtil.Vector3To2(leftSideWalkStart + left.tangent * 1000f),
-                    VectorUtil.Vector3To2(rightSideWalkStart - right.tangent * 1000f),
-                    VectorUtil.Vector3To2(rightSideWalkStart + right.tangent * 1000f)
+                    VectorUtil.Vector3To2(leftLineStart),
+                    VectorUtil.Vector3To2(leftLineEnd),
+                    VectorUtil.Vector3To2(rightLineStart),
+                    VectorUtil.Vector3To2(rightLineEnd)
                 );
             }
 
-            LineIntersection.Result intersection;
 
-            intersection = GetRoadIntersection(left.r.Width / 2f, right.r.Width/ 2f);
-            if (intersection.type == LineIntersection.Type.Intersecting || intersection.type == LineIntersection.Type.Colinear) {
-                Vector3 sidewalkIntersectionPoint = VectorUtil.Vector2To3(intersection.point);
-                DrawPoint(sidewalkIntersectionPoint, 0.03f, Color.red);
-                corner.sidewalkIntersection = sidewalkIntersectionPoint;
+            if (Vector3.Angle(left.tangent, right.tangent) > 179f) {
+                corner.sidewalkIntersection = transform.position + right.binormal * right.r.Width / 2f;
+                corner.streetIntersection =  transform.position + right.binormal * right.r.RoadWidth / 2f;
+                DrawPoint(corner.sidewalkIntersection, 0.03f, Color.yellow);
+                DrawPoint(corner.streetIntersection, 0.03f, Color.yellow);
             }
             else {
-                Debug.LogError("Roads do not intersect! aborting intersection generation: " + intersection.type);
-                connectionPoints = null;
-                return;
-            }
+                LineIntersection.Result intersection;
 
-            intersection = GetRoadIntersection(left.r.RoadWidth / 2f, right.r.RoadWidth / 2f);
-            if (intersection.type == LineIntersection.Type.Intersecting || intersection.type == LineIntersection.Type.Colinear) {
-                Vector3 streetIntersectionPoint = VectorUtil.Vector2To3(intersection.point);
-                DrawPoint(streetIntersectionPoint, 0.03f, Color.red);
-                corner.streetIntersection = streetIntersectionPoint;
-            }
-            else {
-                Debug.LogError("Roads do not intersect! aborting intersection generation" + intersection.type);
-                connectionPoints = null;
+                intersection = GetRoadIntersection(left.r.Width / 2f, right.r.Width/ 2f);
+                if (intersection.type == LineIntersection.Type.Intersecting) {
+                    Vector3 sidewalkIntersectionPoint = VectorUtil.Vector2To3(intersection.point);
+                    DrawPoint(sidewalkIntersectionPoint, 0.03f, Color.red);
+                    corner.sidewalkIntersection = sidewalkIntersectionPoint;
+                }
+                else {
+                    Debug.LogError("Sidewalks do not intersect! " + intersection.type);
+                }
+
+                intersection = GetRoadIntersection(left.r.RoadWidth / 2f, right.r.RoadWidth / 2f);
+                if (intersection.type == LineIntersection.Type.Intersecting) {
+                    Vector3 streetIntersectionPoint = VectorUtil.Vector2To3(intersection.point);
+                    DrawPoint(streetIntersectionPoint, 0.03f, Color.red);
+                    corner.streetIntersection = streetIntersectionPoint;
+                }
+                else {
+                    Debug.LogError("Roads do not intersect! " + intersection.type);
+                }
             }
 
             left.cornerRight = corner;
@@ -219,11 +231,7 @@ public class RoadIntersectionMesh : MonoBehaviour {
 
             c.cornerRight.sidewalkStartLeft = splineEndPoint - c.binormal * c.r.Width / 2f;
             c.cornerLeft.sidewalkStartRight = splineEndPoint + c.binormal * c.r.Width / 2f;
-
-            DrawPoint(c.cornerRight.streetStartLeft, 0.08f, Color.green);
-            DrawPoint(c.cornerLeft.streetStartRight, 0.08f, Color.green);
         }
-
     }
 
     public Mesh CreateMesh() {

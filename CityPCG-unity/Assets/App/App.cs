@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityGLTF;
+using SFB;
 
 /*
   What? Handles all user interaction.
@@ -52,13 +53,22 @@ public class App : MonoBehaviour {
     }
 
     public void ExportModelToGLTF() {
-        // Setup export path
-        var path = Path.Combine(Application.persistentDataPath, "Export");
-        Directory.CreateDirectory(path);
+        // Choose folder dialog
+        var path = StandaloneFileBrowser.OpenFolderPanel("Choose Export Destination Folder", "", false)[0];
 
         // Export
         var exporter = new GLTFSceneExporter(new[] { worldGenerator.transform }, (t) => t.name);
         exporter.SaveGLTFandBin(path, "World");
+        Log("Model exported to: " + path);
+    }
+
+    public void ExportModelToGLB() {
+        // Choose folder dialog
+        var path = StandaloneFileBrowser.OpenFolderPanel("Choose Export Destination Folder", "", false)[0];
+
+        // Export
+        var exporter = new GLTFSceneExporter(new[] { worldGenerator.transform }, (t) => t.name);
+        exporter.SaveGLB(path, "World");
         Log("Model exported to: " + path);
     }
 

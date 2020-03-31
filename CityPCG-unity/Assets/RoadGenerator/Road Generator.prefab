@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2272230315305385601}
   - component: {fileID: 2272230315305385614}
   - component: {fileID: 155675734}
+  - component: {fileID: -8080889859513411017}
   m_Layer: 0
   m_Name: Road Generator
   m_TagString: Untagged
@@ -46,6 +47,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxAgentQueueIterations: 1000
   generationTickInterval: 0
+  roadMeshTickInterval: 0.2
+  debugRoadMeshGeneration: 1
   debugPoints: []
 --- !u!114 &155675734
 MonoBehaviour:
@@ -10722,3 +10725,22 @@ MonoBehaviour:
   frameIndex: -1
   timeBetweenFrames: 0.5
   loop: 0
+--- !u!114 &-8080889859513411017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2272230315305385615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00b2ec2d92d22e585a5b4621c072558c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxIterations: 5
+  tickInterval: 0.279
+  getFirst: 1
+  roadMeshPrefab: {fileID: 5191599167567484708, guid: b2b74e80fddc36b0da92137a6cc549c9,
+    type: 3}
+  roadIntersectionMeshPrefab: {fileID: 5399122535615417112, guid: 957415ec13e82bddebd8326fd69fdf23,
+    type: 3}

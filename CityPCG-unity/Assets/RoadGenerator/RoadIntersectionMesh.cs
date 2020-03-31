@@ -4,13 +4,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class RoadIntersectionMesh : MonoBehaviour {
-    [System.Serializable]
-    public class RoadMeshConnection {
-        public RoadMesh roadMesh;
-        public bool isStart;
-    }
-
-    [SerializeField] private RoadMeshConnection[] connectedRoads;
+    private List<RoadMesh> connectedRoads;
     private RoadSegment[] connectionPoints = null;
 
     [SerializeField] private float arcRadius = 2f;
@@ -60,54 +54,95 @@ public class RoadIntersectionMesh : MonoBehaviour {
     private void DrawLine(Vector3 start, Vector3 end, Color color) => Debug.DrawLine(start, end, color);
     private void DrawPoint(Vector3 pos, float radius, Color color) => DrawUtil.DebugDrawCircle(pos, radius, color, 20);
 
+    public void Awake() {
+        connectedRoads = new List<RoadMesh>();
+    }
+
+    public void AddConnection(RoadMesh toAdd) {
+        connectedRoads.Add(toAdd);
+    }
+
+    public void RemoveConnection(RoadMesh r) {
+        connectedRoads.Remove(r);
+    }
+
     [ContextMenu("Update intersection mesh")]
     public void UpdateMesh() {
         UpdateIntersectionState();
-        GetComponent<MeshFilter>().sharedMesh = CreateMesh();
+        Mesh result = CreateMesh();
+        if (result != null) {
+            GetComponent<MeshFilter>().sharedMesh = result;
+        }
+    }
+
+    private bool IsStart(RoadMesh r) {
+        if (r.RoadStart != this && r.RoadEnd != this) {
+            Debug.LogWarning("Interaction and road connection needs to be bidirectional.");
+        }
+
+        return r.RoadStart == this;
+    }
+
+    private Vector3 SplineDirectionOfAttack(RoadMesh r) {
+        if (IsStart(r)) {
+            return r.Spline.GetTangent(0f) * (-1f);
+        }
+        else {
+            return r.Spline.GetTangent(1f);
+        }
     }
 
     private void UpdateIntersectionState() {
-        if (connectedRoads.Length < 3) return;
+        if (connectedRoads == null) return;
+        if (connectedRoads.Count < 3) return;
 
-        bool IsStart(RoadMesh r) {
-            if (r.RoadStart != this && r.RoadEnd != this) {
-                Debug.LogWarning("Interaction and road connection needs to be bidirectional.");
+        // sort roads in cw order
+        {
+            Debug.Log("Before sort");
+            for (int i = 0; i < connectedRoads.Count; i++) {
+                RoadMesh r = connectedRoads[i];
+                Vector3 dir = SplineDirectionOfAttack(r) * (-1f);
+                Debug.Log(i + ": angle: " + Mathf.Atan2(dir.z, dir.x) * Mathf.Rad2Deg);
             }
 
-            return r.RoadStart == this;
+            connectedRoads.Sort(delegate(RoadMesh r1, RoadMesh r2) {
+                Vector3 r1Dir = SplineDirectionOfAttack(r1) * (-1f);
+                float r1Angle = Mathf.Atan2(r1Dir.z, r1Dir.x) * Mathf.Rad2Deg;
+                Vector3 r2Dir = SplineDirectionOfAttack(r2) * (-1f);
+                float r2Angle = Mathf.Atan2(r2Dir.z, r2Dir.x) * Mathf.Rad2Deg;
+                return r1Angle.CompareTo(r2Angle); // Mathf.RoundToInt(r2Angle - r1Angle);
+            });
+
+            Debug.Log("After sort");
+            for (int i = 0; i < connectedRoads.Count; i++) {
+                RoadMesh r = connectedRoads[i];
+                Vector3 dir = SplineDirectionOfAttack(r) * (-1f);
+                Debug.Log(i + ": angle: " + Mathf.Atan2(dir.z, dir.x) * Mathf.Rad2Deg);
+            }
         }
 
-        Vector3 SplineDirectionOfAttack(RoadSegment r) {
-            if (IsStart(r.r)) {
-                return r.s.GetTangent(0f) * (-1f);
+        Vector3 GetSplineConnectionPoint(RoadMesh r) {
+            float t = IsStart(r) ? 0f : 1f;
+            return r.Spline.GetPoint(t);
+        }
+
+        void SetSplineConnectedPosition(RoadMesh r, Vector3 globalPosition) {
+            Vector3 localEndPoint = r.Spline.transform.InverseTransformPoint(globalPosition);
+            if (IsStart(r)) {
+                r.Spline[0] = localEndPoint;
             }
             else {
-                return r.s.GetTangent(1f);
+                r.Spline[r.Spline.ControlPointCount - 1] = localEndPoint;
             }
+            r.GenerateRoadMesh();
         }
 
-        Vector3 GetSplineConnectionPoint(RoadSegment r) {
-            float t = IsStart(r.r) ? 0f : 1f;
-            return r.s.GetPoint(t);
-        }
-
-
-        void SetSplineConnectedPosition(RoadSegment c, Vector3 globalPosition) {
-            if (IsStart(c.r)) {
-                c.s[0] = c.s.transform.InverseTransformPoint(globalPosition);
-            }
-            else {
-                c.s[c.s.ControlPointCount - 1] = c.s.transform.InverseTransformPoint(globalPosition);
-            }
-            c.r.GenerateRoadMesh();
-        }
-
-        connectionPoints = new RoadSegment[connectedRoads.Length];
+        connectionPoints = new RoadSegment[connectedRoads.Count];
         for (int i = 0; i < connectionPoints.Length; i++) {
             RoadSegment c  = new RoadSegment();
-            c.r = connectedRoads[i].roadMesh;
-            c.s = c.r.GetComponent<BezierSpline>();
-            c.tangent = SplineDirectionOfAttack(c) * (-1f);
+            c.r = connectedRoads[i];
+            c.s = c.r.Spline;
+            c.tangent = SplineDirectionOfAttack(c.r) * (-1f);
             c.binormal = Vector3.Cross(Vector3.up, c.tangent);
 
             connectionPoints[i] = c;
@@ -170,7 +205,7 @@ public class RoadIntersectionMesh : MonoBehaviour {
             }
 
             DrawPoint(splineEndPoint, 0.05f, Color.blue);
-            SetSplineConnectedPosition(c, splineEndPoint);
+            SetSplineConnectedPosition(c.r, splineEndPoint);
 
             c.cornerRight.streetStartLeft = splineEndPoint - c.binormal * c.r.RoadWidth / 2f;
             c.cornerLeft.streetStartRight = splineEndPoint + c.binormal * c.r.RoadWidth / 2f;
@@ -185,7 +220,8 @@ public class RoadIntersectionMesh : MonoBehaviour {
     }
 
     public Mesh CreateMesh() {
-        if (connectedRoads.Length < 3) return null;
+        if (connectedRoads == null) return null;
+        if (connectedRoads.Count < 3) return null;
 
         Vector2 whiteUV = new Vector2(0.85f, 0.0f);
 

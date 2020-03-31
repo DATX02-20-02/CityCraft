@@ -41,10 +41,36 @@ public class RoadMesh : MonoBehaviour
 
     public RoadIntersectionMesh RoadEnd {
         get => roadEnd;
+        // set => SetRoadEndConnection(ref roadEnd, value);
     }
 
     public RoadIntersectionMesh RoadStart {
         get => roadStart;
+        // set => SetRoadEndConnection(ref roadStart, value);
+    }
+
+    private void SetRoadEndConnection(ref RoadIntersectionMesh endConnection, RoadIntersectionMesh newConnection) {
+        if (newConnection == null) {
+            if (endConnection != null) {
+                endConnection.RemoveConnection(this);
+                endConnection.UpdateMesh();
+                endConnection = null;
+            }
+        }
+        else {
+            endConnection = newConnection;
+            endConnection.AddConnection(this);
+            endConnection.UpdateMesh();
+        }
+    }
+
+
+    public void SetStart(RoadIntersectionMesh start) {
+        roadStart = start;
+    }
+
+    public void SetEnd(RoadIntersectionMesh end) {
+        roadEnd = end;
     }
 
     public void Reset()

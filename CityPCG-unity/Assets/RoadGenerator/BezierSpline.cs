@@ -219,7 +219,7 @@ public class BezierSpline : MonoBehaviour
         {
             Array.Resize(ref points, 4);
             dir = (newPoint - points[0]).normalized;
-            length = (newPoint - points[0]).magnitude;
+            length = (newPoint - points[0]).magnitude / 2f;
             points[1] = points[0] + dir * length;
             points[2] = newPoint - dir * length;
             points[3] = newPoint;

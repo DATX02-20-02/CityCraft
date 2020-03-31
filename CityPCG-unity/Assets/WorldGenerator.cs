@@ -30,6 +30,8 @@ public class WorldGenerator : MonoBehaviour {
     private Noise populationNoise;
     private RoadNetwork roadNetwork;
     private TerrainModel terrain;
+    private List<Block> blocks;
+    private List<ElevatedPlot> elevatedPlots = new List<ElevatedPlot>();
 
     public void Undo() { }
 
@@ -46,6 +48,8 @@ public class WorldGenerator : MonoBehaviour {
     public void GenerateStreets() { }
 
     public void GenerateBuildings() {
+        this.elevatedPlots = new List<ElevatedPlot>();
+
         foreach (Block block in this.blocks) {
             // Split each block into plots
             var plots = plotGenerator.Generate(block, populationNoise);
@@ -55,6 +59,7 @@ public class WorldGenerator : MonoBehaviour {
                 ElevatedPlot elevatedPlot = new ElevatedPlot(
                     plot.vertices.Select(v => roadNetwork.Terrain.GetPosition(v)).ToList()
                 );
+                this.elevatedPlots.Add(elevatedPlot);
 
                 buildingGenerator.Generate(elevatedPlot);
             }
@@ -84,5 +89,13 @@ public class WorldGenerator : MonoBehaviour {
 
     private void Start() {
         InstantiateGenerators();
+    }
+
+    private void Update() {
+        if (plotGenerator != null) {
+            foreach (ElevatedPlot plot in this.elevatedPlots) {
+                plotGenerator.DrawPlot(plot);
+            }
+        }
     }
 }

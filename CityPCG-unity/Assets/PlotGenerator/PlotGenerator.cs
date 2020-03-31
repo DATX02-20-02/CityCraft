@@ -24,17 +24,6 @@ public class PlotGenerator : MonoBehaviour {
         return plots;
     }
 
-    private void DrawPlot(Plot p) {
-        var position = new Vector2(transform.position.x, transform.position.z);
-
-        for (int i = 0; i < p.vertices.Count; i++) {
-            var cur = p.vertices[i] + position;
-            var next = p.vertices[(i + 1) % p.vertices.Count] + position;
-
-            Debug.DrawLine(new Vector3(cur.x, 0, cur.y), new Vector3(next.x, 0, next.y), Color.yellow, 10000000);
-        }
-    }
-
     public void DrawPlot(ElevatedPlot p) {
         if (this.debug) {
             var position = transform.position;

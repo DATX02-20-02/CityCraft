@@ -61,10 +61,24 @@ public class App : MonoBehaviour {
         exporter.SaveGLTFandBin(path, "World");
         Log("Model exported to: " + path);
     }
+    
+    public void OceanSlider(float depth) {
+        Debug.Log(depth);
+        worldGenerator.ModifyTerrain(0,depth);
+    }
+    
+    public void TerrainSliderX(float x) {
+        Debug.Log(x);
+        worldGenerator.ModifyTerrain(1,x);
+    }
+    public void TerrainSliderZ(float z) {
+        Debug.Log(z);
+        worldGenerator.ModifyTerrain(2,z);
+    }
 
     private void NextMenu() {
         menuPanels[currentMenuPanel].SetActive(false);
-        currentMenuPanel = Mathf.Min(menuPanels.Length, currentMenuPanel + 1);
+        currentMenuPanel = Mathf.Min(menuPanels.Length-1, currentMenuPanel + 1);
         menuPanels[currentMenuPanel].SetActive(true);
     }
 
@@ -73,7 +87,7 @@ public class App : MonoBehaviour {
         currentMenuPanel = Mathf.Max(0, currentMenuPanel - 1);
         menuPanels[currentMenuPanel].SetActive(true);
     }
-
+    
     private void Log(object msg) {
         if (debug)
             Debug.Log(msg);

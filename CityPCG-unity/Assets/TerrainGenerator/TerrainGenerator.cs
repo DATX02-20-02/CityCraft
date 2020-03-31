@@ -37,10 +37,28 @@ public class TerrainGenerator : MonoBehaviour {
     private int[] triangles;
     private Color[] colors;
     private Vector2[] uvs;
+    private float speedX=0;
+    private float speedZ=0;
+    
+    public void TestModTerr(int a, float v) {
+        Debug.Log("working");
+        this.xOffset += 100f;
+        
+        switch (a) {
+            case 0 : seaLevel = v; break;
+            case 1 : speedX=v; break;
+            case 2 : speedZ=v; break;
+        }
+    }
 
 
     public TerrainModel GenerateTerrain() {
         return GenerateTerrain(Random.Range(0f, 10000f), Random.Range(0f, 10000f));
+    }
+    
+    private void offsetSpeed(int a){
+        if (a==0) xOffset += speedX;
+        if (a==1) zOffset += speedZ;
     }
 
     private TerrainModel GenerateTerrain(float xOffset, float zOffset) {
@@ -166,6 +184,13 @@ public class TerrainGenerator : MonoBehaviour {
     private void Update() {
         sea.position = new Vector3(width / 2.0f, this.seaLevel, depth / 2.0f);
         sea.localScale = new Vector3(width, 1, depth);
+        
+        if(speedX != 0){
+            offsetSpeed(0);
+        }
+        if(speedZ != 0){
+            offsetSpeed(1);
+        }
 
         if (this.debug)
             GenerateTerrain(this.xOffset, this.zOffset);

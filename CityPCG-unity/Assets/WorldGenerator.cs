@@ -55,6 +55,13 @@ public class WorldGenerator : MonoBehaviour {
             }
         }
     }
+    
+    
+    public void ModifyTerrain(int a, float v){
+        // Takes in a modifier a that determines what modification is to be done.
+        // a float v with the value that is the value from the slider
+        terrainGenerator.TestModTerr(a,v);
+    }
 
     private void GenerateBlocks(RoadNetwork roadNetwork) {
         this.blocks = blockGenerator.Generate(roadNetwork);

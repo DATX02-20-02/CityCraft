@@ -112,8 +112,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7debfd5c103ff5828cea357767dfaa3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roadEnd: {fileID: 0}
   roadStart: {fileID: 0}
-  roadWidth: 0.25
-  sidewalkWidth: 0.0625
+  roadEnd: {fileID: 0}
+  roadWidth: 0.4
+  sidewalkWidth: 0.005
   precision: 0.02

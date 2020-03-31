@@ -20,6 +20,7 @@ public class App : MonoBehaviour {
 
 
     public void Next() {
+        worldGenerator.NextState();
         NextMenu();
     }
 

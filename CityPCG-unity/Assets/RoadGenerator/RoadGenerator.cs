@@ -30,6 +30,11 @@ public class RoadGenerator : MonoBehaviour {
     private bool areAgentsWorking = false;
     private Action<RoadNetwork> callback;
 
+    public RoadNetwork Network {
+        set { this.network = value; }
+        get { return this.network; }
+    }
+
     // Generates a complete road network.
     public void Generate(TerrainModel terrain, Noise population, Action<RoadNetwork> callback = null) {
         this.callback = callback;
@@ -60,6 +65,13 @@ public class RoadGenerator : MonoBehaviour {
         // agent.config.maxBranchCount = 5;
         // this.AddAgent(agent);
         // }
+    }
+
+    public void GenerateStreets(TerrainModel terrain, Noise population, Action<RoadNetwork> callback) {
+        this.callback = callback;
+
+        IAgentFactory factory = new StreetsAgentFactory();
+        factory.Create(this, network, Vector3.zero);
     }
 
     // Adds an agent to the pool of active agents.

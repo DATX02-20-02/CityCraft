@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using RBush;
@@ -327,7 +328,6 @@ public class RoadNetwork {
             }
 
             idx++;
-            n.hovering = false;
         }
     }
 
@@ -369,5 +369,32 @@ public class RoadNetwork {
     public Node CreateNode(Vector2 pos, Node.NodeType nodeType) {
         Vector3 terrainPos = new Vector3(pos.x, terrain.GetHeight(pos.x, pos.y), pos.y);
         return new Node(terrainPos, nodeType);
+    }
+
+    public RoadNetwork Snapshot() {
+        RoadNetwork snapshot = new RoadNetwork(
+            this.terrain, this.population, this.width, this.height
+        );
+
+        Dictionary<Node, Node> cloneMap = new Dictionary<Node, Node>();
+
+        snapshot.nodes = new List<Node>();
+        foreach (Node node in nodes) {
+            Node clonedNode = snapshot.AddNode(node.Clone());
+            cloneMap[node] = clonedNode;
+
+            // This will clone connections only one way since the
+            // other node might not have been cloned yet.
+            // Luckily, Node class handles the bi-directional
+            // connection anyway so it is not a problem here!
+            foreach (NodeConnection c in node.connections) {
+                if (cloneMap.ContainsKey(c.node)) {
+                    clonedNode.ConnectTo(cloneMap[c.node], c.type);
+                }
+            }
+        }
+
+
+        return snapshot;
     }
 }

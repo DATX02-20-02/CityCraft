@@ -79,7 +79,9 @@ public class WorldGenerator : MonoBehaviour {
                 this.roadNetworkSnapshot = null;
                 break;
         }
+    }
 
+    public void PreviousState() {
         if (stateMap.ContainsKey(currentStateIndex - 1)) {
             currentState = stateMap[--currentStateIndex];
         }
@@ -101,6 +103,8 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     public void GenerateStreets() {
+        if (roadNetwork == null) return;
+
         if (this.roadNetworkSnapshot != null) {
             this.roadNetwork = this.roadGenerator.Network = this.roadNetworkSnapshot;
         }

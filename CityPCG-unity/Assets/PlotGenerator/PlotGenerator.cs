@@ -18,10 +18,6 @@ public class PlotGenerator : MonoBehaviour {
                 polygon => new Plot(polygon.points)
             );
 
-        if (debug) {
-            plots.ForEach(DrawPlot);
-        }
-
         //Removes the duplicate point at the end that is created via Split function
         plots.ForEach(plot => plot.vertices.RemoveAt(plot.vertices.Count - 1));
 
@@ -36,6 +32,19 @@ public class PlotGenerator : MonoBehaviour {
             var next = p.vertices[(i + 1) % p.vertices.Count] + position;
 
             Debug.DrawLine(new Vector3(cur.x, 0, cur.y), new Vector3(next.x, 0, next.y), Color.yellow, 10000000);
+        }
+    }
+
+    public void DrawPlot(ElevatedPlot p) {
+        if (this.debug) {
+            var position = transform.position;
+
+            for (int i = 0; i < p.vertices.Count; i++) {
+                var cur = p.vertices[i] + position;
+                var next = p.vertices[(i + 1) % p.vertices.Count] + position;
+
+                Debug.DrawLine(cur, next, Color.yellow);
+            }
         }
     }
 }

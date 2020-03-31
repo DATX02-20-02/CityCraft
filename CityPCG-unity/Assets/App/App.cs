@@ -76,7 +76,7 @@ public class App : MonoBehaviour {
 
     private void NextMenu() {
         menuPanels[currentMenuPanel].SetActive(false);
-        currentMenuPanel = Mathf.Min(menuPanels.Length, currentMenuPanel + 1);
+        currentMenuPanel = Mathf.Min(menuPanels.Length-1, currentMenuPanel + 1);
         menuPanels[currentMenuPanel].SetActive(true);
     }
 

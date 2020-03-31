@@ -27,8 +27,6 @@ public class RoadGenerator : MonoBehaviour {
 
     [SerializeField] private List<Vector3> debugPoints = new List<Vector3>();
 
-    [SerializeField] private RoadMeshGenerator meshGenerator = null;
-
     private RoadNetwork network;
 
     private PriorityQueue<Agent> queue = new PriorityQueue<Agent>();
@@ -79,6 +77,7 @@ public class RoadGenerator : MonoBehaviour {
 
     // Generates road meshes
     public void GenerateMesh() {
+        RoadMeshGenerator meshGenerator = GetComponent<RoadMeshGenerator>();
         if (meshGenerator == null) return;
 
         meshGenerator.Generate(network);

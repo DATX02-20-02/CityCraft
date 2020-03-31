@@ -313,7 +313,7 @@ public class RoadNetwork {
         int idx = 0;
         foreach (Node n in nodes) {
             visited[n] = true;
-          
+
             foreach (NodeConnection c in n.connections) {
                 if (visited.ContainsKey(c.node)) continue;
 

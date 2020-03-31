@@ -15,7 +15,7 @@ public class Noise {
         }
     }
 
-    public Noise(Layer[] layers) : this(layers, Vector2.zero) {}
+    public Noise(Layer[] layers) : this(layers, Vector2.zero) { }
 
     public float GetValue(float x, float y) {
         float value = 0;

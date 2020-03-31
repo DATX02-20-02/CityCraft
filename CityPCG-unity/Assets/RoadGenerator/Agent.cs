@@ -169,7 +169,7 @@ public class Agent : IComparable {
 
         // This might be used in the future to decide on max height difference
         // This could occur if we have ravines and stuff in the terrain
-        
+
         // if (this.prevNode != null) {
         //     float prevYLevel = this.prevNode.pos.y;
 

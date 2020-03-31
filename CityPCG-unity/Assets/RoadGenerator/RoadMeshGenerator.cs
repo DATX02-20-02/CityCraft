@@ -82,17 +82,23 @@ public class RoadMeshGenerator : MonoBehaviour {
             Debug.LogWarning("Failed to generate road meshes! Given network does not exist.");
             return;
         }
+        this.network = network;
 
         this.queue = new LinkedList<Traverser>();
         this.visited = new Dictionary<Node, bool>();
         this.placed = new Dictionary<Node, Dictionary<Node, bool>>();
         this.intersections = new Dictionary<Node, RoadIntersectionMesh>();
 
+        // Remove previously generated meshes
         foreach (Transform child in transform) {
             Destroy(child.gameObject);
         }
 
-        this.network = network;
+        StartCoroutine("DoTraverse");
+    }
+
+    IEnumerator DoTraverse() {
+        isTraversing = true;
 
         Node startNode = null;
         foreach (Node n in this.network.Nodes) {
@@ -105,86 +111,36 @@ public class RoadMeshGenerator : MonoBehaviour {
         foreach (NodeConnection c in startNode.connections) {
             this.queue.AddLast(new Traverser(startNode, c.node, 0));
         }
-    }
 
-    IEnumerator DoTraverse() {
-        if(this.queue.Count == 0) yield break;
+        while(this.queue.Count > 0) {
+            for (int iteration = 0; iteration < maxIterations; iteration++) {
+                if (this.queue.Count == 0) { break; }
+                Traverser traverser = getFirst ? this.queue.First.Value : this.queue.Last.Value;
 
-        isTraversing = true;
+                Node prevNode = traverser.node;
 
-        int iterations = 0;
-        while(this.queue.Count > 0 && iterations < maxIterations) {
-            Traverser traverser = getFirst ? this.queue.First.Value : this.queue.Last.Value;
+                List<Node> path;
+                bool done = traverser.Traverse(out path);
 
-            Node prevNode = traverser.node;
+                if (placed.ContainsKey(traverser.node) && placed[traverser.node].ContainsKey(prevNode) ||
+                    placed.ContainsKey(prevNode) && placed[prevNode].ContainsKey(traverser.node)
+                ) {
+                    if (getFirst)
+                        this.queue.RemoveFirst();
+                    else
+                        this.queue.RemoveLast();
+                    continue;
+                }
 
-            List<Node> path;
-            bool done = traverser.Traverse(out path);
+                if (done) {
+                    if (getFirst)
+                        this.queue.RemoveFirst();
+                    else
+                        this.queue.RemoveLast();
 
-            if (placed.ContainsKey(traverser.node) && placed[traverser.node].ContainsKey(prevNode) ||
-                placed.ContainsKey(prevNode) && placed[prevNode].ContainsKey(traverser.node)
-            ) {
-                if (getFirst)
-                    this.queue.RemoveFirst();
-                else
-                    this.queue.RemoveLast();
-                continue;
-            }
+                    PlaceRoad(path);
 
-            if (done) {
-                if (getFirst)
-                    this.queue.RemoveFirst();
-                else
-                    this.queue.RemoveLast();
-
-                Node lastNode = path[path.Count - 1];
-                if (lastNode != null) {
-
-                    GameObject roadGameObject = (GameObject)Instantiate(roadMeshPrefab);
-                    roadGameObject.transform.parent = transform;
-                    roadGameObject.transform.localPosition = path[0].pos;
-                    BezierSpline spline = roadGameObject.GetComponent<BezierSpline>();
-                    RoadMesh roadMesh = roadGameObject.GetComponent<RoadMesh>();
-                    spline.Reset();
-                    roadMesh.Reset();
-
-                    for (int i = 0; i < path.Count; i++) {
-                        spline.AddPoint(path[i].pos);
-                    }
-
-                    // Try connect to intersections at position
-                    RoadIntersectionMesh TryCreateIntersection(Node intersectionNode) {
-                        if (intersectionNode.connections.Count > 2) {
-                            RoadIntersectionMesh intersection;
-                            if (!intersections.ContainsKey(intersectionNode)) {
-                                intersection = Instantiate(roadIntersectionMeshPrefab).GetComponent<RoadIntersectionMesh>();
-                                intersection.transform.parent = transform;
-                                intersection.transform.localPosition = intersectionNode.pos;
-                                intersections[intersectionNode] = intersection;
-                            }
-                            else {
-                                intersection = intersections[intersectionNode];
-                            }
-
-                            return intersection;
-                        }
-
-                        return null;
-                    }
-
-                    RoadIntersectionMesh startIntersection = TryCreateIntersection(path[0]);
-                    if (startIntersection) {
-                        roadMesh.SetStart(startIntersection);
-                        startIntersection.AddConnection(roadMesh);
-                    }
-
-                    RoadIntersectionMesh endIntersection = TryCreateIntersection(path[path.Count - 1]);
-                    if (endIntersection) {
-                        roadMesh.SetEnd(endIntersection);
-                        endIntersection.AddConnection(roadMesh);
-                    }
-                    roadMesh.GenerateRoadMesh();
-
+                    Node lastNode = path[path.Count - 1];
                     for (int i = 0; i < path.Count - 1; i++) {
                         Node n = path[i];
                         Node nx = path[i + 1];
@@ -212,29 +168,72 @@ public class RoadMeshGenerator : MonoBehaviour {
                             continue;
                         }
 
-                        // visited[c.node] = true;
                         this.queue.AddFirst(new Traverser(lastNode, c.node, traverser.Priority + 1));
                     }
                 }
             }
-
-            iterations++;
+            yield return new WaitForSeconds(tickInterval);
         }
 
-        if (this.queue.Count == 0) {
-            foreach (var entry in this.intersections) {
-                entry.Value.UpdateMesh();
-            }
+        int intersectionCount = 0;
+        foreach (var entry in this.intersections) {
+            Camera.main.transform.position = entry.Value.transform.position + Vector3.up * 1.5f;
+            Camera.main.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+            entry.Value.name = roadIntersectionMeshPrefab.name + " " + intersectionCount;
+            entry.Value.UpdateMesh();
+            intersectionCount++;
         }
 
-        yield return new WaitForSeconds(tickInterval);
         isTraversing = false;
     }
 
-    private void Update() {
-        if(this.queue != null && !isTraversing) {
-            if (this.queue.Count > 0)
-                StartCoroutine("DoTraverse");
+
+    private void PlaceRoad(List<Node> path) {
+        GameObject roadGameObject = (GameObject)Instantiate(roadMeshPrefab);
+        roadGameObject.name = roadMeshPrefab.name + " " + transform.childCount;
+        roadGameObject.transform.parent = transform;
+        roadGameObject.transform.localPosition = path[0].pos;
+        BezierSpline spline = roadGameObject.GetComponent<BezierSpline>();
+        RoadMesh roadMesh = roadGameObject.GetComponent<RoadMesh>();
+        spline.Reset();
+        roadMesh.Reset();
+
+        for (int i = 0; i < path.Count; i++) {
+            spline.AddPoint(path[i].pos);
         }
+
+        // Try connect to intersections at position
+        RoadIntersectionMesh TryCreateIntersection(Node intersectionNode) {
+            if (intersectionNode.connections.Count > 2) {
+                RoadIntersectionMesh intersection;
+                if (!intersections.ContainsKey(intersectionNode)) {
+                    intersection = Instantiate(roadIntersectionMeshPrefab).GetComponent<RoadIntersectionMesh>();
+                    intersection.transform.parent = transform;
+                    intersection.transform.localPosition = intersectionNode.pos;
+                    intersections[intersectionNode] = intersection;
+                }
+                else {
+                    intersection = intersections[intersectionNode];
+                }
+
+                return intersection;
+            }
+
+            return null;
+        }
+
+        RoadIntersectionMesh startIntersection = TryCreateIntersection(path[0]);
+        if (startIntersection) {
+            roadMesh.SetStart(startIntersection);
+            startIntersection.AddConnection(roadMesh);
+        }
+
+        RoadIntersectionMesh endIntersection = TryCreateIntersection(path[path.Count - 1]);
+        if (endIntersection) {
+            roadMesh.SetEnd(endIntersection);
+            endIntersection.AddConnection(roadMesh);
+        }
+
+        roadMesh.GenerateRoadMesh();
     }
 }

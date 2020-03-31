@@ -27,13 +27,63 @@ public class WorldGenerator : MonoBehaviour {
     private BuildingGenerator buildingGenerator;
     private ParkGenerator parkGenerator;
 
+    // State properties
+    public enum State {
+        Terrain,
+        Roads,
+        Streets,
+        Buildings,
+        Finished
+    }
+
+    private Dictionary<int, State> stateMap = new Dictionary<int, State>() {
+        { 0, State.Terrain },
+        { 1, State.Roads },
+        { 2, State.Streets },
+        { 3, State.Buildings },
+        { 4, State.Finished },
+    };
+
+    private int currentStateIndex = 0;
+    private State currentState = State.Terrain;
+
+    // Generator input/output properties
     private Noise populationNoise;
     private RoadNetwork roadNetwork;
+    private RoadNetwork roadNetworkSnapshot;
     private TerrainModel terrain;
     private List<Block> blocks;
     private List<ElevatedPlot> elevatedPlots = new List<ElevatedPlot>();
 
-    public void Undo() { }
+    public State NextState() {
+        if (stateMap.ContainsKey(currentStateIndex + 1)) {
+            currentState = stateMap[++currentStateIndex];
+        }
+
+        return currentState;
+    }
+
+    public void Undo() {
+        switch (currentState) {
+            case State.Streets:
+                if (this.roadNetworkSnapshot != null) {
+                    this.roadNetwork = this.roadNetworkSnapshot;
+                    this.roadGenerator.Network = this.roadNetwork;
+                    this.roadNetworkSnapshot = null;
+                }
+                break;
+
+            case State.Roads:
+                this.roadNetwork = null;
+                this.roadGenerator.Network = null;
+                this.roadNetworkSnapshot = null;
+                break;
+        }
+
+        if (stateMap.ContainsKey(currentStateIndex - 1)) {
+            currentState = stateMap[--currentStateIndex];
+        }
+    }
 
     public void GenerateTerrain() {
         terrain = terrainGenerator.GenerateTerrain();
@@ -42,10 +92,28 @@ public class WorldGenerator : MonoBehaviour {
     public void GenerateRoads() {
         populationNoise = populationGenerator.Generate();
 
-        roadGenerator.Generate(terrain, populationNoise, (roadNetwork) => GenerateBlocks(roadNetwork));
+        roadGenerator.Generate(
+            terrain, populationNoise,
+            (RoadNetwork network) => {
+                this.roadNetwork = network;
+            }
+        );
     }
 
-    public void GenerateStreets() { }
+    public void GenerateStreets() {
+        if (this.roadNetworkSnapshot != null) {
+            this.roadNetwork = this.roadNetworkSnapshot;
+            roadGenerator.Network = this.roadNetwork;
+        }
+
+        this.roadNetworkSnapshot = roadNetwork.Snapshot();
+
+        roadGenerator.GenerateStreets(
+            terrain, populationNoise, (roadNetwork) => {
+                GenerateBlocks();
+            }
+        );
+    }
 
     public void GenerateBuildings() {
         this.elevatedPlots = new List<ElevatedPlot>();
@@ -66,8 +134,7 @@ public class WorldGenerator : MonoBehaviour {
         }
     }
 
-    private void GenerateBlocks(RoadNetwork roadNetwork) {
-        this.roadNetwork = roadNetwork;
+    private void GenerateBlocks() {
         this.blocks = blockGenerator.Generate(roadNetwork);
     }
 

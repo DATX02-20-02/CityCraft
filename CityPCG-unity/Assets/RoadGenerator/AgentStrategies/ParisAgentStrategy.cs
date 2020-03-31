@@ -112,34 +112,34 @@ public class ParisAgentStrategy : AgentStrategy {
         float distance = Vector3.Distance(agent.Position, center);
 
         if (!didBranch) {
-            foreach (NodeConnection c in node.connections) {
-                Vector3 dir = c.node.pos - node.pos;
-                Vector3 perp = Vector3.Cross(dir, Vector3.up);
+            // foreach (NodeConnection c in node.connections) {
+            //     Vector3 dir = c.node.pos - node.pos;
+            //     Vector3 perp = Vector3.Cross(dir, Vector3.up);
 
-                for (int i = 0; i < 1; i++) {
-                    revert = i * 2 - 1;
-                    if (Random.Range(0.0f, 1.0f) <= 2f) {
-                        Agent ag = new Agent(
-                            agent.Network,
-                            node.pos,
-                            perp * revert,
-                            new StreetAgentStrategy(),
-                            10
-                        );
+            //     for (int i = 0; i < 1; i++) {
+            //         revert = i * 2 - 1;
+            //         if (Random.Range(0.0f, 1.0f) <= 2f) {
+            //             Agent ag = new Agent(
+            //                 agent.Network,
+            //                 node.pos,
+            //                 perp * revert,
+            //                 new StreetAgentStrategy(),
+            //                 10
+            //             );
 
-                        ag.config.stepSize = 5 * 0.3f;
-                        ag.config.snapRadius = 5 * 0.15f;
-                        ag.config.maxBranchCount = 5;
-                        ag.config.maxStepCount = 20;
+            //             ag.config.stepSize = 5 * 0.3f;
+            //             ag.config.snapRadius = 5 * 0.15f;
+            //             ag.config.maxBranchCount = 5;
+            //             ag.config.maxStepCount = 20;
 
-                        ag.PreviousNode = node;
+            //             ag.PreviousNode = node;
 
-                        newAgents.Add(ag);
+            //             newAgents.Add(ag);
 
-                        break;
-                    }
-                }
-            }
+            //             break;
+            //         }
+            //     }
+            // }
         }
 
         return newAgents;

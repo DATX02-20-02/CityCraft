@@ -13,11 +13,8 @@ public class Node : ISpatialData {
     }
 
     public Vector3 pos;
-    public float width;
-    public float height;
     public NodeType type;
     public bool added = false;
-    public bool hovering = false;
 
     public List<NodeConnection> connections = new List<NodeConnection>();
     private Envelope envelope = Envelope.EmptyBounds;
@@ -72,5 +69,9 @@ public class Node : ISpatialData {
 
     public ref readonly Envelope Envelope {
         get { return ref envelope; }
+    }
+
+    public Node Clone() {
+        return new Node(pos, type);
     }
 }

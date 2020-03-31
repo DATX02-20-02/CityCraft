@@ -78,12 +78,12 @@ MonoBehaviour:
   noiseGenerator: {fileID: 1828370796}
   terrainMeshFilter: {fileID: 4572131543444406465}
   sea: {fileID: 391713232}
-  width: 600
-  depth: 600
+  width: 1000
+  depth: 1000
   seaLevel: 25
   maxHeight: 80
-  xResolution: 200
-  zResolution: 200
+  xResolution: 250
+  zResolution: 250
   debug: 0
 --- !u!114 &1828370796
 MonoBehaviour:
@@ -112,10 +112,10 @@ MonoBehaviour:
     scale: 20
     magnitude: 0.35
     exponent: 1
-  width: 600
-  height: 600
-  textureWidth: 600
-  textureHeight: 600
+  width: 1000
+  height: 1000
+  textureWidth: 1000
+  textureHeight: 1000
   debugPlane: {fileID: 0}
   debug: 0
 --- !u!1 &6999845469166995743

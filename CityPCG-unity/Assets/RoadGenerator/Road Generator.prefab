@@ -10737,8 +10737,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00b2ec2d92d22e585a5b4621c072558c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxIterations: 5
-  tickInterval: 0.279
+  maxIterations: 1000
+  tickInterval: 0
   getFirst: 1
   roadMeshPrefab: {fileID: 5191599167567484708, guid: b2b74e80fddc36b0da92137a6cc549c9,
     type: 3}

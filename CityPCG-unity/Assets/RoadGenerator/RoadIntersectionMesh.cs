@@ -4,7 +4,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class RoadIntersectionMesh : MonoBehaviour {
-    private List<RoadMesh> connectedRoads;
+    [SerializeField] private List<RoadMesh> connectedRoads;
     private RoadSegment[] connectionPoints = null;
 
     [SerializeField] private float arcRadius = 2f;
@@ -94,17 +94,13 @@ public class RoadIntersectionMesh : MonoBehaviour {
 
     private void UpdateIntersectionState() {
         if (connectedRoads == null) return;
-        if (connectedRoads.Count < 3) return;
+        if (connectedRoads.Count < 3) {
+            Debug.LogWarning("Tried to generate intersection with fewer than 3 connected roads, aborting");
+            return;
+        }
 
         // sort roads in cw order
         {
-            Debug.Log("Before sort");
-            for (int i = 0; i < connectedRoads.Count; i++) {
-                RoadMesh r = connectedRoads[i];
-                Vector3 dir = SplineDirectionOfAttack(r) * (-1f);
-                Debug.Log(i + ": angle: " + Mathf.Atan2(dir.z, dir.x) * Mathf.Rad2Deg);
-            }
-
             connectedRoads.Sort(delegate(RoadMesh r1, RoadMesh r2) {
                 Vector3 r1Dir = SplineDirectionOfAttack(r1) * (-1f);
                 float r1Angle = Mathf.Atan2(r1Dir.z, r1Dir.x) * Mathf.Rad2Deg;
@@ -113,12 +109,14 @@ public class RoadIntersectionMesh : MonoBehaviour {
                 return r1Angle.CompareTo(r2Angle); // Mathf.RoundToInt(r2Angle - r1Angle);
             });
 
-            Debug.Log("After sort");
+            string angles = "";
             for (int i = 0; i < connectedRoads.Count; i++) {
                 RoadMesh r = connectedRoads[i];
                 Vector3 dir = SplineDirectionOfAttack(r) * (-1f);
-                Debug.Log(i + ": angle: " + Mathf.Atan2(dir.z, dir.x) * Mathf.Rad2Deg);
+                float angle = Mathf.Atan2(dir.z, dir.x) * Mathf.Rad2Deg;
+                angles += angle + ", ";
             }
+            Debug.Log("Sorted roads angles: " + angles);
         }
 
         Vector3 GetSplineConnectionPoint(RoadMesh r) {
@@ -173,17 +171,26 @@ public class RoadIntersectionMesh : MonoBehaviour {
             LineIntersection.Result intersection;
 
             intersection = GetRoadIntersection(left.r.Width / 2f, right.r.Width/ 2f);
-            if (intersection.type == LineIntersection.Type.Intersecting) {
+            if (intersection.type == LineIntersection.Type.Intersecting || intersection.type == LineIntersection.Type.Colinear) {
                 Vector3 sidewalkIntersectionPoint = VectorUtil.Vector2To3(intersection.point);
                 DrawPoint(sidewalkIntersectionPoint, 0.03f, Color.red);
                 corner.sidewalkIntersection = sidewalkIntersectionPoint;
             }
+            else {
+                Debug.LogError("Roads do not intersect! aborting intersection generation: " + intersection.type);
+                connectionPoints = null;
+                return;
+            }
 
             intersection = GetRoadIntersection(left.r.RoadWidth / 2f, right.r.RoadWidth / 2f);
-            if (intersection.type == LineIntersection.Type.Intersecting) {
+            if (intersection.type == LineIntersection.Type.Intersecting || intersection.type == LineIntersection.Type.Colinear) {
                 Vector3 streetIntersectionPoint = VectorUtil.Vector2To3(intersection.point);
                 DrawPoint(streetIntersectionPoint, 0.03f, Color.red);
                 corner.streetIntersection = streetIntersectionPoint;
+            }
+            else {
+                Debug.LogError("Roads do not intersect! aborting intersection generation" + intersection.type);
+                connectionPoints = null;
             }
 
             left.cornerRight = corner;
@@ -220,7 +227,7 @@ public class RoadIntersectionMesh : MonoBehaviour {
     }
 
     public Mesh CreateMesh() {
-        if (connectedRoads == null) return null;
+        if (connectedRoads == null || connectionPoints == null) return null;
         if (connectedRoads.Count < 3) return null;
 
         Vector2 whiteUV = new Vector2(0.85f, 0.0f);

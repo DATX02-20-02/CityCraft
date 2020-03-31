@@ -4,23 +4,24 @@ using UnityEngine;
 [CustomEditor(typeof(RoadIntersectionMesh))]
 public class RoadIntersectionInspector : Editor {
     void OnSceneGUI() {
-        RoadIntersectionMesh i = target as RoadIntersectionMesh;
-        if (i == null) return;
+        RoadIntersectionMesh intersection = target as RoadIntersectionMesh;
+        if (intersection == null) return;
 
-        i.UpdateMesh();
+        intersection.UpdateMesh();
 
-        if (i.IntersectionState == null) {
+        if (intersection.IntersectionState == null) {
             return;
         }
 
-        if (i.IntersectionState.Length < 3) {
+        if (intersection.IntersectionState.Length < 3) {
             return;
         }
 
-        foreach (RoadIntersectionMesh.RoadSegment c in i.IntersectionState) {
-            Handles.color = Color.green;
-            Handles.DrawDottedLine(i.transform.position, i.transform.position + c.tangent, 4f);
-            Handles.DrawSolidDisc(i.transform.position + c.tangent, Vector3.up, 0.1f);
+        for (int i = 0; i < intersection.IntersectionState.Length; i ++) {
+            RoadIntersectionMesh.RoadSegment c = intersection.IntersectionState[i];
+            Handles.color = new Color(0f, (i / (float)intersection.IntersectionState.Length), 0f);
+            Handles.DrawDottedLine(intersection.transform.position, intersection.transform.position + c.tangent, 4f);
+            Handles.DrawSolidDisc(intersection.transform.position + c.tangent, Vector3.up, 0.1f);
 
             // Handles.color = Color.red;
             // Handles.DrawWireDisc(c.cornerRight.sidewalkIntersection, Vector3.up, 0.03f);

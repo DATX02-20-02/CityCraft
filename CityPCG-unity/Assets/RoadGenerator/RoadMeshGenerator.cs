@@ -225,7 +225,7 @@ public class RoadMeshGenerator : MonoBehaviour {
             foreach (var entry in this.intersections) {
                 Camera.main.transform.position = entry.Value.transform.position + Vector3.up * 1f;
                 Camera.main.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
-                yield return new WaitForSeconds(2f);
+                yield return new WaitForSeconds(1f);
                 entry.Value.UpdateMesh();
                 yield return new WaitForSeconds(2f);
             }

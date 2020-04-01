@@ -26,7 +26,7 @@ public class WallGenerator : MonoBehaviour {
                     firstSegments.AddRange(halfFirstResult);
 
                     //Other half
-                    halfFirstResult.Remove(WallSegmentType.Door);
+                    halfFirstResult.Add(WallSegmentType.Door);
                     halfFirstResult.Reverse();
                     firstSegments.AddRange(halfFirstResult);
 
@@ -182,20 +182,17 @@ public class WallGenerator : MonoBehaviour {
             .OnAccepted(value => new WallData(value.widthLeft - cornerWidth));
 
         firstFloorSegmentSystem.CreateRules(WallSegmentType.ShopWindow)
-            .Add(0.4f, WallSegmentType.Wall)
-            .Add(0.4f, WallSegmentType.ShopWindow)
-            .Add(0.2f, WallSegmentType.Door)
+            .Add(0.5f, WallSegmentType.Wall)
+            .Add(0.5f, WallSegmentType.ShopWindow)
             .ShouldAccept(value => value.widthLeft >= shopWindowWidth)
             .OnAccepted(value => new WallData(value.widthLeft - shopWindowWidth));
 
         firstFloorSegmentSystem.CreateRules(WallSegmentType.Wall)
-            .Add(0.4f, WallSegmentType.Wall)
-            .Add(0.4f, WallSegmentType.ShopWindow)
-            .Add(0.2f, WallSegmentType.Door)
+            .Add(0.5f, WallSegmentType.Wall)
+            .Add(0.5f, WallSegmentType.ShopWindow)
             .ShouldAccept(value => value.widthLeft > wallWidth)
             .OnAccepted(value => new WallData(value.widthLeft - wallWidth));
 
-        firstFloorSegmentSystem.CreateRules(WallSegmentType.Door);
 
         return firstFloorSegmentSystem;
     }

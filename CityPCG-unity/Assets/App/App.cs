@@ -20,8 +20,7 @@ public class App : MonoBehaviour {
     [SerializeField] private bool debug = false;
 
     private int currentMenuPanel = 0;
-    private bool terrainGenerated = false;
-
+    
 
     public void Next() {
         worldGenerator.NextState();
@@ -37,7 +36,6 @@ public class App : MonoBehaviour {
     public void GenerateTerrain() {
         Log("Generating terrain...");
         worldGenerator.GenerateTerrain();
-        terrainGenerated = true;
         Log("Terrain generated.");
     }
 
@@ -85,14 +83,10 @@ public class App : MonoBehaviour {
     }
     
     public void ModifyTerrainOffsetX(float v) {
-        if(terrainGenerated){
             worldGenerator.SetOffsetSpeedX(v);
-        }
     }
     public void ModifyTerrainOffsetZ(float v) {
-        if(terrainGenerated){
             worldGenerator.SetOffsetSpeedZ(v);
-        }
     }
     public void ModifyTerrainSea(float a) {
         worldGenerator.ModifyTerrainSea(a); 

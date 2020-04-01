@@ -53,26 +53,6 @@ public class RoadGenerator : MonoBehaviour {
 
         factory.Create(this, network, new Vector3(300 - 150, 0, 300));
         factory.Create(this, network, new Vector3(300 + 0, 0, 300));
-
-
-        // int max = 4;
-        // for (int i = 0; i < max; i++) {
-        //     float rad = (Mathf.PI * 2) / max;
-
-        //     Vector3 dir = new Vector3(Mathf.Cos(rad * i), 0, Mathf.Sin(rad * i));
-        // Vector3 dir = new Vector3(1, 0, 0);
-        // Agent agent = new Agent(
-        //     network,
-        //     new Vector3(128, 0, 128),
-        //     dir,
-        //     new HighwayAgentStrategy(),
-        //     1
-        // );
-        // agent.config.maxBranchCount = 5;
-        // this.AddAgent(agent);
-        // }
-        factory.Create(this, network, new Vector3(0, 0, 0));
-        // factory.Create(this, network, new Vector3(20, 0, 0));
     }
 
     // Generates road meshes
@@ -99,6 +79,7 @@ public class RoadGenerator : MonoBehaviour {
     IEnumerator DoAgentWork() {
         if (prevQueueCount != 0 && this.queue.Count == 0) {
             if (callback != null) {
+                GetComponent<RoadMeshGenerator>().Generate(network);
                 this.callback(network);
             }
             prevQueueCount = 0;

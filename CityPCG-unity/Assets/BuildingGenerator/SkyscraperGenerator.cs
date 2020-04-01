@@ -45,13 +45,22 @@ public class SkyscraperGenerator : MonoBehaviour {
         var rect = ApproximateLargestRectangle(polygon);
 
         transform.position = center;
+
         this.worldSize.x = 2 * rect.width;
+        this.worldSize.y = 4f / (1f + Mathf.Pow(rect.width * rect.height, 1.5f));
         this.worldSize.z = 2 * rect.height;
-        this.worldSize.y = 5f;
+
+        this.sizeX = (int)(2 * this.worldSize.x + 1);
+        this.sizeY = (int)(3 * this.worldSize.y + 1);
+        this.sizeZ = (int)(2 * this.worldSize.z + 1);
         Build();
 
         // NOTE: angle is negated because Unity rotates clockwise.
         transform.localRotation = Quaternion.Euler(0, -rect.angle * Mathf.Rad2Deg, 0);
+
+        // We don't need this script once the structure is done.
+        if (!debug)
+            Destroy(this);
     }
 
     private Utils.PolygonUtil.Rectangle ApproximateLargestRectangle(List<Vector2> polygon) {

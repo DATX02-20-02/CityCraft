@@ -77,6 +77,8 @@ public class RoadMeshGenerator : MonoBehaviour {
 
     private bool isTraversing = false;
 
+    private ProjectVertex projector;
+
     public void Generate(RoadNetwork network) {
         if (network == null) {
             Debug.LogWarning("Failed to generate road meshes! Given network does not exist.");
@@ -88,6 +90,10 @@ public class RoadMeshGenerator : MonoBehaviour {
         this.visited = new Dictionary<Node, bool>();
         this.placed = new Dictionary<Node, Dictionary<Node, bool>>();
         this.intersections = new Dictionary<Node, RoadIntersectionMesh>();
+
+        // this.projector = (Vector3 vec) => { return network.Terrain.GetPosition(vec.x, vec.z); };
+        this.projector = (Vector3 vec) => { return network.Terrain.GetNormal(vec.x, vec.z); };
+        // this.projector = (Vector3 vec) => vec;
 
         // Remove previously generated meshes
         foreach (Transform child in transform) {
@@ -149,8 +155,7 @@ public class RoadMeshGenerator : MonoBehaviour {
                             placed[n] = new Dictionary<Node, bool>();
                         }
 
-                        if (placed.ContainsKey(nx) && placed[nx].ContainsKey(n) ||
-                            placed[n].ContainsKey(nx)) {
+                        if (placed.ContainsKey(nx) && placed[nx].ContainsKey(n) || placed[n].ContainsKey(nx)) {
                             shouldPlace = false;
                             break;
                         };
@@ -185,7 +190,7 @@ public class RoadMeshGenerator : MonoBehaviour {
             Camera.main.transform.position = entry.Value.transform.position + Vector3.up * 1.5f;
             Camera.main.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
             entry.Value.name = roadIntersectionMeshPrefab.name + " " + intersectionCount;
-            entry.Value.UpdateMesh();
+            entry.Value.UpdateMesh(projector);
             intersectionCount++;
         }
 
@@ -239,6 +244,22 @@ public class RoadMeshGenerator : MonoBehaviour {
             endIntersection.AddConnection(roadMesh);
         }
 
-        roadMesh.GenerateRoadMesh();
+        roadMesh.GenerateRoadMesh(projector);
+    }
+
+
+    void Update() {
+        // if (network != null) {
+        //     Vector3 prevPoint = Vector3.zero;
+        //     for (float i = 0; i < 100; i+=0.1f) {
+        //         Vector2 p = new Vector2(i, 0);
+        //         Vector3 tp = network.Terrain.GetPosition(p);
+
+        //         Debug.DrawLine(prevPoint, tp, new Color(1, 0, 0));
+        //         Debug.DrawLine(tp, tp + Vector3.up, new Color(1, 0, 0));
+
+        //         prevPoint = tp;
+        //     }
+        // }
     }
 }

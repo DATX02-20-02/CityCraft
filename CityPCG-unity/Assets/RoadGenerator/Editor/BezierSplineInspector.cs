@@ -144,7 +144,7 @@ public class BezierSplineInspector : Editor
         RoadMesh road = spline.GetComponent<RoadMesh>();
         if (road)
         {
-            road.GenerateRoadMesh();
+            road.GenerateRoadMesh((Vector3 vec) => vec);
         }
     }
 }

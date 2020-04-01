@@ -35,8 +35,6 @@ public class TerrainGenerator : MonoBehaviour {
     private int[] triangles;
     private Color[] colors;
     private Vector2[] uvs;
-    private float offsetSpeedX;
-    private float offsetSpeedZ;
 
 
     public TerrainModel GenerateTerrain() {
@@ -67,12 +65,6 @@ public class TerrainGenerator : MonoBehaviour {
     
     public void SetSeaLevel(float sl) {
         seaLevel = sl*maxHeight;
-    }
-    public void SetOffsetSpeedX(float s) {
-        offsetSpeedX = s;
-    }
-    public void SetOffsetSpeedZ(float s) {
-        offsetSpeedZ = s;
     }
 
     public Vector2 NoiseOffset {
@@ -181,12 +173,6 @@ public class TerrainGenerator : MonoBehaviour {
     private void Update() {
         sea.position = new Vector3(width / 2.0f, this.seaLevel, depth / 2.0f);
         sea.localScale = new Vector3(width, 1, depth);
-        
-        if(offsetSpeedX != 0 || offsetSpeedZ != 0){
-            Vector2 speedamp = new Vector2(offsetSpeedX*Time.deltaTime,offsetSpeedZ*Time.deltaTime);
-            Vector2 speed = NoiseOffset + speedamp;
-            GenerateTerrain(speed);
-        }
 
         if (this.debug)
             GenerateTerrain(this.noiseGenerator.Offset);

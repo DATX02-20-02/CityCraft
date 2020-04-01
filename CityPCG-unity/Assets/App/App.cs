@@ -13,9 +13,8 @@ using UnityEngine.UI;
 */
 public class App : MonoBehaviour {
 
-    public Slider sliderSea;
-    public Slider sliderX;
-    public Slider sliderZ;
+    [SerializeField] private Slider sliderX = null;
+    [SerializeField] private Slider sliderZ = null;
     [SerializeField] private WorldGenerator worldGenerator = null;
     [SerializeField] private GameObject[] menuPanels = null;
     [SerializeField] private bool debug = false;
@@ -87,18 +86,16 @@ public class App : MonoBehaviour {
     
     public void ModifyTerrainOffsetX(float v) {
         if(terrainGenerated){
-            worldGenerator.GenerateTerrain(v,0);
+            worldGenerator.SetOffsetSpeedX(v);
         }
     }
     public void ModifyTerrainOffsetZ(float v) {
         if(terrainGenerated){
-        worldGenerator.GenerateTerrain(0, v);
+            worldGenerator.SetOffsetSpeedZ(v);
         }
     }
     public void ModifyTerrainSea(float a) {
-        if(terrainGenerated){
         worldGenerator.ModifyTerrainSea(a); 
-        }
     }
     
     

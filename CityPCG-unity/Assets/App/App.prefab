@@ -1387,7 +1387,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f41c90676b4f16ff595a212893782cbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sliderSea: {fileID: 7861406797117357397}
   sliderX: {fileID: 2628772144936170299}
   sliderZ: {fileID: 4690588422780115106}
   worldGenerator: {fileID: 0}

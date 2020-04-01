@@ -4,13 +4,11 @@ using UnityEngine;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class RoadIntersectionMesh : MonoBehaviour {
-    [SerializeField] private List<RoadMesh> connectedRoads;
-    private RoadSegment[] connectionPoints = null;
 
-    [SerializeField] private float arcRadius = 2f;
-    [SerializeField] private int arcPrecision = 10;
+    [SerializeField] private List<RoadMesh> connectedRoads;
     [SerializeField] private bool debugView = false;
 
+    private RoadSegment[] connectionPoints = null;
     private ProjectVertex projector;
 
     public RoadSegment[] IntersectionState {
@@ -29,14 +27,8 @@ public class RoadIntersectionMesh : MonoBehaviour {
     public class RoadSegment {
         public RoadMesh r;
         public BezierSpline s;
-        public Vector3 p;
         public Vector3 tangent;
         public Vector3 binormal;
-        public float length;
-        public Vector3 left;
-        public Vector3 right;
-        public Vector3 leftEnd;
-        public Vector3 rightEnd;
 
         public Vector3 sidewalkLeft;
         public Vector3 sidewalkRight;
@@ -115,17 +107,6 @@ public class RoadIntersectionMesh : MonoBehaviour {
                 float r2Angle = Mathf.Atan2(r2Dir.z, r2Dir.x) * Mathf.Rad2Deg;
                 return r1Angle.CompareTo(r2Angle); // Mathf.RoundToInt(r2Angle - r1Angle);
             });
-
-            for (int i = 0; i < connectedRoads.Count; i++) {
-                RoadMesh r = connectedRoads[i];
-                Vector3 dir = SplineDirectionOfAttack(r) * (-1f);
-                float angle = Mathf.Atan2(dir.z, dir.x) * Mathf.Rad2Deg;
-            }
-        }
-
-        Vector3 GetSplineConnectionPoint(RoadMesh r) {
-            float t = IsStart(r) ? 0f : 1f;
-            return r.Spline.GetPoint(t);
         }
 
         void SetSplineConnectedPosition(RoadMesh r, Vector3 globalPosition) {

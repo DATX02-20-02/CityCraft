@@ -52,6 +52,9 @@ public class WorldGenerator : MonoBehaviour {
     private RoadNetwork roadNetwork;
     private RoadNetwork roadNetworkSnapshot;
     private TerrainModel terrain;
+    private float offsetSpeedX = 0;
+    private float offsetSpeedZ = 0;
+    private bool terrainGenerated = false;
     private List<Block> blocks;
     private List<ElevatedPlot> elevatedPlots = new List<ElevatedPlot>();
 
@@ -88,7 +91,19 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     public void GenerateTerrain() {
+        terrainGenerated = true;
         terrain = terrainGenerator.GenerateTerrain();
+    }
+
+    public void SetOffsetSpeedX(float x) {
+        if (terrainGenerated) offsetSpeedX = x;
+    }
+    public void SetOffsetSpeedZ(float z) {
+        if (terrainGenerated) offsetSpeedZ = z * (-1);
+    }
+
+    public void ModifyTerrainSea(float sl) {
+        terrainGenerator.SetSeaLevel(sl);
     }
 
     public void GenerateRoads() {
@@ -167,5 +182,12 @@ public class WorldGenerator : MonoBehaviour {
                 plotGenerator.DrawPlot(plot);
             }
         }
+
+        if (offsetSpeedX != 0 || offsetSpeedZ != 0) {
+            Vector2 speedamp = new Vector2(offsetSpeedX * Time.deltaTime, offsetSpeedZ * Time.deltaTime);
+            Vector2 speed = terrainGenerator.NoiseOffset + speedamp;
+            terrain = terrainGenerator.GenerateTerrain(speed);
+        }
+
     }
 }

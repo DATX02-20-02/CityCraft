@@ -4,6 +4,7 @@ using System.IO;
 using UnityEngine;
 using UnityGLTF;
 using SFB;
+using UnityEngine.UI;
 
 /*
   What? Handles all user interaction.
@@ -12,6 +13,8 @@ using SFB;
 */
 public class App : MonoBehaviour {
 
+    [SerializeField] private Slider sliderX = null;
+    [SerializeField] private Slider sliderZ = null;
     [SerializeField] private WorldGenerator worldGenerator = null;
     [SerializeField] private GameObject[] menuPanels = null;
     [SerializeField] private bool debug = false;
@@ -74,9 +77,26 @@ public class App : MonoBehaviour {
         Log("Model exported to: " + path);
     }
 
+    public void EndDragOffset() {
+        sliderX.value = 0;
+        sliderZ.value = 0;
+    }
+
+    public void ModifyTerrainOffsetX(float v) {
+        worldGenerator.SetOffsetSpeedX(v);
+    }
+    public void ModifyTerrainOffsetZ(float v) {
+        worldGenerator.SetOffsetSpeedZ(v);
+    }
+    public void ModifyTerrainSea(float a) {
+        worldGenerator.ModifyTerrainSea(a);
+    }
+
+
+
     private void NextMenu() {
         menuPanels[currentMenuPanel].SetActive(false);
-        currentMenuPanel = Mathf.Min(menuPanels.Length, currentMenuPanel + 1);
+        currentMenuPanel = Mathf.Min(menuPanels.Length - 1, currentMenuPanel + 1);
         menuPanels[currentMenuPanel].SetActive(true);
     }
 

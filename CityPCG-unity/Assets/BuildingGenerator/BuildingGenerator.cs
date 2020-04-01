@@ -1,9 +1,20 @@
 using UnityEngine;
 
 public class BuildingGenerator : MonoBehaviour {
-    public GameObject building;
+
+    [SerializeField] private GameObject building = null;
+    [SerializeField] private GameObject skyscraper = null;
+
 
     public GameObject Generate(ElevatedPlot plot) {
+        /* SkyscraperGenerator */
+        if (Random.value < 0.5f) {
+            var s = Instantiate(skyscraper, transform);
+            s.GetComponent<SkyscraperGenerator>().Generate(plot);
+            return s;
+        }
+
+        /* Normal building generator */
         var b = Instantiate(building, transform);
         var mesh = b.GetComponent<MeshFilter>().mesh;
 

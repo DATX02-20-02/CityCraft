@@ -90,6 +90,15 @@ public class WorldGenerator : MonoBehaviour {
     public void GenerateTerrain() {
         terrain = terrainGenerator.GenerateTerrain();
     }
+    
+    public void GenerateTerrain(float a, float b) {
+        terrainGenerator.SetOffsetSpeedX(a);
+        terrainGenerator.SetOffsetSpeedZ(b);
+    }
+    
+    public void ModifyTerrainSea(float sl) {
+        terrainGenerator.SetSeaLevel(sl);
+    }
 
     public void GenerateRoads() {
         populationNoise = populationGenerator.Generate();

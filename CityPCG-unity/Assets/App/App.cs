@@ -4,6 +4,7 @@ using System.IO;
 using UnityEngine;
 using UnityGLTF;
 using SFB;
+using UnityEngine.UI;
 
 /*
   What? Handles all user interaction.
@@ -12,11 +13,15 @@ using SFB;
 */
 public class App : MonoBehaviour {
 
+    public Slider sliderSea;
+    public Slider sliderX;
+    public Slider sliderZ;
     [SerializeField] private WorldGenerator worldGenerator = null;
     [SerializeField] private GameObject[] menuPanels = null;
     [SerializeField] private bool debug = false;
 
     private int currentMenuPanel = 0;
+    private bool terrainGenerated = false;
 
 
     public void Next() {
@@ -33,6 +38,7 @@ public class App : MonoBehaviour {
     public void GenerateTerrain() {
         Log("Generating terrain...");
         worldGenerator.GenerateTerrain();
+        terrainGenerated = true;
         Log("Terrain generated.");
     }
 
@@ -73,6 +79,29 @@ public class App : MonoBehaviour {
         exporter.SaveGLB(path, "World");
         Log("Model exported to: " + path);
     }
+    
+    public void EndDragOffset() {
+        sliderX.value = 0;
+        sliderZ.value = 0;
+    }
+    
+    public void ModifyTerrainOffsetX(float v) {
+        if(terrainGenerated){
+            worldGenerator.GenerateTerrain(v,0);
+        }
+    }
+    public void ModifyTerrainOffsetZ(float v) {
+        if(terrainGenerated){
+        worldGenerator.GenerateTerrain(0, v);
+        }
+    }
+    public void ModifyTerrainSea(float a) {
+        if(terrainGenerated){
+        worldGenerator.ModifyTerrainSea(a); 
+        }
+    }
+    
+    
 
     private void NextMenu() {
         menuPanels[currentMenuPanel].SetActive(false);

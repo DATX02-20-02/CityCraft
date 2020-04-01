@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class SkyscraperGenerator : MonoBehaviour {
 
@@ -7,6 +8,12 @@ public class SkyscraperGenerator : MonoBehaviour {
         public Material material;
         public Vector2 patternSize;
         public Vector2 stepSize;
+
+        public MaterialConfig(Material material, Vector2 patternSize, Vector2 stepSize) {
+            this.material = material;
+            this.patternSize = patternSize;
+            this.stepSize = stepSize;
+        }
     }
 
     [SerializeField] private GameObject roof = null;
@@ -20,15 +27,38 @@ public class SkyscraperGenerator : MonoBehaviour {
     [SerializeField] private int sizeX = 0;
     [SerializeField] private int sizeY = 0;
     [SerializeField] private int sizeZ = 0;
+    [SerializeField] private bool debug = false;
 
     private MaterialConfig wallMatConfig;
 
 
-    private void Start() {
-        this.wallMatConfig = matConfigs[(int)Random.Range(0, matConfigs.Length)];
+    public void Generate(ElevatedPlot plot) {
+
+        List<Vector2> polygon = new List<Vector2>();
+        Vector3 center = Vector3.zero;
+        foreach (var v in plot.vertices) {
+            center += v;
+            polygon.Add(VectorUtil.Vector3To2(v));
+        }
+        center /= plot.vertices.Count;
+
+        var rect = ApproximateLargestRectangle(polygon);
+
+        transform.position = center;
+        this.worldSize.x = 2 * rect.width;
+        this.worldSize.z = 2 * rect.height;
+        this.worldSize.y = 5f;
+        Build();
+
+        // NOTE: angle is negated because Unity rotates clockwise.
+        transform.localRotation = Quaternion.Euler(0, -rect.angle * Mathf.Rad2Deg, 0);
     }
 
-    private void Update() {
+    private Utils.PolygonUtil.Rectangle ApproximateLargestRectangle(List<Vector2> polygon) {
+        return Utils.PolygonUtil.ApproximateLargestRectangle(polygon, Random.Range(1.0f, 3.0f), 0.1f, 6, 10);
+    }
+
+    private void Build() {
         // Roof
         roof.transform.position = transform.position + new Vector3(0, worldSize.y, 0);
         roof.transform.localScale = worldSize / 10.0f; // Planes are 10x10 units
@@ -39,8 +69,8 @@ public class SkyscraperGenerator : MonoBehaviour {
 
         northWall.transform.localRotation = Quaternion.Euler(0, 180f, 0);
 
-        northWall.transform.position = transform.position + new Vector3(0, 0, worldSize.z/2.0f);
-        southWall.transform.position = transform.position - new Vector3(0, 0, worldSize.z/2.0f);
+        northWall.transform.position = transform.position + new Vector3(0, 0, worldSize.z / 2.0f);
+        southWall.transform.position = transform.position - new Vector3(0, 0, worldSize.z / 2.0f);
 
         // East and west walls.
         BuildWall(eastWall, sizeZ, worldSize.z);
@@ -49,8 +79,8 @@ public class SkyscraperGenerator : MonoBehaviour {
         eastWall.transform.localRotation = Quaternion.Euler(0, -90f, 0);
         westWall.transform.localRotation = Quaternion.Euler(0, 90f, 0);
 
-        eastWall.transform.position = transform.position + new Vector3(worldSize.x/2.0f, 0, 0);
-        westWall.transform.position = transform.position - new Vector3(worldSize.x/2.0f, 0, 0);
+        eastWall.transform.position = transform.position + new Vector3(worldSize.x / 2.0f, 0, 0);
+        westWall.transform.position = transform.position - new Vector3(worldSize.x / 2.0f, 0, 0);
     }
 
     private void BuildWall(GameObject wall, int width, float worldWidth) {
@@ -67,15 +97,15 @@ public class SkyscraperGenerator : MonoBehaviour {
         var vertices = new Vector3[4 * width * sizeY];
         int vert = 0;
         // Iterate through all quads.
-        for(int f = 0; f < sizeY; f++) {
-            for(int c = 0; c < width; c++) {
+        for (int f = 0; f < sizeY; f++) {
+            for (int c = 0; c < width; c++) {
 
                 // Iterate through quad's 4 unique vertices.
-                for(int a = 0; a < 2; a++) {
-                    for(int b = 0; b < 2; b++) {
+                for (int a = 0; a < 2; a++) {
+                    for (int b = 0; b < 2; b++) {
                         float x = ((float)(c + b) / width) * worldWidth;
                         float y = ((float)(f + a) / sizeY) * worldSize.y;
-                        vertices[vert++] = new Vector3(x - worldWidth/2.0f, y, 0);
+                        vertices[vert++] = new Vector3(x - worldWidth / 2.0f, y, 0);
                     }
                 }
             }
@@ -85,8 +115,8 @@ public class SkyscraperGenerator : MonoBehaviour {
         var triangles = new int[6 * width * sizeY];
         int tris = 0;
         vert = 0;
-        for(int f = 0; f < sizeY; f++) {
-            for(int c = 0; c < width; c++) {
+        for (int f = 0; f < sizeY; f++) {
+            for (int c = 0; c < width; c++) {
                 // Right-angle in bottom-left corner.
                 triangles[tris + 0] = vert + 0;
                 triangles[tris + 1] = vert + 2;
@@ -114,10 +144,10 @@ public class SkyscraperGenerator : MonoBehaviour {
             float x0 = wallMatConfig.stepSize.x * (int)Random.Range(0, xMax);
             float y0 = wallMatConfig.stepSize.y * (int)Random.Range(0, yMax);
 
-            uvs[i+0] = new Vector2(x0 + 0, y0 + 0);
-            uvs[i+1] = new Vector2(x0 + w, y0 + 0);
-            uvs[i+2] = new Vector2(x0 + 0, y0 + h);
-            uvs[i+3] = new Vector2(x0 + w, y0 + h);
+            uvs[i + 0] = new Vector2(x0 + 0, y0 + 0);
+            uvs[i + 1] = new Vector2(x0 + w, y0 + 0);
+            uvs[i + 2] = new Vector2(x0 + 0, y0 + h);
+            uvs[i + 3] = new Vector2(x0 + w, y0 + h);
         }
 
         // Update mesh.
@@ -126,6 +156,15 @@ public class SkyscraperGenerator : MonoBehaviour {
         mesh.triangles = triangles;
         mesh.uv = uvs;
         mesh.RecalculateNormals();
+    }
+
+    private void Awake() {
+        this.wallMatConfig = matConfigs[(int)Random.Range(0, matConfigs.Length)];
+    }
+
+    private void Update() {
+        if (debug)
+            Build();
     }
 
 }

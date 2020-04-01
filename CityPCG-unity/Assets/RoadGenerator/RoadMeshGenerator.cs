@@ -138,7 +138,7 @@ public class RoadMeshGenerator : MonoBehaviour {
                     else
                         this.queue.RemoveLast();
 
-                    PlaceRoad(path);
+                    bool shouldPlace = true;
 
                     Node lastNode = path[path.Count - 1];
                     for (int i = 0; i < path.Count - 1; i++) {
@@ -151,6 +151,7 @@ public class RoadMeshGenerator : MonoBehaviour {
 
                         if (placed.ContainsKey(nx) && placed[nx].ContainsKey(n) ||
                             placed[n].ContainsKey(nx)) {
+                            shouldPlace = false;
                             break;
                         };
 
@@ -158,6 +159,10 @@ public class RoadMeshGenerator : MonoBehaviour {
 
                         visited[n] = true;
                         visited[nx] = true;
+                    }
+
+                    if (shouldPlace) {
+                        PlaceRoad(path);
                     }
 
                     foreach (NodeConnection c in lastNode.connections) {

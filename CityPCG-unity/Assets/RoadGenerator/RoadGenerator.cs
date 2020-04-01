@@ -20,11 +20,6 @@ public class RoadGenerator : MonoBehaviour {
     [Range(0, 0.4f)]
     [SerializeField] private float generationTickInterval = 0.2f;
 
-    [Range(0, 2.0f)]
-    [SerializeField] private float roadMeshTickInterval = 0.2f;
-
-    [SerializeField] private bool debugRoadMeshGeneration = true;
-
     [SerializeField] private List<Vector3> debugPoints = new List<Vector3>();
 
     private RoadNetwork network;

@@ -246,20 +246,4 @@ public class RoadMeshGenerator : MonoBehaviour {
 
         roadMesh.GenerateRoadMesh(projector);
     }
-
-
-    void Update() {
-        // if (network != null) {
-        //     Vector3 prevPoint = Vector3.zero;
-        //     for (float i = 0; i < 100; i+=0.1f) {
-        //         Vector2 p = new Vector2(i, 0);
-        //         Vector3 tp = network.Terrain.GetPosition(p);
-
-        //         Debug.DrawLine(prevPoint, tp, new Color(1, 0, 0));
-        //         Debug.DrawLine(tp, tp + Vector3.up, new Color(1, 0, 0));
-
-        //         prevPoint = tp;
-        //     }
-        // }
-    }
 }

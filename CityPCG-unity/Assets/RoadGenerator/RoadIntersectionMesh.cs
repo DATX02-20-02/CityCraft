@@ -175,7 +175,7 @@ public class RoadIntersectionMesh : MonoBehaviour {
             }
 
 
-            if (Vector3.Angle(left.tangent, right.tangent) > 179f) {
+            if (Vector3.Angle(left.tangent, right.tangent) > 170f) {
                 corner.sidewalkIntersection = transform.position + right.binormal * right.r.Width / 2f;
                 corner.streetIntersection =  transform.position + right.binormal * right.r.RoadWidth / 2f;
                 DrawPoint(corner.sidewalkIntersection, 0.03f, Color.yellow);
@@ -186,22 +186,22 @@ public class RoadIntersectionMesh : MonoBehaviour {
 
                 intersection = GetRoadIntersection(left.r.Width / 2f, right.r.Width/ 2f);
                 if (intersection.type == LineIntersection.Type.Intersecting) {
-                    Vector3 sidewalkIntersectionPoint = VectorUtil.Vector2To3(intersection.point);
+                    Vector3 sidewalkIntersectionPoint = VectorUtil.Vector2To3(intersection.point) + Vector3.up * transform.position.y;
                     DrawPoint(sidewalkIntersectionPoint, 0.03f, Color.red);
                     corner.sidewalkIntersection = sidewalkIntersectionPoint;
                 }
                 else {
-                    Debug.LogError("Sidewalks do not intersect! " + intersection.type);
+                    Debug.LogError("Sidewalks do not intersect! " + intersection.type, left.r);
                 }
 
                 intersection = GetRoadIntersection(left.r.RoadWidth / 2f, right.r.RoadWidth / 2f);
                 if (intersection.type == LineIntersection.Type.Intersecting) {
-                    Vector3 streetIntersectionPoint = VectorUtil.Vector2To3(intersection.point);
+                    Vector3 streetIntersectionPoint = VectorUtil.Vector2To3(intersection.point) + Vector3.up * transform.position.y;
                     DrawPoint(streetIntersectionPoint, 0.03f, Color.red);
                     corner.streetIntersection = streetIntersectionPoint;
                 }
                 else {
-                    Debug.LogError("Roads do not intersect! " + intersection.type);
+                    Debug.LogError("Streets do not intersect! " + intersection.type, left.r);
                 }
             }
 

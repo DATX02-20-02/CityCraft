@@ -114,6 +114,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   roadStart: {fileID: 0}
   roadEnd: {fileID: 0}
-  roadWidth: 0.4
-  sidewalkWidth: 0.005
-  precision: 0.02
+  roadWidth: 0.11
+  sidewalkWidth: 0.025
+  precision: 0.03

@@ -94,14 +94,14 @@ public class WorldGenerator : MonoBehaviour {
         terrainGenerated = true;
         terrain = terrainGenerator.GenerateTerrain();
     }
-    
+
     public void SetOffsetSpeedX(float x) {
         if (terrainGenerated) offsetSpeedX = x;
     }
     public void SetOffsetSpeedZ(float z) {
-        if (terrainGenerated) offsetSpeedZ = z*(-1);
+        if (terrainGenerated) offsetSpeedZ = z * (-1);
     }
-    
+
     public void ModifyTerrainSea(float sl) {
         terrainGenerator.SetSeaLevel(sl);
     }
@@ -182,12 +182,12 @@ public class WorldGenerator : MonoBehaviour {
                 plotGenerator.DrawPlot(plot);
             }
         }
-        
-        if(offsetSpeedX != 0 || offsetSpeedZ != 0){
-            Vector2 speedamp = new Vector2(offsetSpeedX*Time.deltaTime,offsetSpeedZ*Time.deltaTime);
+
+        if (offsetSpeedX != 0 || offsetSpeedZ != 0) {
+            Vector2 speedamp = new Vector2(offsetSpeedX * Time.deltaTime, offsetSpeedZ * Time.deltaTime);
             Vector2 speed = terrainGenerator.NoiseOffset + speedamp;
             terrain = terrainGenerator.GenerateTerrain(speed);
         }
-        
+
     }
 }

@@ -62,9 +62,9 @@ public class TerrainGenerator : MonoBehaviour {
 
         return terrainModel;
     }
-    
+
     public void SetSeaLevel(float sl) {
-        seaLevel = sl*maxHeight;
+        seaLevel = sl * maxHeight;
     }
 
     public Vector2 NoiseOffset {

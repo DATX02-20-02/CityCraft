@@ -20,7 +20,7 @@ public class App : MonoBehaviour {
     [SerializeField] private bool debug = false;
 
     private int currentMenuPanel = 0;
-    
+
 
     public void Next() {
         worldGenerator.NextState();
@@ -76,27 +76,27 @@ public class App : MonoBehaviour {
         exporter.SaveGLB(path, "World");
         Log("Model exported to: " + path);
     }
-    
+
     public void EndDragOffset() {
         sliderX.value = 0;
         sliderZ.value = 0;
     }
-    
+
     public void ModifyTerrainOffsetX(float v) {
-            worldGenerator.SetOffsetSpeedX(v);
+        worldGenerator.SetOffsetSpeedX(v);
     }
     public void ModifyTerrainOffsetZ(float v) {
-            worldGenerator.SetOffsetSpeedZ(v);
+        worldGenerator.SetOffsetSpeedZ(v);
     }
     public void ModifyTerrainSea(float a) {
-        worldGenerator.ModifyTerrainSea(a); 
+        worldGenerator.ModifyTerrainSea(a);
     }
-    
-    
+
+
 
     private void NextMenu() {
         menuPanels[currentMenuPanel].SetActive(false);
-        currentMenuPanel = Mathf.Min(menuPanels.Length-1, currentMenuPanel + 1);
+        currentMenuPanel = Mathf.Min(menuPanels.Length - 1, currentMenuPanel + 1);
         menuPanels[currentMenuPanel].SetActive(true);
     }
 

@@ -8,7 +8,7 @@ public class BuildingGenerator : MonoBehaviour {
 
     public GameObject Generate(ElevatedPlot plot) {
         /* SkyscraperGenerator */
-        if (Random.value < 0.5f) {
+        if (Random.value < 0.25f) {
             var s = Instantiate(skyscraper, transform);
             s.GetComponent<SkyscraperGenerator>().Generate(plot);
             return s;
@@ -22,7 +22,7 @@ public class BuildingGenerator : MonoBehaviour {
 
         int plotLength = plot.vertices.Count;
         Vector3 up = Vector3.up;
-        float buildingHeight = Random.Range(4, 5);
+        float buildingHeight = Random.Range(0.5f, 1.5f);
 
         Vector3[] meshVertices = new Vector3[plotLength * 4 + 4 + plotLength];
         int[] wallIndices = new int[(plotLength * 6 + 6)];

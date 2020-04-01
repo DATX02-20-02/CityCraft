@@ -11,7 +11,7 @@ public class RoadMeshInspector : Editor {
         DrawDefaultInspector();
         if (GUILayout.Button("Generate Mesh")) {
             Undo.RecordObject(road, "Generate Mesh");
-            road.GenerateRoadMesh();
+            road.GenerateRoadMesh((Vector3 vec) => vec);
             EditorUtility.SetDirty(road);
         }
 

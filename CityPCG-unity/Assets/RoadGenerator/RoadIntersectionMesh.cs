@@ -11,6 +11,7 @@ public class RoadIntersectionMesh : MonoBehaviour {
     [SerializeField] private int arcPrecision = 10;
     [SerializeField] private bool debugView = false;
 
+    private ProjectVertex projector;
 
     public RoadSegment[] IntersectionState {
         get => connectionPoints;
@@ -71,7 +72,9 @@ public class RoadIntersectionMesh : MonoBehaviour {
     }
 
     [ContextMenu("Update intersection mesh")]
-    public void UpdateMesh() {
+    public void UpdateMesh(ProjectVertex projector) {
+        this.projector = projector;
+
         UpdateIntersectionState();
         Mesh result = CreateMesh();
         if (result != null) {
@@ -133,7 +136,7 @@ public class RoadIntersectionMesh : MonoBehaviour {
             else {
                 r.Spline[r.Spline.ControlPointCount - 1] = localEndPoint;
             }
-            r.GenerateRoadMesh();
+            r.GenerateRoadMesh(projector);
         }
 
         connectionPoints = new RoadSegment[connectedRoads.Count];
@@ -246,7 +249,9 @@ public class RoadIntersectionMesh : MonoBehaviour {
         List<int> triangles = new List<int>();
 
         int AddVertice(Vector3 vert, Vector2 uv) {
-            verts.Add(transform.InverseTransformPoint(vert));
+            Vector3 terrainPos = projector(vert);
+
+            verts.Add(transform.InverseTransformPoint(terrainPos));
             normals.Add(Vector3.up);
             uvs.Add(uv);
 

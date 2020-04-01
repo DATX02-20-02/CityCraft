@@ -7,7 +7,7 @@ public class RoadIntersectionInspector : Editor {
         RoadIntersectionMesh intersection = target as RoadIntersectionMesh;
         if (intersection == null) return;
 
-        intersection.UpdateMesh();
+        intersection.UpdateMesh((Vector3 vec) => vec);
 
         if (intersection.IntersectionState == null) {
             return;

@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public delegate Vector3 ProjectVertex(Vector3 s);
+
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(BezierSpline))]
 public class RoadMesh : MonoBehaviour
 {
@@ -49,18 +51,20 @@ public class RoadMesh : MonoBehaviour
         // set => SetRoadEndConnection(ref roadStart, value);
     }
 
+    private ProjectVertex projector;
+
     private void SetRoadEndConnection(ref RoadIntersectionMesh endConnection, RoadIntersectionMesh newConnection) {
         if (newConnection == null) {
             if (endConnection != null) {
                 endConnection.RemoveConnection(this);
-                endConnection.UpdateMesh();
+                endConnection.UpdateMesh(projector);
                 endConnection = null;
             }
         }
         else {
             endConnection = newConnection;
             endConnection.AddConnection(this);
-            endConnection.UpdateMesh();
+            endConnection.UpdateMesh(projector);
         }
     }
 
@@ -84,8 +88,10 @@ public class RoadMesh : MonoBehaviour
         }
     }
 
-    public void GenerateRoadMesh()
+    public void GenerateRoadMesh(ProjectVertex projector)
     {
+        this.projector = projector;
+
         BezierSpline spline = GetComponent<BezierSpline>();
         if (!spline) {
             return;
@@ -100,6 +106,7 @@ public class RoadMesh : MonoBehaviour
     }
 
     private Mesh CreateRoadMesh() {
+
         BezierSpline spline = GetComponent<BezierSpline>();
         int ringSubdivisionCount = Mathf.RoundToInt(1f / precision);
 
@@ -112,6 +119,10 @@ public class RoadMesh : MonoBehaviour
         List<Vector2> uvs = new List<Vector2>();
 
         int AddVertex(Vector3 pos, Vector3 normal, Vector2 uv) {
+            Vector3 worldPos = transform.TransformPoint(pos);
+            Vector3 terrainPos = projector(worldPos);
+
+            // verts.Add(transform.InverseTransformPoint(terrainPos));
             verts.Add(pos);
             normals.Add(normal);
             uvs.Add(uv);
@@ -122,7 +133,9 @@ public class RoadMesh : MonoBehaviour
         for (int ringIndex = 0; ringIndex < ringSubdivisionCount; ringIndex++)
         {
             float t = (ringIndex / (ringSubdivisionCount - 1f));
-            OrientedPoint p = spline.GetOrientedPointLocal(t, Vector3.up);
+            // OrientedPoint p = spline.GetOrientedPointLocal(t, Vector3.up);
+            OrientedPoint p = spline.GetOrientedPointLocal(t, projector(spline.GetPoint(t)));
+
             float splineDistance = spline.Sample(arr, t);
 
             Vector3 localLeft = Vector3.left * roadWidth / 2f;

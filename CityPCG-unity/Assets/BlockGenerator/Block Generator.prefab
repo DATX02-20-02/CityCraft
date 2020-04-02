@@ -63,8 +63,9 @@ MonoBehaviour:
   - {x: 0.51, y: -0.8}
   - {x: 0.48, y: -1}
   - {x: 0, y: -1}
-  minBlockArea: 0.025
-  maxBlockArea: 6
+  minBlockArea: 1
+  minParkArea: 10
+  maxBlockArea: 30
   debug: 0
   debugBlock: 0
   debugInset: 0

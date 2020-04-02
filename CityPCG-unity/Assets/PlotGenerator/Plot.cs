@@ -2,18 +2,30 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Plot {
-    public List<Vector2> vertices;
-
-    public Plot(List<Vector2> vertices) {
-        this.vertices = vertices;
-    }
+public enum PlotType {
+    Apartments,
+    Skyscraper,
+    Park,
+    Empty
 }
 
-public class ElevatedPlot {
+public class Plot {
     public List<Vector3> vertices;
+    public PlotType type;
 
-    public ElevatedPlot(List<Vector3> vertices) {
+    public Plot(List<Vector3> vertices, PlotType type) {
         this.vertices = vertices;
+        this.type = type;
+    }
+
+    public static PlotType FromBlockType(BlockType type) {
+        switch (type) {
+            case BlockType.Building:
+                return UnityEngine.Random.Range(0f, 1f) < 0.25 ? PlotType.Skyscraper : PlotType.Apartments;
+            case BlockType.Park:
+                return PlotType.Park;
+            default:
+                return PlotType.Empty;
+        }
     }
 }

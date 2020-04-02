@@ -7,6 +7,6 @@ public class BuildingGeneratorTest : MonoBehaviour {
     public BuildingGenerator buildingGenerator;
 
     public void Start() {
-        buildingGenerator.Generate(new ElevatedPlot(vertices));
+        buildingGenerator.Generate(new Plot(vertices, PlotType.Apartments));
     }
 }

@@ -46,6 +46,7 @@ public class BlockGenerator : MonoBehaviour {
     };
 
     [SerializeField] private float minBlockArea = 0.0f;
+    [SerializeField] private float minParkArea = 0.0f;
     [SerializeField] private float maxBlockArea = 0.0f;
     [SerializeField] private bool debug = false;
     [SerializeField] private int debugBlock = 0;
@@ -88,10 +89,10 @@ public class BlockGenerator : MonoBehaviour {
 
                 // Ignore empty city blocks.
                 if (vertices.Count > 0) {
-                    var b = new Block(vertices);
-                    float area = BlockArea(b);
-                    if (minBlockArea <= area && area <= maxBlockArea)
-                        blocks.Add(b);
+                    float area = PolygonArea(vertices);
+                    if (area <= maxBlockArea) {
+                        blocks.Add(new Block(vertices, BlockType.Empty));
+                    }
                 }
             }
         }
@@ -149,8 +150,8 @@ public class BlockGenerator : MonoBehaviour {
         return rightmostIndex;
     }
 
-    private float BlockArea(Block block) {
-        var vs = block.vertices;
+    private float PolygonArea(List<Vector3> vertices) {
+        var vs = vertices;
 
         float area = 0.0f;
         for (int i = 0; i < vs.Count; i++)
@@ -332,7 +333,8 @@ public class BlockGenerator : MonoBehaviour {
 
                     finalBlocks.Add(
                         new Block(
-                            finalPoly.Select(v => roadNetwork.Terrain.GetPosition(VectorUtil.IntPointToVector2(v) / scale)).ToList()
+                            finalPoly.Select(v => roadNetwork.Terrain.GetPosition(VectorUtil.IntPointToVector2(v) / scale)).ToList(),
+                            block.type
                         )
                     );
                 }
@@ -348,9 +350,15 @@ public class BlockGenerator : MonoBehaviour {
             List<Block> newBlocks = InsetBlock(block, this.inset);
 
             foreach (Block newBlock in newBlocks) {
-                float area = BlockArea(newBlock);
-                if (minBlockArea <= area && area <= maxBlockArea)
-                    this.insetBlocks.Add(newBlock);
+                float area = PolygonArea(newBlock.vertices);
+                if (area <= maxBlockArea) {
+                    if (area <= minBlockArea)
+                        this.insetBlocks.Add(new Block(newBlock.vertices, BlockType.Empty));
+                    else if (area >= minParkArea)
+                        this.insetBlocks.Add(new Block(newBlock.vertices, BlockType.Park));
+                    else
+                        this.insetBlocks.Add(new Block(newBlock.vertices, BlockType.Building));
+                }
             }
         }
 
@@ -362,6 +370,34 @@ public class BlockGenerator : MonoBehaviour {
             Debug.Log(msg);
     }
 
+    private void DrawBlock(Block block) {
+        Vector3 avg = Vector3.zero;
+
+        foreach (Vector3 vert in block.vertices) {
+            avg += vert;
+        }
+        avg /= block.vertices.Count;
+
+        for (int i = 0; i < block.vertices.Count; i++) {
+            Vector3 p1 = block.vertices[i];
+            Vector3 p2 = block.vertices[(i + 1) % block.vertices.Count];
+
+            Debug.DrawLine(p1, p2, new Color(1, 0, 1));
+        }
+
+        switch (block.type) {
+            case BlockType.Empty:
+                DrawUtil.DebugDrawCircle(avg, 0.1f, Color.green, 3);
+                break;
+            case BlockType.Park:
+                DrawUtil.DebugDrawCircle(avg, 0.1f, Color.yellow, 4);
+                break;
+            case BlockType.Building:
+                DrawUtil.DebugDrawCircle(avg, 0.1f, Color.blue, 5);
+                break;
+        }
+    }
+
     private void Update() {
         List<Block> blocks = this.insetBlocks;
 
@@ -370,11 +406,14 @@ public class BlockGenerator : MonoBehaviour {
             foreach (var v in blocks[debugBlock].vertices) {
                 Debug.DrawLine(v, v + 0.5f * Vector3.up, Color.yellow, 0.1f);
             }
-            Log("Block area: " + BlockArea(blocks[debugBlock]));
+            Log("Block area: " + PolygonArea(blocks[debugBlock].vertices));
         }
 
         if (debugInset)
-            InsetBlock(new Block(debugPolygon.Select(v => VectorUtil.Vector2To3(v)).ToList()), this.inset);
+            InsetBlock(
+                new Block(debugPolygon.Select(v => VectorUtil.Vector2To3(v)).ToList(), BlockType.Empty),
+                this.inset
+            );
 
         if (blocks != null) {
             if (debugInset) {
@@ -382,23 +421,13 @@ public class BlockGenerator : MonoBehaviour {
                     List<Block> newBlocks = InsetBlock(block, this.inset);
 
                     foreach (Block newBlock in newBlocks) {
-                        for (int i = 0; i < newBlock.vertices.Count; i++) {
-                            Vector3 p1 = newBlock.vertices[i];
-                            Vector3 p2 = newBlock.vertices[(i + 1) % newBlock.vertices.Count];
-
-                            Debug.DrawLine(p1, p2, new Color(1, 0, 1));
-                        }
+                        DrawBlock(newBlock);
                     }
                 }
             }
             else {
                 foreach (Block block in blocks) {
-                    for (int i = 0; i < block.vertices.Count; i++) {
-                        Vector3 p1 = block.vertices[i];
-                        Vector3 p2 = block.vertices[(i + 1) % block.vertices.Count];
-
-                        Debug.DrawLine(p1, p2, new Color(1, 0, 1));
-                    }
+                    DrawBlock(block);
                 }
             }
         }

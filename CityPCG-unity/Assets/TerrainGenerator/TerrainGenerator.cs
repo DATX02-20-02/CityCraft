@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 /*
@@ -55,7 +56,7 @@ public class TerrainGenerator : MonoBehaviour {
         GenerateTriangles();
         ColorTerrain();
         TextureTerrain();
-        UpdateTerrainMesh();
+        UpdateTerrainMesh(terrainModel);
 
         // Restore RNG state.
         Random.state = prevRandomState;
@@ -142,7 +143,7 @@ public class TerrainGenerator : MonoBehaviour {
         }
     }
 
-    private void UpdateTerrainMesh() {
+    private void UpdateTerrainMesh(TerrainModel terrainModel) {
         this.mesh.Clear();
 
         this.mesh.vertices = this.vertices;
@@ -150,7 +151,7 @@ public class TerrainGenerator : MonoBehaviour {
         this.mesh.colors = this.colors;
         this.mesh.uv = this.uvs;
 
-        this.mesh.RecalculateNormals();
+        NormalSolver.RecalculateNormals(this.mesh, 60);
     }
 
     // Helper function for generating perlin noise. Takes in x & y coords, constant con to multiply the noise and amp to amplify the coord values.

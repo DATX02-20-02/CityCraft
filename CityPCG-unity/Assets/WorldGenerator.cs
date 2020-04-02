@@ -187,14 +187,14 @@ public class WorldGenerator : MonoBehaviour {
 
     // Just for debug purposes so I don't have to step through
     // generation every single time
-    private void AutoStart() {
-        GenerateTerrain();
-        GenerateRoads(
-            (RoadNetwork network) => {
-                GenerateStreets();
-            }
-        );
-    }
+    // private void AutoStart() {
+    //     GenerateTerrain();
+    //     GenerateRoads(
+    //         (RoadNetwork network) => {
+    //             GenerateStreets();
+    //         }
+    //     );
+    // }
 
     private void Update() {
         if (plotGenerator != null) {

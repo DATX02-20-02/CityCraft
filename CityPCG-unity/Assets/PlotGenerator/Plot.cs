@@ -18,10 +18,10 @@ public class Plot {
         this.type = type;
     }
 
-    public static PlotType FromBlockType(BlockType type) {
+    public static PlotType DecidePlotType(BlockType type) {
         switch (type) {
             case BlockType.Building:
-                return UnityEngine.Random.Range(0f, 1f) < 0.25 ? PlotType.Skyscraper : PlotType.Apartments;
+                return UnityEngine.Random.value < 0.25 ? PlotType.Skyscraper : PlotType.Apartments;
             case BlockType.Park:
                 return PlotType.Park;
             default:

@@ -19,7 +19,7 @@ public class PlotGenerator : MonoBehaviour {
                 // for apartments / skyscrapers. For now, skyscraper is random chance
                 polygon => new Plot(
                     polygon.points.Select(v => terrain.GetPosition(v)).ToList(),
-                    Plot.FromBlockType(block.type)
+                    Plot.DecidePlotType(block.type)
                 )
             );
 

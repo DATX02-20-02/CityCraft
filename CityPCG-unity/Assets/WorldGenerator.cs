@@ -120,7 +120,7 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     public void GenerateRoads() {
-        GenerateRoads((RoadNetwork network) => {});
+        GenerateRoads((RoadNetwork network) => { });
     }
 
     public void GenerateStreets() {

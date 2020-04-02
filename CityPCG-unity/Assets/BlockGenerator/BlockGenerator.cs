@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using ClipperLib;
+using Utils;
 
 /*
   What? Generates insetted city block areas from a road network.
@@ -89,7 +90,7 @@ public class BlockGenerator : MonoBehaviour {
 
                 // Ignore empty city blocks.
                 if (vertices.Count > 0) {
-                    float area = PolygonArea(vertices);
+                    float area = PolygonUtil.PolygonArea(vertices);
                     if (area <= maxBlockArea) {
                         blocks.Add(new Block(vertices, BlockType.Empty));
                     }
@@ -148,16 +149,6 @@ public class BlockGenerator : MonoBehaviour {
         }
 
         return rightmostIndex;
-    }
-
-    private float PolygonArea(List<Vector3> vertices) {
-        var vs = vertices;
-
-        float area = 0.0f;
-        for (int i = 0; i < vs.Count; i++)
-            area += vs[i].x * (vs[(i + 1) % vs.Count].z - vs[(i - 1 + vs.Count) % vs.Count].z);
-
-        return Mathf.Abs(area / 2.0f);
     }
 
     // This operation can return multiple blocks because the inset could
@@ -350,7 +341,7 @@ public class BlockGenerator : MonoBehaviour {
             List<Block> newBlocks = InsetBlock(block, this.inset);
 
             foreach (Block newBlock in newBlocks) {
-                float area = PolygonArea(newBlock.vertices);
+                float area = PolygonUtil.PolygonArea(newBlock.vertices);
                 if (area <= maxBlockArea) {
                     if (area <= minBlockArea)
                         this.insetBlocks.Add(new Block(newBlock.vertices, BlockType.Empty));
@@ -406,7 +397,7 @@ public class BlockGenerator : MonoBehaviour {
             foreach (var v in blocks[debugBlock].vertices) {
                 Debug.DrawLine(v, v + 0.5f * Vector3.up, Color.yellow, 0.1f);
             }
-            Log("Block area: " + PolygonArea(blocks[debugBlock].vertices));
+            Log("Block area: " + PolygonUtil.PolygonArea(blocks[debugBlock].vertices));
         }
 
         if (debugInset)

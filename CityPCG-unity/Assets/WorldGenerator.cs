@@ -145,7 +145,7 @@ public class WorldGenerator : MonoBehaviour {
 
         foreach (Block block in this.blocks) {
             // Split each block into plots
-            Plot plots = plotGenerator.Generate(block, terrain, populationNoise);
+            List<Plot> plots = plotGenerator.Generate(block, terrain, populationNoise);
 
             // Generate buildings in each plot.
             foreach (Plot plot in plots) {

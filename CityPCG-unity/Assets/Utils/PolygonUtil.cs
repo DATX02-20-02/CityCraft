@@ -88,5 +88,15 @@ namespace Utils {
 
             return best;
         }
+
+        public static float PolygonArea(List<Vector3> vertices) {
+            List<Vector3> vs = vertices;
+
+            float area = 0.0f;
+            for (int i = 0; i < vs.Count; i++)
+                area += vs[i].x * (vs[(i + 1) % vs.Count].z - vs[(i - 1 + vs.Count) % vs.Count].z);
+
+            return Mathf.Abs(area / 2.0f);
+        }
     }
 }

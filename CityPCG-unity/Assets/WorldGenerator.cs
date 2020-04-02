@@ -56,7 +56,7 @@ public class WorldGenerator : MonoBehaviour {
     private float offsetSpeedZ = 0;
     private bool terrainGenerated = false;
     private List<Block> blocks;
-    private List<ElevatedPlot> elevatedPlots = new List<ElevatedPlot>();
+    private List<Plot> plots = new List<Plot>();
 
     public State NextState() {
         if (stateMap.ContainsKey(currentStateIndex + 1)) {
@@ -106,15 +106,21 @@ public class WorldGenerator : MonoBehaviour {
         terrainGenerator.SetSeaLevel(sl);
     }
 
-    public void GenerateRoads() {
+    public void GenerateRoads(System.Action<RoadNetwork> callback) {
+        this.blockGenerator.Reset();
         populationNoise = populationGenerator.Generate();
 
         roadGenerator.Generate(
             terrain, populationNoise,
             (RoadNetwork network) => {
                 this.roadNetwork = this.roadGenerator.Network = network;
+                callback(network);
             }
         );
+    }
+
+    public void GenerateRoads() {
+        GenerateRoads((RoadNetwork network) => {});
     }
 
     public void GenerateStreets() {
@@ -126,6 +132,7 @@ public class WorldGenerator : MonoBehaviour {
 
         this.roadNetworkSnapshot = roadNetwork.Snapshot();
 
+        this.blockGenerator.Reset();
         roadGenerator.GenerateStreets(
             terrain, populationNoise, (roadNetwork) => {
                 GenerateBlocks();
@@ -134,20 +141,22 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     public void GenerateBuildings() {
-        this.elevatedPlots = new List<ElevatedPlot>();
+        this.plots = new List<Plot>();
 
         foreach (Block block in this.blocks) {
             // Split each block into plots
-            var plots = plotGenerator.Generate(block, populationNoise);
+            Plot plots = plotGenerator.Generate(block, terrain, populationNoise);
 
             // Generate buildings in each plot.
             foreach (Plot plot in plots) {
-                ElevatedPlot elevatedPlot = new ElevatedPlot(
-                    plot.vertices.Select(v => roadNetwork.Terrain.GetPosition(v)).ToList()
-                );
-                this.elevatedPlots.Add(elevatedPlot);
+                this.plots.Add(plot);
 
-                buildingGenerator.Generate(elevatedPlot);
+                if (plot.type == PlotType.Apartments || plot.type == PlotType.Skyscraper)
+                    buildingGenerator.Generate(plot);
+
+                // else if (plot.type == PlotType.Park) {
+                // GENERATE PARK HERE
+                // }
             }
         }
     }
@@ -176,9 +185,20 @@ public class WorldGenerator : MonoBehaviour {
         InstantiateGenerators();
     }
 
+    // Just for debug purposes so I don't have to step through
+    // generation every single time
+    private void AutoStart() {
+        GenerateTerrain();
+        GenerateRoads(
+            (RoadNetwork network) => {
+                GenerateStreets();
+            }
+        );
+    }
+
     private void Update() {
         if (plotGenerator != null) {
-            foreach (ElevatedPlot plot in this.elevatedPlots) {
+            foreach (Plot plot in this.plots) {
                 plotGenerator.DrawPlot(plot);
             }
         }

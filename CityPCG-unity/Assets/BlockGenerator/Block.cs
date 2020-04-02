@@ -2,7 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum BlockType {
+    Building,
+    Parking,
+    Park,
+    Empty
+}
+
 public struct Block {
+    public BlockType type;
     public List<Vector3> vertices;
 
     public List<Vector2> Vertices2D() {
@@ -12,7 +20,8 @@ public struct Block {
         return res;
     }
 
-    public Block(List<Vector3> vertices) {
+    public Block(List<Vector3> vertices, BlockType type) {
         this.vertices = vertices;
+        this.type = type;
     }
 }

@@ -11,11 +11,16 @@ public class PlotGenerator : MonoBehaviour {
     [SerializeField] private int parts = 3;
 
 
-    public List<Plot> Generate(Block block, Noise populationNoise) {
+    public List<Plot> Generate(Block block, TerrainModel terrain, Noise populationNoise) {
         var plots = Split(CreatePolygon(block.Vertices2D()), parts)
             .Where(polygon => polygon != null).ToList()
             .ConvertAll(
-                polygon => new Plot(polygon.points)
+                // TODO: Hook into population map and generate based on that
+                // for apartments / skyscrapers. For now, skyscraper is random chance
+                polygon => new Plot(
+                    polygon.points.Select(v => terrain.GetPosition(v)).ToList(),
+                    Plot.FromBlockType(block.type)
+                )
             );
 
         //Removes the duplicate point at the end that is created via Split function
@@ -24,7 +29,7 @@ public class PlotGenerator : MonoBehaviour {
         return plots;
     }
 
-    public void DrawPlot(ElevatedPlot p) {
+    public void DrawPlot(Plot p) {
         if (this.debug) {
             var position = transform.position;
 

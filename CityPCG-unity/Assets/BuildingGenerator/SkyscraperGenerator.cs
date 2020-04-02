@@ -32,8 +32,7 @@ public class SkyscraperGenerator : MonoBehaviour {
     private MaterialConfig wallMatConfig;
 
 
-    public void Generate(ElevatedPlot plot) {
-
+    public void Generate(Plot plot) {
         List<Vector2> polygon = new List<Vector2>();
         Vector3 center = Vector3.zero;
         foreach (var v in plot.vertices) {

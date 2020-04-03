@@ -18,8 +18,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class NormalSolver
-{
+public static class NormalSolver {
     /// <summary>
     ///     Recalculate the normals of a mesh based on an angle threshold. This takes
     ///     into account distinct vertices that have the same position.
@@ -94,7 +93,8 @@ public static class NormalSolver
 
                     if (lhsEntry.VertexIndex == rhsEntry.VertexIndex) {
                         sum += triNormals[rhsEntry.MeshIndex][rhsEntry.TriangleIndex];
-                    } else {
+                    }
+                    else {
                         // The dot product is the cosine of the angle between the two triangles.
                         // A larger cosine means a smaller angle.
                         var dot = Vector3.Dot(
@@ -113,8 +113,7 @@ public static class NormalSolver
         mesh.normals = normals;
     }
 
-    private struct VertexKey
-    {
+    private struct VertexKey {
         private readonly long _x;
         private readonly long _y;
         private readonly long _z;

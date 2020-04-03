@@ -151,6 +151,8 @@ public class TerrainGenerator : MonoBehaviour {
         this.mesh.colors = this.colors;
         this.mesh.uv = this.uvs;
 
+        // https://schemingdeveloper.com/2014/10/17/better-method-recalculate-normals-unity/
+        // "In any case, a 60 degree tolerance is good for most applications. You can use that for both import and runtime normal calculation."
         NormalSolver.RecalculateNormals(this.mesh, 60);
     }
 

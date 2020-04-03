@@ -95,11 +95,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debugNormals: 0
   debugDrawSpline: 0
-  points:
-  - {x: -0.25, y: 0, z: 0.18}
-  - {x: 3.0347867, y: 0, z: 0.31568164}
-  - {x: 16.607285, y: 0, z: 0.93462664}
-  - {x: 21.209705, y: 0, z: 0.5960446}
+  points: []
 --- !u!114 &5191599167567484709
 MonoBehaviour:
   m_ObjectHideFlags: 0

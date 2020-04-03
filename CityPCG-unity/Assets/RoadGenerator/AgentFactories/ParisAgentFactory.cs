@@ -3,8 +3,15 @@ using UnityEngine;
 
 public class ParisAgentFactory : IAgentFactory {
 
-    public void Create(RoadGenerator generator, RoadNetwork network, Vector3 origin) {
-        float[] rings = new float[] { 10, 17.5f, 25 };
+    public int Create(RoadGenerator generator, RoadNetwork network, Vector3 origin, float radius, int priority = 0) {
+        int amountOfRings = (int) Mathf.Max(1, Random.Range(Mathf.Min(2, radius / 20), radius / 20));
+
+        float[] rings = new float[amountOfRings];
+        for (int i = 0; i < amountOfRings; i++) {
+            float spacing = radius / (float) amountOfRings;
+            rings[i] = (i + 1) * spacing + Random.Range(-1f, 1f) * 0.1f * spacing;
+        }
+
         Vector2[] directions = new Vector2[] {
             new Vector2(1, 0),
             new Vector2(0, 1),
@@ -12,8 +19,7 @@ public class ParisAgentFactory : IAgentFactory {
             new Vector2(0, -1)
         };
 
-        int priority = 0;
-        foreach (float radius in rings) {
+        foreach (float ringRadius in rings) {
             foreach (Vector2 dir in directions) {
                 for (int reverse = -1; reverse <= 1; reverse += 2) {
                     float angleIncrement = (10 * Mathf.PI) / 180 * reverse;
@@ -21,7 +27,7 @@ public class ParisAgentFactory : IAgentFactory {
                         network,
                         origin,
                         new Vector3(0, 0, 0),
-                        new ParisAgentStrategy(origin, radius, false, angleIncrement),
+                        new ParisAgentStrategy(origin, ringRadius, false, angleIncrement),
                         priority
                     );
                     agent.Angle = Mathf.Atan2(dir.y, dir.x);
@@ -31,7 +37,7 @@ public class ParisAgentFactory : IAgentFactory {
         }
         priority++;
 
-        int max = (int)Mathf.Floor(Random.Range(3, 7));
+        int max = (int)Mathf.Floor(Random.Range(3, 9));
         for (int i = 0; i < max; i++) {
             float rad = (Mathf.PI * 2) / max;
 
@@ -41,15 +47,17 @@ public class ParisAgentFactory : IAgentFactory {
                 network,
                 origin,
                 dir,
-                new ParisAgentStrategy(origin, 25, true),
+                new ParisAgentStrategy(origin, radius, true),
                 priority
             );
 
             ag.config.stepSize = 5f;
             ag.config.snapRadius = 1f;
-            ag.config.maxStepCount = 20;
+            ag.config.maxStepCount = 1000;//(int) (radius / ag.config.stepSize) * 2;
 
             generator.AddAgent(ag);
         }
+
+        return priority;
     }
 }

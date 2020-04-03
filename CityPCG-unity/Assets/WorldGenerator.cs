@@ -80,6 +80,8 @@ public class WorldGenerator : MonoBehaviour {
             case State.Roads:
                 this.roadNetwork = this.roadGenerator.Network = null;
                 this.roadNetworkSnapshot = null;
+
+                this.roadGenerator.Reset();
                 break;
         }
     }
@@ -209,5 +211,11 @@ public class WorldGenerator : MonoBehaviour {
             terrain = terrainGenerator.GenerateTerrain(speed);
         }
 
+        switch (currentState) {
+            case State.Roads:
+                this.roadGenerator.UpdateWhenState(terrain);
+
+                break;
+        }
     }
 }

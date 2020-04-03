@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using RBush;
 using VisualDebugging;
 
@@ -19,8 +20,11 @@ public class RoadGenerator : MonoBehaviour {
 
     [Range(0, 0.4f)]
     [SerializeField] private float generationTickInterval = 0.2f;
+    [SerializeField] private GameObject ghostObject = null;
 
     [SerializeField] private List<Vector3> debugPoints = new List<Vector3>();
+
+    private GameObject ghostObjectInstance = null;
 
     private RoadNetwork network;
 
@@ -35,6 +39,37 @@ public class RoadGenerator : MonoBehaviour {
         get { return this.network; }
     }
 
+    public enum CityType {
+        Paris,
+        Manhattan
+    }
+
+    public struct CityInput {
+        public Vector3 position;
+        public CityType type;
+        public GameObject ghostObject;
+        public float radius;
+
+        public CityInput(Vector3 position, CityType type, GameObject ghostObject, float radius) {
+            this.position = position;
+            this.type = type;
+            this.ghostObject = ghostObject;
+            this.radius = radius;
+        }
+    }
+
+    private List<CityInput> cityInputs = new List<CityInput>();
+
+    public void Reset() {
+        this.network = null;
+
+        foreach (Transform child in transform) {
+            Destroy(child.gameObject);
+        }
+
+        this.cityInputs = new List<CityInput>();
+    }
+
     // Generates a complete road network.
     public void Generate(TerrainModel terrain, Noise population, Action<RoadNetwork> callback = null) {
         this.callback = callback;
@@ -44,9 +79,17 @@ public class RoadGenerator : MonoBehaviour {
         network = new RoadNetwork(terrain, population, terrain.width, terrain.depth);
         queue = new PriorityQueue<Agent>();
 
-        IAgentFactory factory = new ParisAgentFactory();
-        factory.Create(this, network, new Vector3(300 - 150, 0, 300));
-        factory.Create(this, network, new Vector3(300 + 0, 0, 300));
+        ParisAgentFactory factory = new ParisAgentFactory();
+
+        int priority = 0;
+        foreach (CityInput cityInput in cityInputs) {
+            switch (cityInput.type) {
+                case CityType.Paris:
+                    priority = factory.Create(this, network, cityInput.position, cityInput.radius, priority++);
+                    priority++;
+                    break;
+            }
+        }
 
 
         // int max = 4;
@@ -70,7 +113,7 @@ public class RoadGenerator : MonoBehaviour {
     public void GenerateStreets(TerrainModel terrain, Noise population, Action<RoadNetwork> callback) {
         this.callback = callback;
 
-        IAgentFactory factory = new StreetsAgentFactory();
+        StreetsAgentFactory factory = new StreetsAgentFactory();
         factory.Create(this, network, Vector3.zero);
     }
 
@@ -174,6 +217,40 @@ public class RoadGenerator : MonoBehaviour {
 
         foreach (Vector3 p in debugPoints) {
             DrawUtil.DebugDrawCircle(p, 0.03f, new Color(1, 0.5f, 0));
+        }
+    }
+
+    float radius = 70;
+    public void UpdateWhenState(TerrainModel terrain) {
+        if (ghostObject != null && ghostObjectInstance == null) {
+            ghostObjectInstance = Instantiate(ghostObject, transform);
+        }
+
+        if (ghostObjectInstance != null) {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit)) {
+                Vector3 pos = hit.point;
+
+                ghostObjectInstance.SetActive(true);
+
+                ghostObjectInstance.transform.position = pos;
+                ghostObjectInstance.transform.localScale = Vector3.one * (radius * 2 + 10);
+
+                Vector3 scroll = Input.mouseScrollDelta;
+                radius += scroll.y * 2;
+
+                if (Input.GetMouseButtonDown(0)) {
+                    if (!EventSystem.current.IsPointerOverGameObject()) {
+                        cityInputs.Add(new CityInput(pos, CityType.Paris, ghostObjectInstance, radius));
+                        ghostObjectInstance = null;
+                    }
+                }
+            }
+            else {
+                ghostObjectInstance.SetActive(false);
+            }
         }
     }
 }

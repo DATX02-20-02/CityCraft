@@ -76,7 +76,7 @@ MonoBehaviour:
     m_NumColorKeys: 6
     m_NumAlphaKeys: 2
   noiseGenerator: {fileID: 1828370796}
-  terrainMeshFilter: {fileID: 4572131543444406465}
+  terrain: {fileID: 6999845469166995743}
   sea: {fileID: 391713232}
   width: 1000
   depth: 1000
@@ -129,6 +129,7 @@ GameObject:
   - component: {fileID: 6433598647746637304}
   - component: {fileID: 4572131543444406465}
   - component: {fileID: 780346649910384238}
+  - component: {fileID: 370421938440615919}
   m_Layer: 0
   m_Name: Terrain
   m_TagString: Untagged
@@ -197,6 +198,20 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!64 &370421938440615919
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6999845469166995743}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 0}
 --- !u!1001 &392104784
 PrefabInstance:
   m_ObjectHideFlags: 0

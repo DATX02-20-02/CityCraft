@@ -60,22 +60,18 @@ public class ParisAgentStrategy : AgentStrategy {
         if (this.straight) {
             agent.Angle += Random.Range(-1.0f, 1.0f) * 10.0f * Mathf.Deg2Rad;
 
+            float distance = Vector3.Distance(agent.Position, center);
+
             Vector3 oldPos = agent.Position;
             agent.Position += agent.Direction * config.stepSize;
 
             Node n = agent.PlaceNode(agent.Position, this.nodeType, this.connectionType, out ConnectionResult info);
             if (n != null && info != null) {
                 Vector3 dir = n.pos - oldPos;
-                Vector3 newDir = Vector3.Lerp(dir, agent.Direction, 0.2f);
-                agent.Angle = Mathf.Atan2(newDir.z, newDir.x);
-
-                float distance = Vector3.Distance(agent.Position, center);
-                if ((distance > radius || agentData.stopAtRoad) && (!info.success)) {
-                    agent.Terminate();
-                }
 
                 if (distance > radius) {
                     agent.SetStrategy(new HighwayAgentStrategy());
+                    agent.Priority = 100;
                 }
             }
             else {

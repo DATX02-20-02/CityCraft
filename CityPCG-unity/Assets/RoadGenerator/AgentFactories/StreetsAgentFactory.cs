@@ -24,11 +24,6 @@ public class StreetsAgentFactory : IAgentFactory {
                             10
                         );
 
-                        ag.config.stepSize = 5 * 0.3f;
-                        ag.config.snapRadius = 5 * 0.15f;
-                        ag.config.maxBranchCount = 5;
-                        ag.config.maxStepCount = 20;
-
                         ag.PreviousNode = node;
 
                         generator.AddAgent(ag);

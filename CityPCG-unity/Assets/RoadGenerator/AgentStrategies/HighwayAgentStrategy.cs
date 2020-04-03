@@ -19,6 +19,9 @@ public class HighwayAgentStrategy : AgentStrategy {
             agent.Data = data;
         }
 
+        agent.config.maxStepCount = 100;
+        agent.config.maxBranchCount = 2;
+
         if (agent.PreviousNode == null) {
             Vector3 pos = agent.Position;
 
@@ -38,18 +41,20 @@ public class HighwayAgentStrategy : AgentStrategy {
             agent.Position.z / agent.Network.Height
         );
 
+        Vector3 oldDir = agent.Direction;
+
         if (slope != Vector2.zero) {
-            Vector3 newDir = Vector3.RotateTowards(
+            agent.Direction = Vector3.RotateTowards(
                 agent.Direction,
                 VectorUtil.Vector2To3(slope),
                 5 * Mathf.Deg2Rad, 1
             );
-
-            if (Vector3.Dot(newDir, agentData.startDirection) > 0)
-                agent.Direction = newDir;
         }
 
         agent.Angle += Random.Range(-1.0f, 1.0f) * 10.0f * Mathf.Deg2Rad;
+
+        if (Vector3.Dot(agent.Direction, agentData.startDirection) < 0.4)
+            agent.Direction = oldDir;
 
         Vector3 oldPos = agent.Position;
         agent.Position += agent.Direction * config.stepSize;
@@ -74,7 +79,7 @@ public class HighwayAgentStrategy : AgentStrategy {
 
         if (Random.Range(0.0f, 1.0f) < 0.05f
             && agent.BranchCount < agent.config.maxBranchCount
-            && agent.StepCount > 2
+            && agent.StepCount > agent.config.maxStepCount / (agent.config.maxBranchCount + 1)
             && agent.StepCount < agent.config.maxStepCount - 3
         ) {
             float revert = Mathf.Sign(Random.Range(-1.0f, 1.0f));
@@ -87,6 +92,7 @@ public class HighwayAgentStrategy : AgentStrategy {
             );
 
             ag.config = agent.config;
+            ag.Data = null;
 
             newAgents.Add(ag);
         }

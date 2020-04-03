@@ -46,6 +46,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxAgentQueueIterations: 1000
   generationTickInterval: 0
+  ghostObject: {fileID: 7404780091359148752, guid: d9e13c69b1747974ca1ee8471b9903b6,
+    type: 3}
   debugPoints: []
 --- !u!114 &155675734
 MonoBehaviour:

@@ -11,7 +11,7 @@ public class TerrainGenerator : MonoBehaviour {
     // Color gradient for different heights.
     [SerializeField] private Gradient heightGradient = null;
     [SerializeField] private NoiseGenerator noiseGenerator = null;
-    [SerializeField] private MeshFilter terrainMeshFilter = null;
+    [SerializeField] private GameObject terrain = null;
     [SerializeField] private Transform sea = null;
 
     // Terrain dimensions.
@@ -151,6 +151,11 @@ public class TerrainGenerator : MonoBehaviour {
         this.mesh.uv = this.uvs;
 
         this.mesh.RecalculateNormals();
+        this.mesh.RecalculateBounds();
+
+        MeshCollider meshCollider = terrain.GetComponent<MeshCollider>();
+        meshCollider.sharedMesh = null;
+        meshCollider.sharedMesh = mesh;
     }
 
     // Helper function for generating perlin noise. Takes in x & y coords, constant con to multiply the noise and amp to amplify the coord values.
@@ -163,7 +168,9 @@ public class TerrainGenerator : MonoBehaviour {
         this.mesh.MarkDynamic(); // Optimize mesh for frequent updates.
         this.mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; // Support lots of triangles.
 
-        this.terrainMeshFilter.mesh = mesh;
+        MeshFilter meshFilter = terrain.GetComponent<MeshFilter>();
+
+        meshFilter.mesh = mesh;
 
         if (this.debug) {
             GenerateTerrain();

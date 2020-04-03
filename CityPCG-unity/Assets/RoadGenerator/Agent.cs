@@ -32,6 +32,7 @@ public class Agent : IComparable {
 
     private bool terminated = false;
     private bool started = false;
+    private bool hasPlacedNode = false;
 
     private Node prevNode;
 
@@ -64,6 +65,7 @@ public class Agent : IComparable {
     }
 
     public float Priority {
+        set { this.priority = value; }
         get { return this.priority; }
     }
 
@@ -181,6 +183,7 @@ public class Agent : IComparable {
         if (this.prevNode == null) {
             this.network.AddNode(node);
             this.prevNode = node;
+            this.hasPlacedNode = true;
 
             return node;
         }
@@ -208,10 +211,7 @@ public class Agent : IComparable {
         this.strategy = strat;
         this.data = null;
 
-        if (!this.strategy.started) {
-            this.strategy.started = true;
-            this.strategy.Start(this);
-        }
+        this.started = false;
     }
 
     public List<Agent> Work() {
@@ -219,8 +219,8 @@ public class Agent : IComparable {
 
         if (this.strategy == null) return newAgents;
 
-        if (!this.strategy.started) {
-            this.strategy.started = true;
+        if (!this.started) {
+            this.started = true;
             this.strategy.Start(this);
         }
 
@@ -236,8 +236,12 @@ public class Agent : IComparable {
 
         if (!this.terminated) {
             newAgents = this.strategy.Branch(this, this.prevNode);
+
+            if (newAgents.Count > 0)
+                this.branchCount++;
+
             foreach (Agent newAgent in newAgents) {
-                newAgent.branchCount = this.branchCount + 1;
+                newAgent.branchCount = this.branchCount;
             }
         }
 

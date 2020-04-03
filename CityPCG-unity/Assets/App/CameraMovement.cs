@@ -16,8 +16,10 @@ public class CameraMovement : MonoBehaviour {
     private float yRotation = 0f;
     private float prevMouseX = 0f;
     private float prevMouseY = 0f;
+    private bool cursorLocked = false;
 
     private void Start() {
+        mouseSensitivity = 1f;
         this.xRotation = transform.localEulerAngles.x;
         this.yRotation = transform.localEulerAngles.y;
     }
@@ -45,19 +47,12 @@ public class CameraMovement : MonoBehaviour {
 
         // Lock cursor for 3D camera movement
         if (Input.GetMouseButton(1)) {
-            Cursor.lockState = CursorLockMode.Locked; // Lock the mouse on the center
+            if (!cursorLocked) Cursor.lockState = CursorLockMode.Locked; cursorLocked = true; // Lock the mouse on the center
 
             // Get the x and y movement of the mouse
-            float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-            float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+            float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
+            float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
-            // Reduce rotation snaps
-            if (Mathf.Abs(mouseX - prevMouseX) > rotationSnapLimit || Mathf.Abs(mouseY - prevMouseY) > rotationSnapLimit) {
-                mouseX = prevMouseX;
-                mouseY = prevMouseY;
-            }
-            prevMouseX = mouseX;
-            prevMouseY = mouseY;
 
             // Rotate camera
             xRotation -= mouseY;    // rotate up & down
@@ -68,7 +63,7 @@ public class CameraMovement : MonoBehaviour {
             transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0f); // Apply the rotation
         }
         else {
-            Cursor.lockState = CursorLockMode.None;
+            if (cursorLocked) Cursor.lockState = CursorLockMode.None; cursorLocked = false;
         }
     }
 }

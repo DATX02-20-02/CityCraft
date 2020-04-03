@@ -9,11 +9,14 @@ public class RoadIntersectionMesh : MonoBehaviour {
     [SerializeField] private bool debugView = false;
 
     private RoadSegment[] connectionPoints = null;
-    private ProjectVertex projector;
+    private ProjectOnTerrain projectOnTerrain;
+    private Vector3 intersectionNormal;
 
     public RoadSegment[] IntersectionState {
         get => connectionPoints;
     }
+
+    bool isValid = false;
 
     public class IntersectionCorner {
         public Vector3 sidewalkIntersection;
@@ -64,8 +67,12 @@ public class RoadIntersectionMesh : MonoBehaviour {
     }
 
     [ContextMenu("Update intersection mesh")]
-    public void UpdateMesh(ProjectVertex projector) {
-        this.projector = projector;
+    public void UpdateMesh() {
+        UpdateMesh(this.projectOnTerrain);
+    }
+
+    public void UpdateMesh(ProjectOnTerrain projectOnTerrain) {
+        this.projectOnTerrain = projectOnTerrain;
 
         UpdateIntersectionState();
         Mesh result = CreateMesh();
@@ -98,6 +105,8 @@ public class RoadIntersectionMesh : MonoBehaviour {
             return;
         }
 
+        isValid = true;
+
         // sort roads in cw order
         {
             connectedRoads.Sort(delegate(RoadMesh r1, RoadMesh r2) {
@@ -117,16 +126,16 @@ public class RoadIntersectionMesh : MonoBehaviour {
             else {
                 r.Spline[r.Spline.ControlPointCount - 1] = localEndPoint;
             }
-            r.GenerateRoadMesh(projector);
         }
 
         connectionPoints = new RoadSegment[connectedRoads.Count];
+        this.intersectionNormal = this.projectOnTerrain(transform.position.x, transform.position.z).normal;
         for (int i = 0; i < connectionPoints.Length; i++) {
             RoadSegment c  = new RoadSegment();
             c.r = connectedRoads[i];
             c.s = c.r.Spline;
             c.tangent = SplineDirectionOfAttack(c.r) * (-1f);
-            c.binormal = Vector3.Cross(Vector3.up, c.tangent);
+            c.binormal = Vector3.Cross(intersectionNormal, c.tangent);
 
             connectionPoints[i] = c;
         }
@@ -176,6 +185,7 @@ public class RoadIntersectionMesh : MonoBehaviour {
                 }
                 else {
                     Debug.LogError("Sidewalks do not intersect! " + intersection.type, left.r);
+                    isValid = false;
                 }
 
                 intersection = GetRoadIntersection(left.r.RoadWidth / 2f, right.r.RoadWidth / 2f);
@@ -186,6 +196,7 @@ public class RoadIntersectionMesh : MonoBehaviour {
                 }
                 else {
                     Debug.LogError("Streets do not intersect! " + intersection.type, left.r);
+                    isValid = false;
                 }
             }
 
@@ -208,7 +219,7 @@ public class RoadIntersectionMesh : MonoBehaviour {
             }
 
             DrawPoint(splineEndPoint, 0.05f, Color.blue);
-            SetSplineConnectedPosition(c.r, splineEndPoint);
+            SetSplineConnectedPosition(c.r, this.projectOnTerrain(splineEndPoint.x, splineEndPoint.z).point);
 
             c.cornerRight.streetStartLeft = splineEndPoint - c.binormal * c.r.RoadWidth / 2f;
             c.cornerLeft.streetStartRight = splineEndPoint + c.binormal * c.r.RoadWidth / 2f;
@@ -221,6 +232,7 @@ public class RoadIntersectionMesh : MonoBehaviour {
     public Mesh CreateMesh() {
         if (connectedRoads == null || connectionPoints == null) return null;
         if (connectedRoads.Count < 3) return null;
+        if (!isValid) return null;
 
         Vector2 whiteUV = new Vector2(0.85f, 0.0f);
 
@@ -230,10 +242,9 @@ public class RoadIntersectionMesh : MonoBehaviour {
         List<int> triangles = new List<int>();
 
         int AddVertice(Vector3 vert, Vector2 uv) {
-            Vector3 terrainPos = projector(vert);
-
-            verts.Add(transform.InverseTransformPoint(terrainPos));
-            normals.Add(Vector3.up);
+            RaycastHit hit = this.projectOnTerrain(vert.x, vert.z);
+            verts.Add(transform.InverseTransformPoint(hit.point + hit.normal * 0.01f));
+            normals.Add(this.intersectionNormal);
             uvs.Add(uv);
 
             return verts.Count - 1;

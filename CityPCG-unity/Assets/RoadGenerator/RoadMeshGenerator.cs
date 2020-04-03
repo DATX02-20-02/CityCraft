@@ -2,59 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-class Traverser : System.IComparable {
-    public Node node = null;
-    private Node prev = null;
-    private List<Node> path = new List<Node>();
-    private float priority = 0;
-
-    public float Priority {
-        get { return this.priority; }
-    }
-
-    public Traverser(Node startNode, Node node, float priority) {
-        this.node = node;
-        this.priority = priority;
-
-        if (startNode != node) {
-            path.Add(startNode);
-            prev = startNode;
-        }
-    }
-
-    public bool Traverse(out List<Node> nodes) {
-        path.Add(node);
-        nodes = path;
-
-        if (node.connections.Count == 2) {
-            foreach (NodeConnection c in node.connections) {
-                if (c.node == prev) continue;
-
-                prev = node;
-                node = c.node;
-
-                break;
-            }
-        }
-        else {
-            return true;
-        }
-
-        return false;
-    }
-
-    public int CompareTo(object obj) {
-        if(obj == null) return 1;
-
-        Traverser traverser = obj as Traverser;
-        if(traverser != null) {
-            return priority.CompareTo(traverser.priority);
-        }
-        else {
-            throw new System.ArgumentException("Object is not a Traverser");
-        }
-    }
-}
+// TODO: Return custom type because not all RaycastHit properties are not guranteed to be set
+public delegate RaycastHit ProjectOnTerrain(float x, float z);
 
 public class RoadMeshGenerator : MonoBehaviour {
     [Range(1, 1000)]
@@ -67,17 +16,31 @@ public class RoadMeshGenerator : MonoBehaviour {
 
     [SerializeField] private GameObject roadMeshPrefab = null;
     [SerializeField] private GameObject roadIntersectionMeshPrefab = null;
+    public GameObject TerrainMesh;
 
     private RoadNetwork network;
+    private GameObject roadParent;
+    private GameObject intersectionParent;
 
     private LinkedList<Traverser> queue;
     private Dictionary<Node, bool> visited;
     private Dictionary<Node, Dictionary<Node, bool>> placed;
     private Dictionary<Node, RoadIntersectionMesh> intersections;
+    private List<RoadMesh> placedRoads;
 
     private bool isTraversing = false;
 
-    private ProjectVertex projector;
+    private ProjectOnTerrain projectOnTerrain;
+
+    void Start() {
+        roadParent = new GameObject("Roads");
+        roadParent.transform.parent = this.transform;
+        intersectionParent = new GameObject("Intersections");
+        intersectionParent.transform.parent = this.transform;
+
+        var test = new GameObject("Rsdfasdfasdfoads");
+        test.transform.parent = roadParent.transform;
+    }
 
     public void Generate(RoadNetwork network) {
         if (network == null) {
@@ -86,31 +49,52 @@ public class RoadMeshGenerator : MonoBehaviour {
         }
         this.network = network;
 
+
+        this.projectOnTerrain = (float x, float z) => {
+            float rayLength = 10000f;
+            Ray ray = new Ray(new Vector3(x, rayLength, z), Vector3.down);
+
+            RaycastHit hit;
+            if (TerrainMesh.GetComponent<Collider>().Raycast(ray, out hit, rayLength)) {
+                return hit;
+            }
+
+            float y = network.Terrain.GetHeight(x, z);
+            hit.point = new Vector3(x, y, z);
+            hit.normal = network.Terrain.GetNormal(x, z);
+            return hit;
+        };
+
+        if (isTraversing) {
+            StopCoroutine(GenerateRoadMesh());
+        }
+        StartCoroutine(GenerateRoadMesh());
+    }
+
+    private IEnumerator GenerateRoadMesh() {
+        isTraversing = true;
+
         this.queue = new LinkedList<Traverser>();
         this.visited = new Dictionary<Node, bool>();
         this.placed = new Dictionary<Node, Dictionary<Node, bool>>();
         this.intersections = new Dictionary<Node, RoadIntersectionMesh>();
-
-        // this.projector = (Vector3 vec) => { return network.Terrain.GetPosition(vec.x, vec.z); };
-        this.projector = (Vector3 vec) => { return network.Terrain.GetNormal(vec.x, vec.z); };
-        // this.projector = (Vector3 vec) => vec;
+        placedRoads = new List<RoadMesh>();
 
         // Remove previously generated meshes
-        foreach (Transform child in transform) {
+        foreach (Transform child in intersectionParent.transform) {
+            Destroy(child.gameObject);
+        }
+        foreach (Transform child in roadParent.transform) {
             Destroy(child.gameObject);
         }
 
-        StartCoroutine("DoTraverse");
-    }
-
-    IEnumerator DoTraverse() {
-        isTraversing = true;
-
         Node startNode = null;
-        foreach (Node n in this.network.Nodes) {
-            if (n.connections.Count != 2) {
-                startNode = n;
-                break;
+        { // Get startNode
+            foreach (Node n in this.network.Nodes) {
+                if (n.connections.Count > 2) {
+                    startNode = n;
+                    break;
+                }
             }
         }
 
@@ -185,13 +169,13 @@ public class RoadMeshGenerator : MonoBehaviour {
             yield return new WaitForSeconds(tickInterval);
         }
 
-        int intersectionCount = 0;
         foreach (var entry in this.intersections) {
-            Camera.main.transform.position = entry.Value.transform.position + Vector3.up * 1.5f;
-            Camera.main.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
-            entry.Value.name = roadIntersectionMeshPrefab.name + " " + intersectionCount;
-            entry.Value.UpdateMesh(projector);
-            intersectionCount++;
+            entry.Value.name = roadIntersectionMeshPrefab.name + " " + intersectionParent.transform.childCount;
+            entry.Value.UpdateMesh(this.projectOnTerrain);
+        }
+
+        foreach (RoadMesh r in placedRoads) {
+            r.GenerateRoadMesh(this.projectOnTerrain);
         }
 
         isTraversing = false;
@@ -199,17 +183,17 @@ public class RoadMeshGenerator : MonoBehaviour {
 
 
     private void PlaceRoad(List<Node> path) {
-        GameObject roadGameObject = (GameObject)Instantiate(roadMeshPrefab);
-        roadGameObject.name = roadMeshPrefab.name + " " + transform.childCount;
-        roadGameObject.transform.parent = transform;
-        roadGameObject.transform.localPosition = path[0].pos;
-        BezierSpline spline = roadGameObject.GetComponent<BezierSpline>();
-        RoadMesh roadMesh = roadGameObject.GetComponent<RoadMesh>();
-        spline.Reset();
-        roadMesh.Reset();
+        RoadMesh roadMesh = Instantiate(roadMeshPrefab, roadParent.transform).GetComponent<RoadMesh>();
+        roadMesh.name = roadMeshPrefab.name + " " + roadParent.transform.childCount;
+        roadMesh.transform.position = path[0].pos;
 
         for (int i = 0; i < path.Count; i++) {
-            spline.AddPoint(path[i].pos);
+            RaycastHit hit = this.projectOnTerrain(path[i].pos.x, path[i].pos.z);
+            path[i].pos = hit.point + hit.normal * 0.01f;
+        }
+
+        for (int i = 0; i < path.Count; i++) {
+            roadMesh.Spline.AddPoint(path[i].pos);
         }
 
         // Try connect to intersections at position
@@ -217,8 +201,7 @@ public class RoadMeshGenerator : MonoBehaviour {
             if (intersectionNode.connections.Count > 2) {
                 RoadIntersectionMesh intersection;
                 if (!intersections.ContainsKey(intersectionNode)) {
-                    intersection = Instantiate(roadIntersectionMeshPrefab).GetComponent<RoadIntersectionMesh>();
-                    intersection.transform.parent = transform;
+                    intersection = Instantiate(roadIntersectionMeshPrefab, intersectionParent.transform).GetComponent<RoadIntersectionMesh>();
                     intersection.transform.localPosition = intersectionNode.pos;
                     intersections[intersectionNode] = intersection;
                 }
@@ -244,6 +227,60 @@ public class RoadMeshGenerator : MonoBehaviour {
             endIntersection.AddConnection(roadMesh);
         }
 
-        roadMesh.GenerateRoadMesh(projector);
+        placedRoads.Add(roadMesh);
+    }
+}
+
+class Traverser : System.IComparable {
+    public Node node = null;
+    private Node prev = null;
+    private List<Node> path = new List<Node>();
+    private float priority = 0;
+
+    public float Priority {
+        get { return this.priority; }
+    }
+
+    public Traverser(Node startNode, Node node, float priority) {
+        this.node = node;
+        this.priority = priority;
+
+        if (startNode != node) {
+            path.Add(startNode);
+            prev = startNode;
+        }
+    }
+
+    public bool Traverse(out List<Node> nodes) {
+        path.Add(node);
+        nodes = path;
+
+        if (node.connections.Count == 2) {
+            foreach (NodeConnection c in node.connections) {
+                if (c.node == prev) continue;
+
+                prev = node;
+                node = c.node;
+
+                break;
+            }
+        }
+        else {
+            return true;
+        }
+
+        return false;
+    }
+
+    public int CompareTo(object obj) {
+        if(obj == null) return 1;
+
+        Traverser traverser = obj as Traverser;
+        if(traverser != null) {
+            return priority.CompareTo(traverser.priority);
+        }
+        else {
+            throw new System.ArgumentException("Object is not a Traverser");
+        }
     }
 }

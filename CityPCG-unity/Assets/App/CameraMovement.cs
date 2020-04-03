@@ -47,7 +47,11 @@ public class CameraMovement : MonoBehaviour {
 
         // Lock cursor for 3D camera movement
         if (Input.GetMouseButton(1)) {
-            if (!cursorLocked) Cursor.lockState = CursorLockMode.Locked; cursorLocked = true; // Lock the mouse on the center
+            // Lock the mouse on the center
+            if (!cursorLocked){
+                Cursor.lockState = CursorLockMode.Locked;
+                cursorLocked = true;
+            }
 
             // Get the x and y movement of the mouse
             float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
@@ -63,7 +67,10 @@ public class CameraMovement : MonoBehaviour {
             transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0f); // Apply the rotation
         }
         else {
-            if (cursorLocked) Cursor.lockState = CursorLockMode.None; cursorLocked = false;
+            if (cursorLocked){
+                Cursor.lockState = CursorLockMode.None;
+                cursorLocked = false;
+            }
         }
     }
 }

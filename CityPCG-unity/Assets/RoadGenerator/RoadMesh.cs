@@ -84,6 +84,14 @@ public class RoadMesh : MonoBehaviour
                 meshFilter.sharedMesh.Clear();
             }
         }
+
+        this.projectOnTerrain = (float x, float z) => {
+            Vector3 vec = new Vector3(x, transform.position.y, z);
+            RaycastHit hit = new RaycastHit();
+            hit.point = vec;
+            hit.normal = Vector3.up;
+            return hit;
+        };
     }
 
     public void GenerateRoadMesh() {
@@ -110,7 +118,7 @@ public class RoadMesh : MonoBehaviour
     private Mesh CreateRoadMesh() {
 
         BezierSpline spline = GetComponent<BezierSpline>();
-        int ringSubdivisionCount = Mathf.RoundToInt(1f / precision);
+        int ringSubdivisionCount = Mathf.RoundToInt(1f / precision) * Spline.CurveCount;
 
         float[] arr = new float[ringSubdivisionCount];
         spline.CalcLengthTableInfo(arr);
@@ -122,11 +130,9 @@ public class RoadMesh : MonoBehaviour
 
         int AddVertex(Vector3 pos, Vector3 normal, Vector2 uv) {
             Vector3 worldPos = transform.TransformPoint(pos);
-            // Vector3 terrainPos = this.projectOnTerrain(worldPos.x, worldPos.z).point;
-            Vector3 terrainPos = worldPos;
-            verts.Add(transform.InverseTransformPoint(terrainPos));
+            // verts.Add(transform.InverseTransformPoint(hit.point + hit.normal * 0.005f));
+            verts.Add(pos);
 
-            // verts.Add(terrainPos);
             normals.Add(normal);
             uvs.Add(uv);
 
@@ -137,7 +143,8 @@ public class RoadMesh : MonoBehaviour
         {
             float t = (ringIndex / (ringSubdivisionCount - 1f));
             Vector3 globalSplinePosition = spline.GetPoint(t);
-            OrientedPoint p = spline.GetOrientedPointLocal(t, this.projectOnTerrain(globalSplinePosition.x, globalSplinePosition.z).normal);
+            RaycastHit hit = this.projectOnTerrain(globalSplinePosition.x, globalSplinePosition.z);
+            OrientedPoint p = spline.GetOrientedPointLocal(t, hit.normal);
 
             float splineDistance = spline.Sample(arr, t);
 

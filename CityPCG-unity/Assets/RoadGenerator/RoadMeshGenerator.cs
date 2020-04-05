@@ -37,9 +37,6 @@ public class RoadMeshGenerator : MonoBehaviour {
         roadParent.transform.parent = this.transform;
         intersectionParent = new GameObject("Intersections");
         intersectionParent.transform.parent = this.transform;
-
-        var test = new GameObject("Rsdfasdfasdfoads");
-        test.transform.parent = roadParent.transform;
     }
 
     public void Generate(RoadNetwork network) {
@@ -169,9 +166,11 @@ public class RoadMeshGenerator : MonoBehaviour {
             yield return new WaitForSeconds(tickInterval);
         }
 
+        int intersectionCount = 1;
         foreach (var entry in this.intersections) {
-            entry.Value.name = roadIntersectionMeshPrefab.name + " " + intersectionParent.transform.childCount;
+            entry.Value.name = roadIntersectionMeshPrefab.name + " " + intersectionCount;
             entry.Value.UpdateMesh(this.projectOnTerrain);
+            intersectionCount++;
         }
 
         foreach (RoadMesh r in placedRoads) {

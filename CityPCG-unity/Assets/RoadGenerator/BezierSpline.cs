@@ -48,6 +48,7 @@ public class BezierSpline : MonoBehaviour
 
     public int CurveCount {
         get {
+            if (points == null) return 0;
             return (points.Length - 1) / 3;
         }
     }
@@ -206,48 +207,56 @@ public class BezierSpline : MonoBehaviour
     {
         newPoint = transform.InverseTransformPoint(newPoint);
 
-        Vector3 dir;
-        float length;
-
         if (points == null || points.Length == 0)
         {
             Array.Resize(ref points, 1);
             points[0] = newPoint;
             return;
         }
-        else if(points.Length < 4)
-        {
-            Array.Resize(ref points, 4);
-            dir = (newPoint - points[0]).normalized;
-            length = (newPoint - points[0]).magnitude / 2f;
-            points[1] = points[0] + dir * length;
-            points[2] = newPoint - dir * length;
-            points[3] = newPoint;
+
+        Array.Resize(ref points, points.Length + 3);
+        points[points.Length - 1] = newPoint;
+        AutoConstructSpline();
+    }
+
+    public void AutoConstructSpline() {
+        if (CurveCount == 1) {
+            points[1] = points[0] + (points[3] - points[0]) / 6f;
+            points[2] = points[3] + (points[0] - points[3]) / 6f;
             return;
         }
 
-        Vector3 prevprev0 = points.Length < 7 ? points[points.Length - 4] : points[points.Length - 7];
+        int numEndPoints = CurveCount + 1;
+        for (int i = 0; i < numEndPoints; i++) {
+            Vector3 pMinus1, p1, p2;
+            Vector3 p0 = points[i * 3];
 
-        Vector3 prev0 = points[points.Length - 4];
-        Vector3 prev1 = points[points.Length - 3];
-        Vector3 prev2 = points[points.Length - 2];
-        Vector3 prev3 = points[points.Length - 1];
+            if (i == 0) {
+                pMinus1 = points[0];
+            }
+            else {
+                pMinus1 = points[(i - 1) * 3];
+            }
 
-        dir = (newPoint - prevprev0).normalized;
-        length = (newPoint - prev3).magnitude / 4f;
+            if (i < numEndPoints - 2) {
+                p1 = points[(i + 1) * 3];
+                p2 = points[(i + 2) * 3];
+            }
+            else if (i == numEndPoints - 2) {
+                p1 = p2 = points[(i + 1) * 3];
+            }
+            else {
+                p1 = p2 = p0;
+            }
 
-        points[points.Length - 2] = prev3 - dir * length;
-
-        Array.Resize(ref points, points.Length + 3);
-
-        Vector3 p0 = prev3;
-        Vector3 p1 = p0 + dir * length;
-        Vector3 p2 = newPoint - dir * length;
-        Vector3 p3 = newPoint;
-
-        points[points.Length - 3] = p1;
-        points[points.Length - 2] = p2;
-        points[points.Length - 1] = p3;
+            if (i < numEndPoints - 1) {
+                points[i * 3 + 1] = p0 + (p1 - pMinus1) / 6f;
+                points[i * 3 + 2] = p1 - (p2 - p0) / 6f;
+            }
+            else {
+                points[i * 3 - 1] = p0 - (p1 - pMinus1) / 6f;
+            }
+        }
     }
 
     public void Reset()

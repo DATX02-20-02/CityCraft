@@ -5,7 +5,17 @@ using UnityEngine;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class RoadIntersectionMesh : MonoBehaviour {
 
-    [SerializeField] private List<RoadMesh> connectedRoads;
+    private class RoadConnection {
+        public RoadMesh road;
+        public Vector3 angleOfAttack;
+
+        public RoadConnection(RoadMesh road, Vector3 angleOfAttack) {
+            this.road = road;
+            this.angleOfAttack = angleOfAttack;
+        }
+    };
+
+    [SerializeField] private List<RoadConnection> connectedRoads;
     [SerializeField] private bool debugView = false;
 
     private RoadSegment[] connectionPoints = null;
@@ -54,15 +64,11 @@ public class RoadIntersectionMesh : MonoBehaviour {
     }
 
     public void Awake() {
-        connectedRoads = new List<RoadMesh>();
+        connectedRoads = new List<RoadConnection>();
     }
 
-    public void AddConnection(RoadMesh toAdd) {
-        connectedRoads.Add(toAdd);
-    }
-
-    public void RemoveConnection(RoadMesh r) {
-        connectedRoads.Remove(r);
+    public void AddConnection(RoadMesh toAdd, Vector3 angleOfAttack) {
+        connectedRoads.Add(new RoadConnection(toAdd, angleOfAttack));
     }
 
     [ContextMenu("Update intersection mesh")]
@@ -108,12 +114,12 @@ public class RoadIntersectionMesh : MonoBehaviour {
 
         // sort roads in cw order
         {
-            connectedRoads.Sort(delegate(RoadMesh r1, RoadMesh r2) {
-                Vector3 r1Dir = SplineDirectionOfAttack(r1) * (-1f);
+            connectedRoads.Sort(delegate(RoadConnection r1, RoadConnection r2) {
+                Vector3 r1Dir = r1.angleOfAttack;
                 float r1Angle = Mathf.Atan2(r1Dir.z, r1Dir.x) * Mathf.Rad2Deg;
-                Vector3 r2Dir = SplineDirectionOfAttack(r2) * (-1f);
+                Vector3 r2Dir = r2.angleOfAttack;
                 float r2Angle = Mathf.Atan2(r2Dir.z, r2Dir.x) * Mathf.Rad2Deg;
-                return r1Angle.CompareTo(r2Angle); // Mathf.RoundToInt(r2Angle - r1Angle);
+                return r1Angle.CompareTo(r2Angle);
             });
         }
 
@@ -133,9 +139,9 @@ public class RoadIntersectionMesh : MonoBehaviour {
         this.intersectionNormal = this.projectOnTerrain(transform.position.x, transform.position.z).normal;
         for (int i = 0; i < connectionPoints.Length; i++) {
             RoadSegment c  = new RoadSegment();
-            c.r = connectedRoads[i];
+            c.r = connectedRoads[i].road;
             c.s = c.r.Spline;
-            c.tangent = SplineDirectionOfAttack(c.r) * (-1f);
+            c.tangent = connectedRoads[i].angleOfAttack * (-1f);
             c.binormal = Vector3.Cross(intersectionNormal, c.tangent);
 
             connectionPoints[i] = c;

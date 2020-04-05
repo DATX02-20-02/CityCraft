@@ -216,14 +216,16 @@ public class RoadMeshGenerator : MonoBehaviour {
 
         RoadIntersectionMesh startIntersection = TryCreateIntersection(path[0]);
         if (startIntersection) {
-            roadMesh.SetStart(startIntersection);
-            startIntersection.AddConnection(roadMesh);
+            roadMesh.RoadStart = startIntersection;
+            Vector3 angleOfAttack = (path[0].pos - path[1].pos).normalized;
+            startIntersection.AddConnection(roadMesh, angleOfAttack);
         }
 
         RoadIntersectionMesh endIntersection = TryCreateIntersection(path[path.Count - 1]);
         if (endIntersection) {
-            roadMesh.SetEnd(endIntersection);
-            endIntersection.AddConnection(roadMesh);
+            roadMesh.RoadEnd = endIntersection;
+            Vector3 angleOfAttack = (path[path.Count - 1].pos - path[path.Count - 2].pos).normalized;
+            endIntersection.AddConnection(roadMesh, angleOfAttack);
         }
 
         placedRoads.Add(roadMesh);

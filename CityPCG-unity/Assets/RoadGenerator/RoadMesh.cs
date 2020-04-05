@@ -23,6 +23,9 @@ public class RoadMesh : MonoBehaviour
     [Range(0.01f, 0.5f)]
     private float precision = 0.02f;
 
+    private ProjectOnTerrain projectOnTerrain;
+
+
     public float RoadWidth {
         get { return roadWidth; }
     }
@@ -41,38 +44,12 @@ public class RoadMesh : MonoBehaviour
 
     public RoadIntersectionMesh RoadEnd {
         get => roadEnd;
-        // set => SetRoadEndConnection(ref roadEnd, value);
+        set => roadEnd = value;
     }
 
     public RoadIntersectionMesh RoadStart {
         get => roadStart;
-        // set => SetRoadEndConnection(ref roadStart, value);
-    }
-
-    private ProjectOnTerrain projectOnTerrain ;
-
-    private void SetRoadEndConnection(ref RoadIntersectionMesh endConnection, RoadIntersectionMesh newConnection) {
-        if (newConnection == null) {
-            if (endConnection != null) {
-                endConnection.RemoveConnection(this);
-                endConnection.UpdateMesh(this.projectOnTerrain);
-                endConnection = null;
-            }
-        }
-        else {
-            endConnection = newConnection;
-            endConnection.AddConnection(this);
-            endConnection.UpdateMesh(this.projectOnTerrain);
-        }
-    }
-
-
-    public void SetStart(RoadIntersectionMesh start) {
-        roadStart = start;
-    }
-
-    public void SetEnd(RoadIntersectionMesh end) {
-        roadEnd = end;
+        set => roadStart = value;
     }
 
     public void Reset()

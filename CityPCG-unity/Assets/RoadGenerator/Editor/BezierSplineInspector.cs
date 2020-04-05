@@ -131,6 +131,7 @@ public class BezierSplineInspector : Editor
             {
                 Undo.RecordObject(spline, "Moved Spline Control point");
                 point = newPoint;
+                spline.AutoConstructSpline();
                 TryUpdateRoad();
             }
 

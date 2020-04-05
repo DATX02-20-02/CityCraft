@@ -11,12 +11,11 @@ public class RoadIntersectionMesh : MonoBehaviour {
     private RoadSegment[] connectionPoints = null;
     private ProjectOnTerrain projectOnTerrain;
     private Vector3 intersectionNormal;
+    private bool isValid = false;
 
     public RoadSegment[] IntersectionState {
         get => connectionPoints;
     }
-
-    bool isValid = false;
 
     public class IntersectionCorner {
         public Vector3 sidewalkIntersection;
@@ -126,6 +125,8 @@ public class RoadIntersectionMesh : MonoBehaviour {
             else {
                 r.Spline[r.Spline.ControlPointCount - 1] = localEndPoint;
             }
+
+            r.Spline.AutoConstructSpline();
         }
 
         connectionPoints = new RoadSegment[connectedRoads.Count];

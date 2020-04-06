@@ -189,9 +189,6 @@ public class RoadMeshGenerator : MonoBehaviour {
         for (int i = 0; i < path.Count; i++) {
             RaycastHit hit = this.projectOnTerrain(path[i].pos.x, path[i].pos.z);
             path[i].pos = hit.point + hit.normal * 0.01f;
-        }
-
-        for (int i = 0; i < path.Count; i++) {
             roadMesh.Spline.AddPoint(path[i].pos);
         }
 

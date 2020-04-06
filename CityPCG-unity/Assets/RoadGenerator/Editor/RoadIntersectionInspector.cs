@@ -21,10 +21,8 @@ public class RoadIntersectionInspector : Editor {
             RoadIntersectionMesh.RoadSegment c = intersection.IntersectionState[i];
             Handles.color = new Color(0f, (i / (float)intersection.IntersectionState.Length), 0f);
             Handles.DrawDottedLine(intersection.transform.position, intersection.transform.position + c.tangent, 4f);
-            Handles.DrawSolidDisc(intersection.transform.position + c.tangent + Vector3.up * i * 0.1f, Vector3.up, 0.1f);
+            Handles.DrawSolidDisc(intersection.transform.position + c.tangent + Vector3.up * i * 0.02f, Vector3.up, 0.1f);
 
-            // Handles.color = Color.red;
-            // Handles.DrawWireDisc(c.cornerRight.sidewalkIntersection, Vector3.up, 0.03f);
         }
     }
 }

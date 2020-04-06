@@ -3,13 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(BezierSpline))]
+[RequireComponent(typeof(BezierSpline))]
 public class RoadMesh : MonoBehaviour
 {
-    [SerializeField]
-    private RoadIntersectionMesh roadStart = null;
-    [SerializeField]
-    private RoadIntersectionMesh roadEnd = null;
+    [SerializeField] private Material roadMaterial;
+    [SerializeField] private Material sidewalkMaterial;
+    [SerializeField] private RoadIntersectionMesh roadStart = null;
+    [SerializeField] private RoadIntersectionMesh roadEnd = null;
 
     [SerializeField]
     [Range(0.001f, 1.0f)]
@@ -24,7 +24,6 @@ public class RoadMesh : MonoBehaviour
     private float precision = 0.02f;
 
     private ProjectOnTerrain projectOnTerrain;
-
 
     public float RoadWidth {
         get { return roadWidth; }
@@ -79,25 +78,36 @@ public class RoadMesh : MonoBehaviour
     {
         this.projectOnTerrain = projectOnTerrain;
 
-        BezierSpline spline = GetComponent<BezierSpline>();
-        if (!spline) {
+        if (Spline.ControlPointCount < 4) {
             return;
         }
 
-        if (spline.ControlPointCount < 4) {
-            return;
+        // remove any previous mesh
+        foreach (Transform child in this.transform) {
+            Destroy(child.gameObject);
         }
 
-        MeshFilter meshFilter = GetComponent<MeshFilter>();
-        meshFilter.sharedMesh = CreateRoadMesh();
+        MeshFilter CreateEmptyRenderable(string name, Material material) {
+            GameObject go = new GameObject(name);
+            go.transform.parent = this.transform;
+            go.transform.localPosition = Vector3.zero;
+            go.AddComponent<MeshRenderer>().material = material;
+            return go.AddComponent<MeshFilter>();
+        }
+
+        MeshFilter roadMesh = CreateEmptyRenderable("Road Mesh", roadMaterial);
+        MeshFilter leftSidewalkMesh = CreateEmptyRenderable("Left Sidewalk Mesh", sidewalkMaterial);
+        MeshFilter rightSidewalkMesh = CreateEmptyRenderable("Right Sidewalk Mesh", sidewalkMaterial);
+
+        roadMesh.sharedMesh = ExtrudeQuadFromSpline(Vector3.zero, roadWidth);
+        leftSidewalkMesh.sharedMesh = ExtrudeQuadFromSpline(Vector3.left * (roadWidth + sidewalkWidth) / 2f, sidewalkWidth);
+        rightSidewalkMesh.sharedMesh = ExtrudeQuadFromSpline(Vector3.right * (roadWidth + sidewalkWidth) / 2f, sidewalkWidth);
     }
 
-    private Mesh CreateRoadMesh() {
-
-        BezierSpline spline = GetComponent<BezierSpline>();
+    private Mesh ExtrudeQuadFromSpline(Vector3 localCenterOffset, float width) {
         int ringSubdivisionCount = Mathf.RoundToInt(1f / precision) * Spline.CurveCount;
 
-        BezierSplineDistanceLUT splineDistanceLUT = new BezierSplineDistanceLUT(spline, ringSubdivisionCount);
+        BezierSplineDistanceLUT splineDistanceLUT = new BezierSplineDistanceLUT(Spline, ringSubdivisionCount);
 
         // Vertices
         List<Vector3> verts = new List<Vector3>();
@@ -117,28 +127,19 @@ public class RoadMesh : MonoBehaviour
 
         for (int ringIndex = 0; ringIndex < ringSubdivisionCount; ringIndex++)
         {
+            // TODO(anton): Sample curve at evenly spaced intervals (https://pomax.github.io/bezierinfo/#tracing)
             float t = (ringIndex / (ringSubdivisionCount - 1f));
-            Vector3 globalSplinePosition = spline.GetPoint(t);
+            Vector3 globalSplinePosition = Spline.GetPoint(t);
             RaycastHit hit = this.projectOnTerrain(globalSplinePosition.x, globalSplinePosition.z);
-            OrientedPoint p = spline.GetOrientedPointLocal(t, hit.normal);
+            OrientedPoint p = Spline.GetOrientedPointLocal(t, hit.normal);
 
             float splineDistance = splineDistanceLUT.Sample(t);
 
-            Vector3 localLeft = Vector3.left * roadWidth / 2f;
+            Vector3 localLeft = localCenterOffset + Vector3.left * width / 2f;
             AddVertex(p.localToWorld(localLeft), p.normal, new Vector2(0f, splineDistance));
 
-            Vector3 localRight = Vector3.right * roadWidth / 2f;
+            Vector3 localRight = localCenterOffset + Vector3.right * width / 2f;
             AddVertex(p.localToWorld(localRight), p.normal, new Vector2(1f, splineDistance));
-
-            Vector3 localLeftSidewalkLeft = localLeft + Vector3.left * sidewalkWidth;
-            Vector3 localLeftSidewalkRight = localLeft;
-            Vector3 localRightSidewalkLeft = localRight;
-            Vector3 localRightSidewalkRight = localRight + Vector3.right * sidewalkWidth;
-
-            AddVertex(p.localToWorld(localLeftSidewalkLeft), p.normal, new Vector2(0.2f, splineDistance));
-            AddVertex(p.localToWorld(localLeftSidewalkRight), p.normal, new Vector2(0.2f, splineDistance));
-            AddVertex(p.localToWorld(localRightSidewalkLeft), p.normal, new Vector2(0.2f, splineDistance));
-            AddVertex(p.localToWorld(localRightSidewalkRight), p.normal, new Vector2(0.2f, splineDistance));
         }
 
         int verticesPerRing = verts.Count / ringSubdivisionCount;
@@ -161,8 +162,6 @@ public class RoadMesh : MonoBehaviour
             int rootIndexNext = (ringIndex + 1) * verticesPerRing;
 
             AddQuad(rootIndex,     rootIndex + 1, rootIndexNext,     rootIndexNext + 1);
-            AddQuad(rootIndex + 2, rootIndex + 3, rootIndexNext + 2, rootIndexNext + 3); // left sidewalk
-            AddQuad(rootIndex + 4, rootIndex + 5, rootIndexNext + 4, rootIndexNext + 5); // right sidewalk
         }
 
         Mesh mesh = new Mesh();

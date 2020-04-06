@@ -1,22 +1,6 @@
 using UnityEngine;
 using System;
 
-
-public class OrientedPoint {
-    public Vector3 position;
-    public Vector3 tangent;
-    public Vector3 normal;
-    public Vector3 binormal;
-
-    public Vector3 localToWorld(Vector3 localPos) {
-        return position + Quaternion.LookRotation(tangent, normal) * localPos;
-    }
-
-    public Vector3 localToWorldVector(Vector3 localPos) {
-        return Quaternion.LookRotation(tangent, normal) * localPos;
-    }
-}
-
 public class BezierSpline : MonoBehaviour
 {
     public bool debugNormals = false;
@@ -93,18 +77,31 @@ public class BezierSpline : MonoBehaviour
         return worldTangent.normalized;
     }
 
-    public Vector3 GetBinormalLocal(float t, Vector3 up)
+    public Vector3 GetBinormalLocal(float t, Vector3 localUp)
     {
         Vector3 tangent = GetTangentLocal(t);
-        Vector3 binormal = Vector3.Cross(up, tangent).normalized;
+        Vector3 binormal = Vector3.Cross(localUp, tangent).normalized;
         return binormal;
     }
 
-    public Vector3 GetNormalLocal(float t, Vector3 up)
+    public Vector3 GetNormalLocal(float t, Vector3 localUp)
     {
         Vector3 tangent = GetTangentLocal(t);
-        Vector3 binormal = Vector3.Cross(up, tangent).normalized;
+        Vector3 binormal = Vector3.Cross(localUp, tangent).normalized;
         return Vector3.Cross(tangent, binormal);
+    }
+
+    public OrientedPoint GetOrientedPointLocal(float t, Vector3 worldUp)
+    {
+        OrientedPoint point = new OrientedPoint();
+        Vector3 localUp = transform.InverseTransformDirection(worldUp);
+
+        point.position = GetPointLocal(t);
+        point.tangent = GetTangentLocal(t);
+        point.normal = GetNormalLocal(t, localUp);
+        point.binormal = GetBinormalLocal(t, localUp);
+
+        return point;
     }
 
     public Vector3 GetPoint(float t)
@@ -120,76 +117,34 @@ public class BezierSpline : MonoBehaviour
         return worldTangent.normalized;
     }
 
-    public Vector3 GetBinormal(float t, Vector3 up)
+    public Vector3 GetBinormal(float t, Vector3 worldUp)
     {
         Vector3 tangent = GetTangent(t);
-        Vector3 binormal = Vector3.Cross(up, tangent).normalized;
+        Vector3 binormal = Vector3.Cross(worldUp, tangent).normalized;
         return binormal;
     }
 
-    public Vector3 GetNormal(float t, Vector3 up)
+    public Vector3 GetNormal(float t, Vector3 worldUp)
     {
         Vector3 tangent = GetTangent(t);
-        Vector3 binormal = Vector3.Cross(up, tangent).normalized;
+        Vector3 binormal = Vector3.Cross(worldUp, tangent).normalized;
         return Vector3.Cross(tangent, binormal);
     }
 
 
-    public OrientedPoint GetOrientedPointLocal(float t, Vector3 up)
-    {
-        OrientedPoint point = new OrientedPoint();
 
-        point.position = GetPointLocal(t);
-        point.tangent = GetTangentLocal(t);
-        point.normal = GetNormalLocal(t, up);
-        point.binormal = GetBinormalLocal(t, up);
-
-        return point;
-    }
-
-    public OrientedPoint GetOrientedPoint(float t, Vector3 up)
+    public OrientedPoint GetOrientedPoint(float t, Vector3 worldUp)
     {
         OrientedPoint point = new OrientedPoint();
 
         point.position = GetPoint(t);
         point.tangent = GetTangent(t);
-        point.normal = GetNormal(t, up);
-        point.binormal = GetBinormal(t, up);
+        point.normal = GetNormal(t, worldUp);
+        point.binormal = GetBinormal(t, worldUp);
 
         return point;
     }
 
-    public void CalcLengthTableInfo(float[] arr)
-    {
-        arr[0] = 0f;
-        float totalLength = 0f;
-        Vector3 prev = points[0];
-        for (int i = 1; i < arr.Length; i++)
-        {
-            float t = (float)i / (arr.Length - 1);
-            Vector3 pt = GetPointLocal(t);
-            float distanceDiff = (prev - pt).magnitude;
-            totalLength += distanceDiff;
-            arr[i] = totalLength;
-            prev = pt;
-        }
-    }
-
-    public float Sample(float[] arr, float t)
-    {
-        float iFloat = t * (arr.Length - 1);
-        int idLower = Mathf.FloorToInt(iFloat);
-        int idUpper = Mathf.FloorToInt(iFloat + 1);
-        if (idUpper >= arr.Length)
-        {
-            return arr[arr.Length - 1];
-        }
-        if (idLower < 0)
-        {
-            return arr[0];
-        }
-        return Mathf.Lerp(arr[idLower], arr[idUpper], iFloat - idLower);
-    }
 
     public void AddCurve()
     {
@@ -282,5 +237,66 @@ public class BezierSpline : MonoBehaviour
     // velocity.
     public static float GetTWithRealDistance(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t0, float dist) {
         return dist / DerivOnBezier(p0,p1,p2,p3,t0).magnitude;
+    }
+}
+
+public class OrientedPoint {
+    public Vector3 position;
+    public Vector3 tangent;
+    public Vector3 normal;
+    public Vector3 binormal;
+
+    public Vector3 localToWorld(Vector3 localPos) {
+        return position + Quaternion.LookRotation(tangent, normal) * localPos;
+    }
+
+    public Vector3 localToWorldVector(Vector3 localPos) {
+        return Quaternion.LookRotation(tangent, normal) * localPos;
+    }
+}
+
+public class BezierSplineDistanceLUT {
+    BezierSpline spline;
+    float[] distanceLUT;
+
+    public float TotalLength {
+        get { return distanceLUT[distanceLUT.Length - 1]; }
+    }
+
+    public BezierSplineDistanceLUT(BezierSpline spline, int sampleCount) {
+        this.spline = spline;
+        this.distanceLUT = new float[sampleCount];
+        FillLengthTableInfo();
+    }
+
+    public float Sample(float t) {
+        float iFloat = t * (distanceLUT.Length - 1);
+        int idLower = Mathf.FloorToInt(iFloat);
+        int idUpper = Mathf.FloorToInt(iFloat + 1);
+
+        if (idUpper >= distanceLUT.Length) {
+            return distanceLUT[distanceLUT.Length - 1];
+        }
+
+        if (idLower < 0) {
+            return distanceLUT[0];
+        }
+
+        return Mathf.Lerp(distanceLUT[idLower], distanceLUT[idUpper], iFloat - idLower);
+    }
+
+    private void FillLengthTableInfo() {
+        distanceLUT[0] = 0f;
+        float totalLength = 0f;
+        Vector3 prev = spline[0];
+
+        for (int i = 1; i < distanceLUT.Length; i++) {
+            float t = i / (distanceLUT.Length - 1f);
+            Vector3 pt = spline.GetPointLocal(t);
+            float distanceDiff = Vector3.Distance(prev, pt);
+            totalLength += distanceDiff;
+            distanceLUT[i] = totalLength;
+            prev = pt;
+        }
     }
 }

@@ -97,8 +97,7 @@ public class RoadMesh : MonoBehaviour
         BezierSpline spline = GetComponent<BezierSpline>();
         int ringSubdivisionCount = Mathf.RoundToInt(1f / precision) * Spline.CurveCount;
 
-        float[] arr = new float[ringSubdivisionCount];
-        spline.CalcLengthTableInfo(arr);
+        BezierSplineDistanceLUT splineDistanceLUT = new BezierSplineDistanceLUT(spline, ringSubdivisionCount);
 
         // Vertices
         List<Vector3> verts = new List<Vector3>();
@@ -123,7 +122,7 @@ public class RoadMesh : MonoBehaviour
             RaycastHit hit = this.projectOnTerrain(globalSplinePosition.x, globalSplinePosition.z);
             OrientedPoint p = spline.GetOrientedPointLocal(t, hit.normal);
 
-            float splineDistance = spline.Sample(arr, t);
+            float splineDistance = splineDistanceLUT.Sample(t);
 
             Vector3 localLeft = Vector3.left * roadWidth / 2f;
             AddVertex(p.localToWorld(localLeft), p.normal, new Vector2(0f, splineDistance));

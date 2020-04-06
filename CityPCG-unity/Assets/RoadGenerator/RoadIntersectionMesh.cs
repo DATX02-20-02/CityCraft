@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class RoadIntersectionMesh : MonoBehaviour {
 
     private class RoadConnection {
@@ -15,6 +14,8 @@ public class RoadIntersectionMesh : MonoBehaviour {
         }
     };
 
+    [SerializeField] private Material roadMaterial;
+    [SerializeField] private Material sidewalkMaterial;
     [SerializeField] private List<RoadConnection> connectedRoads;
     [SerializeField] private bool debugView = false;
 
@@ -77,12 +78,38 @@ public class RoadIntersectionMesh : MonoBehaviour {
     }
 
     public void UpdateMesh(ProjectOnTerrain projectOnTerrain) {
+        if (connectedRoads == null) return;
+        if (connectedRoads.Count < 3) {
+            Debug.LogWarning("Tried to generate intersection with fewer than 3 connected roads, aborting");
+            return;
+        }
+
         this.projectOnTerrain = projectOnTerrain;
 
         UpdateIntersectionState();
-        Mesh result = CreateMesh();
-        if (result != null) {
-            GetComponent<MeshFilter>().sharedMesh = result;
+        if (!isValid) return;
+
+        (Mesh result, Mesh[] cornerMeshes) = CreateMesh();
+
+        // remove any previous mesh
+        foreach (Transform child in this.transform) {
+            Destroy(child.gameObject);
+        }
+
+        MeshFilter CreateEmptyRenderable(string name, Material material) {
+            GameObject go = new GameObject(name);
+            go.transform.parent = this.transform;
+            go.transform.localPosition = Vector3.zero;
+            go.AddComponent<MeshRenderer>().material = material;
+            return go.AddComponent<MeshFilter>();
+        }
+
+        MeshFilter intersection = CreateEmptyRenderable("Intersection", roadMaterial);
+        intersection.sharedMesh = result;
+
+        for (int i = 0; i < cornerMeshes.Length; i++) {
+            MeshFilter sidewalks = CreateEmptyRenderable("Corner Sidewalk " + i, sidewalkMaterial);
+            sidewalks.sharedMesh = cornerMeshes[i];
         }
     }
 
@@ -94,22 +121,7 @@ public class RoadIntersectionMesh : MonoBehaviour {
         return r.RoadStart == this;
     }
 
-    private Vector3 SplineDirectionOfAttack(RoadMesh r) {
-        if (IsStart(r)) {
-            return r.Spline.GetTangent(0f) * (-1f);
-        }
-        else {
-            return r.Spline.GetTangent(1f);
-        }
-    }
-
     private void UpdateIntersectionState() {
-        if (connectedRoads == null) return;
-        if (connectedRoads.Count < 3) {
-            Debug.LogWarning("Tried to generate intersection with fewer than 3 connected roads, aborting");
-            return;
-        }
-
         isValid = true;
 
         // sort roads in cw order
@@ -236,111 +248,135 @@ public class RoadIntersectionMesh : MonoBehaviour {
         }
     }
 
-    public Mesh CreateMesh() {
-        if (connectedRoads == null || connectionPoints == null) return null;
-        if (connectedRoads.Count < 3) return null;
-        if (!isValid) return null;
+    private (Mesh, Mesh[]) CreateMesh() {
 
-        Vector2 whiteUV = new Vector2(0.85f, 0.0f);
-
-        List<Vector3> verts = new List<Vector3>();
-        List<Vector3> normals = new List<Vector3>();
-        List<Vector2> uvs = new List<Vector2>();
-        List<int> triangles = new List<int>();
-
-        int AddVertice(Vector3 vert, Vector2 uv) {
-            RaycastHit hit = this.projectOnTerrain(vert.x, vert.z);
-            verts.Add(transform.InverseTransformPoint(hit.point + hit.normal * 0.01f));
-            normals.Add(this.intersectionNormal);
-            uvs.Add(uv);
-
-            return verts.Count - 1;
-        }
-
-        foreach (RoadSegment c in connectionPoints) {
-            // Construct right corner
-            IntersectionCorner corner = c.cornerRight;
-            if (c.cornerRight.sidewalkIntersection == c.cornerRight.sidewalkStartLeft && c.cornerRight.sidewalkIntersection == c.cornerRight.sidewalkStartRight) {
-                int idx = AddVertice(corner.streetIntersection, whiteUV);
-                AddVertice(corner.streetStartRight, whiteUV);
-                AddVertice(corner.streetStartLeft, whiteUV);
-                AddVertice(corner.sidewalkIntersection, whiteUV);
-                triangles.Add(idx + 0);
-                triangles.Add(idx + 1);
-                triangles.Add(idx + 2);
-
-                triangles.Add(idx + 1);
-                triangles.Add(idx + 3);
-                triangles.Add(idx + 2);
-            }
-            else {
-                int idx = AddVertice(corner.sidewalkStartLeft, Vector2.one);
-                AddVertice(corner.streetStartLeft, Vector2.one);
-
-                AddVertice(corner.sidewalkIntersection, Vector2.one);
-                AddVertice(corner.streetIntersection, Vector2.one);
-
-                AddVertice(corner.sidewalkStartRight, Vector2.one);
-                AddVertice(corner.streetStartRight, Vector2.one);
-
-                // TODO: This is an unecessary triangle for some cases - figure it out!
-                triangles.Add(idx + 0);
-                triangles.Add(idx + 1);
-                triangles.Add(idx + 2);
-
-                triangles.Add(idx + 1);
-                triangles.Add(idx + 3);
-                triangles.Add(idx + 2);
-
-                triangles.Add(idx + 2);
-                triangles.Add(idx + 3);
-                triangles.Add(idx + 4);
-
-                triangles.Add(idx + 3);
-                triangles.Add(idx + 5);
-                triangles.Add(idx + 4);
-            }
-
-            // Connect road to center of intersection
-            {
-                int idx = AddVertice(c.cornerRight.streetStartLeft, Vector2.one);
-                AddVertice(c.cornerLeft.streetStartRight, Vector2.one);
-                AddVertice(c.cornerRight.streetIntersection, Vector2.one);
-                AddVertice(c.cornerLeft.streetIntersection, Vector2.one);
-
-                triangles.Add(idx + 0);
-                triangles.Add(idx + 1);
-                triangles.Add(idx + 2);
-
-                triangles.Add(idx + 1);
-                triangles.Add(idx + 3);
-                triangles.Add(idx + 2);
-              }
-        }
-
-        // Build center mesh
+        // Build center of intersection
+        Mesh centerMesh = new Mesh();
         {
-            int centerRoot = verts.Count;
-            for (int i = connectionPoints.Length - 1; i >= 0; i--) {
-                IntersectionCorner corner = connectionPoints[i].cornerRight;
-                AddVertice(corner.streetIntersection, Vector2.one);
+            List<Vector3> verts = new List<Vector3>();
+            List<Vector3> normals = new List<Vector3>();
+            List<Vector2> uvs = new List<Vector2>();
+            List<int> triangles = new List<int>();
+
+            int AddVertice(Vector3 vert, Vector2 uv) {
+                RaycastHit hit = this.projectOnTerrain(vert.x, vert.z);
+                verts.Add(transform.InverseTransformPoint(hit.point + hit.normal * 0.01f));
+                normals.Add(this.intersectionNormal);
+                uvs.Add(uv);
+
+                return verts.Count - 1;
             }
 
-            for (int tri = 0; tri < connectionPoints.Length - 2; tri++) {
-                triangles.Add(centerRoot);
-                triangles.Add(centerRoot + tri + 1);
-                triangles.Add(centerRoot + tri + 2);
+            foreach (RoadSegment c in connectionPoints) {
+
+                // Connect road to center of intersection
+                {
+                    int idx = AddVertice(c.cornerRight.streetStartLeft, Vector2.one);
+                    AddVertice(c.cornerLeft.streetStartRight, Vector2.one);
+                    AddVertice(c.cornerRight.streetIntersection, Vector2.one);
+                    AddVertice(c.cornerLeft.streetIntersection, Vector2.one);
+
+                    triangles.Add(idx + 0);
+                    triangles.Add(idx + 1);
+                    triangles.Add(idx + 2);
+
+                    triangles.Add(idx + 1);
+                    triangles.Add(idx + 3);
+                    triangles.Add(idx + 2);
+                  }
+            }
+
+            // Build center mesh
+            {
+                int centerRoot = verts.Count;
+                for (int i = connectionPoints.Length - 1; i >= 0; i--) {
+                    IntersectionCorner corner = connectionPoints[i].cornerRight;
+                    AddVertice(corner.streetIntersection, Vector2.one);
+                }
+
+                for (int tri = 0; tri < connectionPoints.Length - 2; tri++) {
+                    triangles.Add(centerRoot);
+                    triangles.Add(centerRoot + tri + 1);
+                    triangles.Add(centerRoot + tri + 2);
+                }
+            }
+
+            centerMesh.SetVertices(verts);
+            centerMesh.SetTriangles(triangles, 0);
+            centerMesh.SetNormals(normals);
+            centerMesh.SetUVs(0, uvs);
+        }
+
+        // Create corner meshes
+        Mesh[] cornerMeshes = new Mesh[connectionPoints.Length];
+        {
+            for (int i = 0; i < cornerMeshes.Length; i++) {
+                List<Vector3> verts = new List<Vector3>();
+                List<Vector3> normals = new List<Vector3>();
+                List<Vector2> uvs = new List<Vector2>();
+                List<int> triangles = new List<int>();
+
+                int AddVertice(Vector3 vert, Vector2 uv) {
+                    RaycastHit hit = this.projectOnTerrain(vert.x, vert.z);
+                    verts.Add(transform.InverseTransformPoint(hit.point + hit.normal * 0.01f));
+                    normals.Add(this.intersectionNormal);
+                    uvs.Add(uv);
+
+                    return verts.Count - 1;
+                }
+
+                IntersectionCorner corner = connectionPoints[i].cornerRight;
+                if (corner.sidewalkIntersection == corner.sidewalkStartLeft && corner.sidewalkIntersection == corner.sidewalkStartRight) {
+                    int idx = AddVertice(corner.streetIntersection, new Vector2(1f, 1f));
+                    AddVertice(corner.streetStartRight, new Vector2(1f, 0f));
+                    AddVertice(corner.streetStartLeft, new Vector2(0f, 1f));
+                    AddVertice(corner.sidewalkIntersection, new Vector2(0f, 0f));
+                    triangles.Add(idx + 0);
+                    triangles.Add(idx + 1);
+                    triangles.Add(idx + 2);
+
+                    triangles.Add(idx + 1);
+                    triangles.Add(idx + 3);
+                    triangles.Add(idx + 2);
+                }
+                else {
+                    int idx = AddVertice(corner.sidewalkStartLeft, Vector2.one);
+                    AddVertice(corner.streetStartLeft, Vector2.one);
+
+                    AddVertice(corner.sidewalkIntersection, Vector2.one);
+                    AddVertice(corner.streetIntersection, Vector2.one);
+
+                    AddVertice(corner.sidewalkStartRight, Vector2.one);
+                    AddVertice(corner.streetStartRight, Vector2.one);
+
+                    // TODO: This is an unecessary triangle for some cases - figure it out!
+                    triangles.Add(idx + 0);
+                    triangles.Add(idx + 1);
+                    triangles.Add(idx + 2);
+
+                    triangles.Add(idx + 1);
+                    triangles.Add(idx + 3);
+                    triangles.Add(idx + 2);
+
+                    triangles.Add(idx + 2);
+                    triangles.Add(idx + 3);
+                    triangles.Add(idx + 4);
+
+                    triangles.Add(idx + 3);
+                    triangles.Add(idx + 5);
+                    triangles.Add(idx + 4);
+                }
+
+                cornerMeshes[i] = new Mesh();
+                cornerMeshes[i].SetVertices(verts);
+                cornerMeshes[i].SetTriangles(triangles, 0);
+                cornerMeshes[i].SetNormals(normals);
+                cornerMeshes[i].SetUVs(0, uvs);
             }
         }
 
-        Mesh mesh = new Mesh();
-        mesh.SetVertices(verts);
-        mesh.SetTriangles(triangles, 0);
-        mesh.SetNormals(normals);
-        mesh.SetUVs(0, uvs);
-        return mesh;
+        return (centerMesh, cornerMeshes);
     }
-
 
     public void Reset() {
     }

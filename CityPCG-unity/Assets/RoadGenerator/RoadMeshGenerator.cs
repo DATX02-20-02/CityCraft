@@ -30,6 +30,7 @@ public class RoadMeshGenerator : MonoBehaviour {
 
     private bool isTraversing = false;
 
+    private TerrainModel terrainModel;
     private ProjectOnTerrain projectOnTerrain;
 
     void Start() {
@@ -39,27 +40,30 @@ public class RoadMeshGenerator : MonoBehaviour {
         intersectionParent.transform.parent = this.transform;
     }
 
-    public void Generate(RoadNetwork network) {
+    public void Generate(RoadNetwork network, TerrainModel terrainModel) {
         if (network == null) {
             Debug.LogWarning("Failed to generate road meshes! Given network does not exist.");
             return;
         }
         this.network = network;
+        this.terrainModel = terrainModel;
 
+        // this.projectOnTerrain = (float x, float z) => {
+        //     float rayLength = 10000f;
+        //     Ray ray = new Ray(new Vector3(x, rayLength, z), Vector3.down);
 
+        //     RaycastHit hit;
+        //     if (TerrainMesh.GetComponent<Collider>().Raycast(ray, out hit, rayLength)) {
+        //         return hit;
+        //     }
+
+        //     float y = network.Terrain.GetHeight(x, z);
+        //     hit.point = new Vector3(x, y, z);
+        //     hit.normal = network.Terrain.GetNormal(x, z);
+        //     return hit;
+        // };
         this.projectOnTerrain = (float x, float z) => {
-            float rayLength = 10000f;
-            Ray ray = new Ray(new Vector3(x, rayLength, z), Vector3.down);
-
-            RaycastHit hit;
-            if (TerrainMesh.GetComponent<Collider>().Raycast(ray, out hit, rayLength)) {
-                return hit;
-            }
-
-            float y = network.Terrain.GetHeight(x, z);
-            hit.point = new Vector3(x, y, z);
-            hit.normal = network.Terrain.GetNormal(x, z);
-            return hit;
+            return terrainModel.GetMeshHit(x, z);
         };
 
         if (isTraversing) {

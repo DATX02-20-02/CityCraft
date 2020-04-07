@@ -106,7 +106,6 @@ public class RoadMesh : MonoBehaviour
 
     private Mesh ExtrudeQuadFromSpline(Vector3 localCenterOffset, float width) {
         int ringSubdivisionCount = Mathf.RoundToInt(1f / precision) * Spline.CurveCount;
-
         BezierSplineDistanceLUT splineDistanceLUT = new BezierSplineDistanceLUT(Spline, ringSubdivisionCount);
 
         // Vertices
@@ -116,8 +115,9 @@ public class RoadMesh : MonoBehaviour
 
         int AddVertex(Vector3 pos, Vector3 normal, Vector2 uv) {
             Vector3 worldPos = transform.TransformPoint(pos);
-            // verts.Add(transform.InverseTransformPoint(hit.point + hit.normal * 0.005f));
-            verts.Add(pos);
+            RaycastHit hit = this.projectOnTerrain(worldPos.x, worldPos.z);
+            verts.Add(transform.InverseTransformPoint(hit.point + hit.normal * 0.005f));
+            // verts.Add(pos);
 
             normals.Add(normal);
             uvs.Add(uv);

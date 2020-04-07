@@ -2,8 +2,7 @@ using UnityEditor;
 using UnityEngine;
 
 [CustomEditor(typeof(BezierSpline))]
-public class BezierSplineInspector : Editor
-{
+public class BezierSplineInspector : Editor {
     private BezierSpline spline;
     private Transform handleTransform;
     private Quaternion handleRotation;
@@ -12,8 +11,7 @@ public class BezierSplineInspector : Editor
     private const float pickSize = 0.10f;
     private int selectedIndex = -1;
 
-    public override void OnInspectorGUI()
-    {
+    public override void OnInspectorGUI() {
         spline = target as BezierSpline;
 
         DrawDefaultInspector();
@@ -54,20 +52,17 @@ public class BezierSplineInspector : Editor
         }
     }
 
-    void OnSceneGUI()
-    {
+    void OnSceneGUI() {
         spline = target as BezierSpline;
         handleTransform = spline.transform;
         handleRotation = handleTransform.rotation;
 
-        if (spline.ControlPointCount < 4)
-        {
+        if (spline.ControlPointCount < 4) {
             return;
         }
 
         Vector3 p0 = ShowPoint(0);
-        for (int i = 1; i < spline.ControlPointCount; i += 3)
-        {
+        for (int i = 1; i < spline.ControlPointCount; i += 3) {
             Vector3 p1 = ShowPoint(i);
             Vector3 p2 = ShowPoint(i + 1);
             Vector3 p3 = ShowPoint(i + 2);
@@ -85,10 +80,8 @@ public class BezierSplineInspector : Editor
         const float lineLength = 0.1f;
 
         int samplePoints = spline.CurveCount * 80;
-        if (spline.debugNormals)
-        {
-            for (float t = 0.0f; t < 1f; t += (1f / (float)samplePoints))
-            {
+        if (spline.debugNormals) {
+            for (float t = 0.0f; t < 1f; t += (1f / (float)samplePoints)) {
                 Vector3 start = spline.GetPoint(t);
                 Vector3 tangent = spline.GetTangent(t);
                 Vector3 normal = spline.GetNormal(t, Vector3.up);
@@ -106,29 +99,24 @@ public class BezierSplineInspector : Editor
         }
     }
 
-    private Vector3 ShowPoint(int index)
-    {
+    private Vector3 ShowPoint(int index) {
         Vector3 point = handleTransform.TransformPoint(spline[index]);
 
         float size = HandleUtility.GetHandleSize(point);
-        if (index == 0)
-        {
+        if (index == 0) {
             size *= 2f;
         }
 
         Handles.color = (index % 3) == 0 ? Color.green : Color.yellow;
-        if (Handles.Button(point, Quaternion.LookRotation(Vector3.up), size * handleSize, size * pickSize, Handles.CircleHandleCap))
-        {
+        if (Handles.Button(point, Quaternion.LookRotation(Vector3.up), size * handleSize, size * pickSize, Handles.CircleHandleCap)) {
             selectedIndex = index;
             Repaint();
         }
 
-        if (selectedIndex == index)
-        {
+        if (selectedIndex == index) {
             EditorGUI.BeginChangeCheck();
             Vector3 newPoint = Handles.DoPositionHandle(point, handleRotation);
-            if (EditorGUI.EndChangeCheck())
-            {
+            if (EditorGUI.EndChangeCheck()) {
                 Undo.RecordObject(spline, "Moved Spline Control point");
                 point = newPoint;
                 spline.AutoConstructSpline();
@@ -140,11 +128,9 @@ public class BezierSplineInspector : Editor
         return point;
     }
 
-    private void TryUpdateRoad()
-    {
+    private void TryUpdateRoad() {
         RoadMesh road = spline.GetComponent<RoadMesh>();
-        if (road)
-        {
+        if (road) {
             road.GenerateRoadMesh();
         }
     }

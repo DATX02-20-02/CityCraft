@@ -103,7 +103,7 @@ public class RoadMeshGenerator : MonoBehaviour {
             this.queue.AddLast(new Traverser(startNode, c.node, 0));
         }
 
-        while(this.queue.Count > 0) {
+        while (this.queue.Count > 0) {
             for (int iteration = 0; iteration < maxIterations; iteration++) {
                 if (this.queue.Count == 0) { break; }
                 Traverser traverser = getFirst ? this.queue.First.Value : this.queue.Last.Value;
@@ -275,10 +275,10 @@ class Traverser : System.IComparable {
     }
 
     public int CompareTo(object obj) {
-        if(obj == null) return 1;
+        if (obj == null) return 1;
 
         Traverser traverser = obj as Traverser;
-        if(traverser != null) {
+        if (traverser != null) {
             return priority.CompareTo(traverser.priority);
         }
         else {

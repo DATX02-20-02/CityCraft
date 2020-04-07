@@ -57,16 +57,6 @@ public class RoadIntersectionMesh : MonoBehaviour {
         public bool isIntersectingLeftCornerFirst;
     }
 
-    private void DrawLine(Vector3 start, Vector3 end, Color color) {
-        if (debugView) Debug.DrawLine(start, end, color);
-    }
-    private void DrawPoint(Vector3 pos, float radius, Color color) {
-        if (debugView) DrawUtil.DebugDrawCircle(pos, radius, color, 20);
-    }
-
-    public void Awake() {
-        connectedRoads = new List<RoadConnection>();
-    }
 
     public void AddConnection(RoadMesh toAdd, Vector3 angleOfAttack) {
         connectedRoads.Add(new RoadConnection(toAdd, angleOfAttack));
@@ -89,12 +79,10 @@ public class RoadIntersectionMesh : MonoBehaviour {
         UpdateIntersectionState();
         if (!isValid) return;
 
-        (Mesh result, Mesh[] cornerMeshes) = CreateMesh();
+        // Remove any old mesh
+        foreach (Transform child in this.transform) { Destroy(child.gameObject); }
 
-        // remove any previous mesh
-        foreach (Transform child in this.transform) {
-            Destroy(child.gameObject);
-        }
+        (Mesh result, Mesh[] cornerMeshes) = CreateMesh();
 
         MeshFilter CreateEmptyRenderable(string name, Material material) {
             GameObject go = new GameObject(name);
@@ -126,7 +114,7 @@ public class RoadIntersectionMesh : MonoBehaviour {
 
         // sort roads in cw order
         {
-            connectedRoads.Sort(delegate(RoadConnection r1, RoadConnection r2) {
+            connectedRoads.Sort(delegate (RoadConnection r1, RoadConnection r2) {
                 Vector3 r1Dir = r1.angleOfAttack;
                 float r1Angle = Mathf.Atan2(r1Dir.z, r1Dir.x) * Mathf.Rad2Deg;
                 Vector3 r2Dir = r2.angleOfAttack;
@@ -150,7 +138,7 @@ public class RoadIntersectionMesh : MonoBehaviour {
         connectionPoints = new RoadSegment[connectedRoads.Count];
         this.intersectionNormal = this.projectOnTerrain(transform.position.x, transform.position.z).normal;
         for (int i = 0; i < connectionPoints.Length; i++) {
-            RoadSegment c  = new RoadSegment();
+            RoadSegment c = new RoadSegment();
             c.r = connectedRoads[i].road;
             c.s = c.r.Spline;
             c.tangent = connectedRoads[i].angleOfAttack * (-1f);
@@ -189,14 +177,14 @@ public class RoadIntersectionMesh : MonoBehaviour {
 
             if (Vector3.Angle(left.tangent, right.tangent) > 170f) {
                 corner.sidewalkIntersection = transform.position + right.binormal * right.r.Width / 2f;
-                corner.streetIntersection =  transform.position + right.binormal * right.r.RoadWidth / 2f;
+                corner.streetIntersection = transform.position + right.binormal * right.r.RoadWidth / 2f;
                 DrawPoint(corner.sidewalkIntersection, 0.03f, Color.yellow);
                 DrawPoint(corner.streetIntersection, 0.03f, Color.yellow);
             }
             else {
                 LineIntersection.Result intersection;
 
-                intersection = GetRoadIntersection(left.r.Width / 2f, right.r.Width/ 2f);
+                intersection = GetRoadIntersection(left.r.Width / 2f, right.r.Width / 2f);
                 if (intersection.type == LineIntersection.Type.Intersecting) {
                     Vector3 sidewalkIntersectionPoint = VectorUtil.Vector2To3(intersection.point) + Vector3.up * transform.position.y;
                     DrawPoint(sidewalkIntersectionPoint, 0.03f, Color.red);
@@ -283,7 +271,7 @@ public class RoadIntersectionMesh : MonoBehaviour {
                     triangles.Add(idx + 1);
                     triangles.Add(idx + 3);
                     triangles.Add(idx + 2);
-                  }
+                }
             }
 
             // Build center mesh
@@ -378,6 +366,15 @@ public class RoadIntersectionMesh : MonoBehaviour {
         return (centerMesh, cornerMeshes);
     }
 
-    public void Reset() {
+    private void DrawLine(Vector3 start, Vector3 end, Color color) {
+        if (debugView) Debug.DrawLine(start, end, color);
+    }
+
+    private void DrawPoint(Vector3 pos, float radius, Color color) {
+        if (debugView) DrawUtil.DebugDrawCircle(pos, radius, color, 20);
+    }
+
+    void Awake() {
+        connectedRoads = new List<RoadConnection>();
     }
 }

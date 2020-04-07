@@ -1,24 +1,21 @@
 using UnityEngine;
 using System;
 
-public class BezierSpline : MonoBehaviour
-{
+public class BezierSpline : MonoBehaviour {
+#if UNITY_EDITOR
     public bool debugNormals = false;
     public bool debugDrawSpline = false;
+#endif
 
-    [SerializeField]
-    private Vector3[] points;
+    [SerializeField] private Vector3[] points;
 
-    public Vector3 this[int index]
-    {
+    public Vector3 this[int index] {
         get => points[index];
         set => SetControlPoint(index, value);
     }
 
-    public void SetControlPoint (int index, Vector3 point)
-    {
-        if (index % 3 == 0)
-        {
+    public void SetControlPoint(int index, Vector3 point) {
+        if (index % 3 == 0) {
             Vector3 delta = point - points[index];
             if (index > 0) {
                 points[index - 1] += delta;
@@ -44,55 +41,32 @@ public class BezierSpline : MonoBehaviour
         }
     }
 
-    private int GetCurveIndex(ref float t)
-    {
-        int i;
-        if (t >= 1f)
-        {
-            t = 1f;
-            i = points.Length - 4;
-        }
-        else
-        {
-            t = Mathf.Clamp01(t) * CurveCount;
-            i = (int)t;
-            t -= i;
-            i *= 3;
-        }
 
-        return i;
-    }
-
-    public Vector3 GetPointLocal(float t)
-    {
+    public Vector3 GetPointLocal(float t) {
         int i = GetCurveIndex(ref t);
         Vector3 worldPosition = PointOnBezier(points[i], points[i + 1], points[i + 2], points[i + 3], t);
         return worldPosition;
     }
 
-    public Vector3 GetTangentLocal(float t)
-    {
+    public Vector3 GetTangentLocal(float t) {
         int i = GetCurveIndex(ref t);
         Vector3 worldTangent = DerivOnBezier(points[i], points[i + 1], points[i + 2], points[i + 3], t);
         return worldTangent.normalized;
     }
 
-    public Vector3 GetBinormalLocal(float t, Vector3 localUp)
-    {
+    public Vector3 GetBinormalLocal(float t, Vector3 localUp) {
         Vector3 tangent = GetTangentLocal(t);
         Vector3 binormal = Vector3.Cross(localUp, tangent).normalized;
         return binormal;
     }
 
-    public Vector3 GetNormalLocal(float t, Vector3 localUp)
-    {
+    public Vector3 GetNormalLocal(float t, Vector3 localUp) {
         Vector3 tangent = GetTangentLocal(t);
         Vector3 binormal = Vector3.Cross(localUp, tangent).normalized;
         return Vector3.Cross(tangent, binormal);
     }
 
-    public OrientedPoint GetOrientedPointLocal(float t, Vector3 worldUp)
-    {
+    public OrientedPoint GetOrientedPointLocal(float t, Vector3 worldUp) {
         OrientedPoint point = new OrientedPoint();
         Vector3 localUp = transform.InverseTransformDirection(worldUp);
 
@@ -104,28 +78,24 @@ public class BezierSpline : MonoBehaviour
         return point;
     }
 
-    public Vector3 GetPoint(float t)
-    {
+    public Vector3 GetPoint(float t) {
         Vector3 worldPosition = transform.TransformPoint(GetPointLocal(t));
         return worldPosition;
     }
 
-    public Vector3 GetTangent(float t)
-    {
+    public Vector3 GetTangent(float t) {
         int i = GetCurveIndex(ref t);
         Vector3 worldTangent = transform.TransformDirection(GetTangentLocal(t));
         return worldTangent.normalized;
     }
 
-    public Vector3 GetBinormal(float t, Vector3 worldUp)
-    {
+    public Vector3 GetBinormal(float t, Vector3 worldUp) {
         Vector3 tangent = GetTangent(t);
         Vector3 binormal = Vector3.Cross(worldUp, tangent).normalized;
         return binormal;
     }
 
-    public Vector3 GetNormal(float t, Vector3 worldUp)
-    {
+    public Vector3 GetNormal(float t, Vector3 worldUp) {
         Vector3 tangent = GetTangent(t);
         Vector3 binormal = Vector3.Cross(worldUp, tangent).normalized;
         return Vector3.Cross(tangent, binormal);
@@ -133,8 +103,7 @@ public class BezierSpline : MonoBehaviour
 
 
 
-    public OrientedPoint GetOrientedPoint(float t, Vector3 worldUp)
-    {
+    public OrientedPoint GetOrientedPoint(float t, Vector3 worldUp) {
         OrientedPoint point = new OrientedPoint();
 
         point.position = GetPoint(t);
@@ -146,8 +115,7 @@ public class BezierSpline : MonoBehaviour
     }
 
 
-    public void AddCurve()
-    {
+    public void AddCurve() {
         Vector3 point = points[points.Length - 1];
         Array.Resize(ref points, points.Length + 3);
         point.x += 1f;
@@ -158,12 +126,10 @@ public class BezierSpline : MonoBehaviour
         points[points.Length - 1] = point;
     }
 
-    public void AddPoint(Vector3 newPoint)
-    {
+    public void AddPoint(Vector3 newPoint) {
         newPoint = transform.InverseTransformPoint(newPoint);
 
-        if (points == null || points.Length == 0)
-        {
+        if (points == null || points.Length == 0) {
             Array.Resize(ref points, 1);
             points[0] = newPoint;
             return;
@@ -214,29 +180,42 @@ public class BezierSpline : MonoBehaviour
         }
     }
 
-    public void Reset()
-    {
-        points = new Vector3[0];
+    private int GetCurveIndex(ref float t) {
+        int i;
+        if (t >= 1f) {
+            t = 1f;
+            i = points.Length - 4;
+        }
+        else {
+            t = Mathf.Clamp01(t) * CurveCount;
+            i = (int)t;
+            t -= i;
+            i *= 3;
+        }
+
+        return i;
     }
 
     // Third Order (Four point) bezier solver
     // Equation: (1-t)^3*P_0 + 3*t*(1-t)^2*P_1 + 3*t^2*(1-t)*P_2 + t^3*P_3
-    public static Vector3 PointOnBezier(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
-    {
-        return (1-t)*(1-t)*(1-t)*p0 + 3*t*(1-t)*(1-t)*p1 + 3*t*t*(1-t)*p2 + t*t*t*p3;
+    public static Vector3 PointOnBezier(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
+        return (1 - t) * (1 - t) * (1 - t) * p0 + 3 * t * (1 - t) * (1 - t) * p1 + 3 * t * t * (1 - t) * p2 + t * t * t * p3;
     }
 
     // First derivative of Third Order (Four point) bezier solver.
     // Equation: 3*(1-t)^2*(P_1-P_0) + 6*t*(1-t)*(P_2-P_1) + 3*t^2*(P_3-P_2)
-    public static Vector3 DerivOnBezier(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
-    {
-        return 3*(1-t)*(1-t)*(p1-p0) + 6*t*(1-t)*(p2-p1) + 3*t*t*(p3-p2);
+    public static Vector3 DerivOnBezier(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
+        return 3 * (1 - t) * (1 - t) * (p1 - p0) + 6 * t * (1 - t) * (p2 - p1) + 3 * t * t * (p3 - p2);
     }
 
     // Finds the value t after moving a "real" distance `dist`.  This can be used to move along a curve at a constant
     // velocity.
     public static float GetTWithRealDistance(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t0, float dist) {
-        return dist / DerivOnBezier(p0,p1,p2,p3,t0).magnitude;
+        return dist / DerivOnBezier(p0, p1, p2, p3, t0).magnitude;
+    }
+
+    public void Reset() {
+        points = new Vector3[0];
     }
 }
 

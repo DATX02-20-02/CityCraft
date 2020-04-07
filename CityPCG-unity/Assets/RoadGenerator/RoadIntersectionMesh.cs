@@ -248,7 +248,7 @@ public class RoadIntersectionMesh : MonoBehaviour {
 
             int AddVertice(Vector3 worldPoint, Vector2 uv) {
                 RaycastHit hit = this.projectOnTerrain(worldPoint.x, worldPoint.z);
-                verts.Add(transform.InverseTransformPoint(hit.point + hit.normal * 0.01f));
+                verts.Add(transform.InverseTransformPoint(hit.point + hit.normal * 0.005f));
                 normals.Add(transform.InverseTransformDirection(this.intersectionNormal));
                 uvs.Add(uv);
 
@@ -306,7 +306,7 @@ public class RoadIntersectionMesh : MonoBehaviour {
 
                 int AddVertice(Vector3 vert, Vector2 uv) {
                     RaycastHit hit = this.projectOnTerrain(vert.x, vert.z);
-                    verts.Add(transform.InverseTransformPoint(hit.point + hit.normal * 0.01f));
+                    verts.Add(transform.InverseTransformPoint(hit.point + hit.normal * 0.005f));
                     normals.Add(this.intersectionNormal);
                     uvs.Add(uv);
 

@@ -4,8 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(BezierSpline))]
-public class RoadMesh : MonoBehaviour
-{
+public class RoadMesh : MonoBehaviour {
     [SerializeField] private Material roadMaterial;
     [SerializeField] private Material sidewalkMaterial;
     [SerializeField] private RoadIntersectionMesh roadStart = null;
@@ -51,31 +50,11 @@ public class RoadMesh : MonoBehaviour
         set => roadStart = value;
     }
 
-    public void Reset()
-    {
-        MeshFilter meshFilter = GetComponent<MeshFilter>();
-        if (meshFilter)
-        {
-            if (meshFilter.sharedMesh) {
-                meshFilter.sharedMesh.Clear();
-            }
-        }
-
-        this.projectOnTerrain = (float x, float z) => {
-            Vector3 vec = new Vector3(x, transform.position.y, z);
-            RaycastHit hit = new RaycastHit();
-            hit.point = vec;
-            hit.normal = Vector3.up;
-            return hit;
-        };
-    }
-
     public void GenerateRoadMesh() {
         GenerateRoadMesh(this.projectOnTerrain);
     }
 
-    public void GenerateRoadMesh(ProjectOnTerrain projectOnTerrain)
-    {
+    public void GenerateRoadMesh(ProjectOnTerrain projectOnTerrain) {
         this.projectOnTerrain = projectOnTerrain;
 
         if (Spline.ControlPointCount < 4) {
@@ -125,8 +104,7 @@ public class RoadMesh : MonoBehaviour
             return verts.Count - 1;
         }
 
-        for (int ringIndex = 0; ringIndex < ringSubdivisionCount; ringIndex++)
-        {
+        for (int ringIndex = 0; ringIndex < ringSubdivisionCount; ringIndex++) {
             // TODO(anton): Sample curve at evenly spaced intervals (https://pomax.github.io/bezierinfo/#tracing)
             float t = (ringIndex / (ringSubdivisionCount - 1f));
             Vector3 globalSplinePosition = Spline.GetPoint(t);
@@ -161,7 +139,7 @@ public class RoadMesh : MonoBehaviour
             int rootIndex = ringIndex * verticesPerRing;
             int rootIndexNext = (ringIndex + 1) * verticesPerRing;
 
-            AddQuad(rootIndex,     rootIndex + 1, rootIndexNext,     rootIndexNext + 1);
+            AddQuad(rootIndex, rootIndex + 1, rootIndexNext, rootIndexNext + 1);
         }
 
         Mesh mesh = new Mesh();
@@ -170,5 +148,22 @@ public class RoadMesh : MonoBehaviour
         mesh.SetNormals(normals);
         mesh.SetUVs(0, uvs);
         return mesh;
+    }
+
+    public void Reset() {
+        MeshFilter meshFilter = GetComponent<MeshFilter>();
+        if (meshFilter) {
+            if (meshFilter.sharedMesh) {
+                meshFilter.sharedMesh.Clear();
+            }
+        }
+
+        this.projectOnTerrain = (float x, float z) => {
+            Vector3 vec = new Vector3(x, transform.position.y, z);
+            RaycastHit hit = new RaycastHit();
+            hit.point = vec;
+            hit.normal = Vector3.up;
+            return hit;
+        };
     }
 }

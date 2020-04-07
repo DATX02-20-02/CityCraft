@@ -17,7 +17,7 @@ public class RoadIntersectionInspector : Editor {
             return;
         }
 
-        for (int i = 0; i < intersection.IntersectionState.Length; i ++) {
+        for (int i = 0; i < intersection.IntersectionState.Length; i++) {
             RoadIntersectionMesh.RoadSegment c = intersection.IntersectionState[i];
             Handles.color = new Color(0f, (i / (float)intersection.IntersectionState.Length), 0f);
             Handles.DrawDottedLine(intersection.transform.position, intersection.transform.position + c.tangent, 4f);

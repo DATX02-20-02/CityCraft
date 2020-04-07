@@ -258,10 +258,10 @@ public class RoadIntersectionMesh : MonoBehaviour {
             List<Vector2> uvs = new List<Vector2>();
             List<int> triangles = new List<int>();
 
-            int AddVertice(Vector3 vert, Vector2 uv) {
-                RaycastHit hit = this.projectOnTerrain(vert.x, vert.z);
+            int AddVertice(Vector3 worldPoint, Vector2 uv) {
+                RaycastHit hit = this.projectOnTerrain(worldPoint.x, worldPoint.z);
                 verts.Add(transform.InverseTransformPoint(hit.point + hit.normal * 0.01f));
-                normals.Add(this.intersectionNormal);
+                normals.Add(transform.InverseTransformDirection(this.intersectionNormal));
                 uvs.Add(uv);
 
                 return verts.Count - 1;

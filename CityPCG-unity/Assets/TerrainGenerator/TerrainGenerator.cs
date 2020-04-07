@@ -31,6 +31,7 @@ public class TerrainGenerator : MonoBehaviour {
 
     [SerializeField] private bool debug = false;
 
+    private TerrainModel terrainModel;
     private Mesh mesh;
     private Vector3[] vertices;
     private int[] triangles;
@@ -41,7 +42,8 @@ public class TerrainGenerator : MonoBehaviour {
     public TerrainModel GenerateTerrain() {
         float x = Random.Range(-10000f, 10000f);
         float z = Random.Range(-10000f, 10000f);
-        return GenerateTerrain(new Vector2(x, z));
+        this.terrainModel = GenerateTerrain(new Vector2(x, z));
+        return this.terrainModel;
     }
 
     public TerrainModel GenerateTerrain(Vector2 offset) {
@@ -50,13 +52,15 @@ public class TerrainGenerator : MonoBehaviour {
         this.noiseGenerator.Offset = offset;
         var noise = this.noiseGenerator.Generate();
 
-        var terrainModel = new TerrainModel(width, depth, seaLevel, maxHeight, noise);
+        var terrainModel = new TerrainModel(width, depth, seaLevel, maxHeight, noise, xResolution, zResolution);
 
         GenerateVertices(terrainModel);
         GenerateTriangles();
         ColorTerrain();
         TextureTerrain();
         UpdateTerrainMesh(terrainModel);
+        MeshCollider coll = this.terrainMeshFilter.gameObject.AddComponent<MeshCollider>();
+        coll.sharedMesh = this.mesh;
 
         // Restore RNG state.
         Random.state = prevRandomState;

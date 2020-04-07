@@ -47,8 +47,7 @@ public struct TerrainModel {
         return Vector3.Cross(forward, right).normalized;
     }
 
-    // TODO: Custom return type
-    public RaycastHit GetMeshHit(float x, float z) {
+    public RaycastHit GetMeshIntersection(float x, float z) {
         int xStep = (int)((x / width) * xResolution);
         int zStep = (int)((z / depth) * zResolution);
 

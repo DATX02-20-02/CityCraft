@@ -48,22 +48,8 @@ public class RoadMeshGenerator : MonoBehaviour {
         this.network = network;
         this.terrainModel = terrainModel;
 
-        // this.projectOnTerrain = (float x, float z) => {
-        //     float rayLength = 10000f;
-        //     Ray ray = new Ray(new Vector3(x, rayLength, z), Vector3.down);
-
-        //     RaycastHit hit;
-        //     if (TerrainMesh.GetComponent<Collider>().Raycast(ray, out hit, rayLength)) {
-        //         return hit;
-        //     }
-
-        //     float y = network.Terrain.GetHeight(x, z);
-        //     hit.point = new Vector3(x, y, z);
-        //     hit.normal = network.Terrain.GetNormal(x, z);
-        //     return hit;
-        // };
         this.projectOnTerrain = (float x, float z) => {
-            return terrainModel.GetMeshHit(x, z);
+            return terrainModel.GetMeshIntersection(x, z);
         };
 
         if (isTraversing) {

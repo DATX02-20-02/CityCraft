@@ -14,8 +14,8 @@ public class RoadIntersectionMesh : MonoBehaviour {
         }
     };
 
-    [SerializeField] private Material roadMaterial;
-    [SerializeField] private Material sidewalkMaterial;
+    [SerializeField] private Material roadMaterial = null;
+    [SerializeField] private Material sidewalkMaterial = null;
     [SerializeField] private List<RoadConnection> connectedRoads;
     [SerializeField] private bool debugView = false;
 

@@ -5,8 +5,8 @@ using UnityEngine;
 
 [RequireComponent(typeof(BezierSpline))]
 public class RoadMesh : MonoBehaviour {
-    [SerializeField] private Material roadMaterial;
-    [SerializeField] private Material sidewalkMaterial;
+    [SerializeField] private Material roadMaterial = null;
+    [SerializeField] private Material sidewalkMaterial = null;
     [SerializeField] private RoadIntersectionMesh roadStart = null;
     [SerializeField] private RoadIntersectionMesh roadEnd = null;
 

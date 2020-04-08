@@ -55,6 +55,10 @@ public class RoadGenerator : MonoBehaviour {
 
         factory.Create(this, network, new Vector3(300 - 150, 0, 300));
         factory.Create(this, network, new Vector3(300 + 0, 0, 300));
+
+        population.AddAmplifier(new CircularAmplifier(new Vector2(0.3f, 0.3f), 0, 0.3f, 1f));
+        population.AddAmplifier(new CircularAmplifier(new Vector2(0.3f, 0.3f), 1, 0.05f, 1f));
+        population.AddAmplifier(new CircularAmplifier(new Vector2(0.3f - 0.15f, 0.3f), 1, 0.05f, 1f));
     }
 
     // Generates road meshes

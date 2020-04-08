@@ -2,11 +2,14 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Utils.PolygonSplitter;
+using Utils;
+
 using static Utils.PolygonSplitter.PolygonSplitter;
 using static Utils.PolygonSplitter.Implementation.PolygonUtils;
 
 public class PlotGenerator : MonoBehaviour {
 
+    [SerializeField] private AnimationCurve skyscraperGradient = null;
     [SerializeField] private bool debug = false;
     [SerializeField] private int parts = 3;
 
@@ -15,18 +18,34 @@ public class PlotGenerator : MonoBehaviour {
         var plots = Split(CreatePolygon(block.Vertices2D()), parts)
             .Where(polygon => polygon != null).ToList()
             .ConvertAll(
-                // TODO: Hook into population map and generate based on that
-                // for apartments / skyscrapers. For now, skyscraper is random chance
-                polygon => new Plot(
-                    polygon.points.Select(v => terrain.GetPosition(v)).ToList(),
-                    Plot.DecidePlotType(block.type)
-                )
+                polygon => {
+                    List<Vector3> points = polygon.points.Select(v => terrain.GetPosition(v)).ToList();
+                    Vector2 center = VectorUtil.Vector3To2(PolygonUtil.PolygonCenter(points));
+                    float plotPopulation = populationNoise.GetValue(center.x / 1000f, center.y / 1000f);
+
+                    return new Plot(
+                        points,
+                        DecidePlotType(block.type, plotPopulation)
+                    );
+                }
             );
 
         //Removes the duplicate point at the end that is created via Split function
         plots.ForEach(plot => plot.vertices.RemoveAt(plot.vertices.Count - 1));
 
         return plots;
+    }
+
+    private PlotType DecidePlotType(BlockType type, float population) {
+        switch (type) {
+            case BlockType.Building:
+                float skyscraperProb = skyscraperGradient.Evaluate(population);
+                return (UnityEngine.Random.value < skyscraperProb) ? PlotType.Skyscraper : PlotType.Apartments;
+            case BlockType.Park:
+                return PlotType.Park;
+            default:
+                return PlotType.Empty;
+        }
     }
 
     public void DrawPlot(Plot p) {

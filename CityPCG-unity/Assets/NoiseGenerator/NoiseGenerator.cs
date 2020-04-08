@@ -29,14 +29,7 @@ public class NoiseGenerator : MonoBehaviour {
         }
     }
 
-    public Noise Generate() {
-        if (debug && this.debugPlane != null) {
-            if (this.texture == null)
-                this.texture = new Texture2D(this.textureWidth, this.textureHeight);
-
-            this.texture.Resize(this.textureWidth, this.textureHeight);
-        }
-
+    public Noise Generate(bool keepAmplifiers = false) {
         // Lets remember the old state so as to not mess with other generators
         Random.State oldRandomState = Random.state;
         Random.InitState(System.DateTime.Now.Millisecond);
@@ -49,28 +42,41 @@ public class NoiseGenerator : MonoBehaviour {
         // Restore old state
         Random.state = oldRandomState;
 
-        this.noise = new Noise(this.layers, offset);
+        Noise newNoise = new Noise(this.layers, offset);
 
-        if (debug && this.debugPlane != null) {
-            Color[] colors = new Color[this.textureWidth * this.textureHeight];
-            for (int x = 0; x < this.textureWidth; x++) {
-                for (int y = 0; y < this.textureHeight; y++) {
-                    float value = this.noise.GetValue(x / (float)this.textureWidth, y / (float)this.textureHeight);
+        if (keepAmplifiers && this.noise != null) newNoise.Amplifiers = this.noise.Amplifiers;
 
-                    colors[x + y * this.textureWidth] = new Color(value, value, value);
-                }
-            }
+        this.noise = newNoise;
 
-            this.texture.SetPixels(colors);
-            this.texture.Apply();
-
-            this.debugPlane.GetComponent<Renderer>().sharedMaterial.mainTexture = this.texture;
-            this.debugPlane.transform.localScale = new Vector3(0.1f * this.width, 1, 0.1f * this.height);
-            this.debugPlane.transform.position = transform.position + new Vector3(this.width / 2, -1, this.height / 2);
-            this.debugPlane.transform.rotation = Quaternion.Euler(new Vector3(0, 180, 0));
-        }
+        UpdateDebugPlane();
 
         return this.noise;
+    }
+
+    public void UpdateDebugPlane() {
+        if (!debug || this.debugPlane == null) return;
+
+        if (this.texture == null)
+            this.texture = new Texture2D(this.textureWidth, this.textureHeight);
+
+        this.texture.Resize(this.textureWidth, this.textureHeight);
+
+        Color[] colors = new Color[this.textureWidth * this.textureHeight];
+        for (int x = 0; x < this.textureWidth; x++) {
+            for (int y = 0; y < this.textureHeight; y++) {
+                float value = this.noise.GetValue(x / (float)this.textureWidth, y / (float)this.textureHeight);
+
+                colors[x + y * this.textureWidth] = new Color(value, value, value);
+            }
+        }
+
+        this.texture.SetPixels(colors);
+        this.texture.Apply();
+
+        this.debugPlane.GetComponent<Renderer>().sharedMaterial.mainTexture = this.texture;
+        this.debugPlane.transform.localScale = new Vector3(0.1f * this.width, 1, 0.1f * this.height);
+        this.debugPlane.transform.position = transform.position + new Vector3(this.width / 2, -1, this.height / 2);
+        this.debugPlane.transform.rotation = Quaternion.Euler(new Vector3(0, 180, 0));
     }
 
     private void Update() {

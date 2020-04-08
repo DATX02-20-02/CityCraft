@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 /*
@@ -55,7 +56,7 @@ public class TerrainGenerator : MonoBehaviour {
         GenerateTriangles();
         ColorTerrain();
         TextureTerrain();
-        UpdateTerrainMesh();
+        UpdateTerrainMesh(terrainModel);
 
         // Restore RNG state.
         Random.state = prevRandomState;
@@ -142,16 +143,19 @@ public class TerrainGenerator : MonoBehaviour {
         }
     }
 
-    private void UpdateTerrainMesh() {
+    private void UpdateTerrainMesh(TerrainModel terrainModel) {
         this.mesh.Clear();
 
         this.mesh.vertices = this.vertices;
         this.mesh.triangles = this.triangles;
         this.mesh.colors = this.colors;
         this.mesh.uv = this.uvs;
-
-        this.mesh.RecalculateNormals();
+      
         this.mesh.RecalculateBounds();
+      
+        // https://schemingdeveloper.com/2014/10/17/better-method-recalculate-normals-unity/
+        // "In any case, a 60 degree tolerance is good for most applications. You can use that for both import and runtime normal calculation."
+        NormalSolver.RecalculateNormals(this.mesh, 60);
 
         MeshCollider meshCollider = terrain.GetComponent<MeshCollider>();
         meshCollider.sharedMesh = null;

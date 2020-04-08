@@ -5,6 +5,7 @@ public class Noise {
     private Layer[] layers = null;
     private Vector2 offset;
     private float maxScale = 0;
+    private FastNoise noise;
 
     public Noise(Layer[] layers, Vector2 offset) {
         this.layers = layers;
@@ -13,6 +14,11 @@ public class Noise {
         foreach (Layer layer in layers) {
             if (layer.scale > maxScale) maxScale = layer.scale;
         }
+
+        this.noise = new FastNoise();
+        this.noise.SetSeed(Random.Range(0, 1000000));
+
+        this.noise.SetFrequency(1);
     }
 
     public Noise(Layer[] layers) : this(layers, Vector2.zero) { }
@@ -22,10 +28,12 @@ public class Noise {
         float maxMagnitude = 0;
 
         foreach (Layer layer in layers) {
-            float nx = (x + layer.offset.x + this.offset.x) * layer.scale;
-            float ny = (y + layer.offset.y + this.offset.y) * layer.scale;
+            float nx = (x + layer.offset.x + this.offset.x);
+            float ny = (y + layer.offset.y + this.offset.y);
 
-            float pvalue = Mathf.Pow(2.0f * Mathf.Clamp01(Mathf.PerlinNoise(nx, ny)) * layer.magnitude, layer.exponent) / 2.0f;
+            noise.SetFrequency(layer.scale);
+            float val = (noise.GetNoise(nx, ny) + 1) / 2;
+            float pvalue = Mathf.Pow(2.0f * Mathf.Clamp01(val) * layer.magnitude, layer.exponent) / 2.0f;
             value += pvalue;
             maxMagnitude += layer.magnitude;
         }

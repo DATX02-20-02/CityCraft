@@ -14,8 +14,7 @@ using VisualDebugging;
   How? Uses agent-based generation, where each agent places down nodes and edges between them.
 */
 public class RoadGenerator : MonoBehaviour {
-
-    [SerializeField] private RoadMeshGenerator meshGenerator;
+    [SerializeField] private RoadMeshGenerator meshGenerator = null;
 
     [Range(0, 1000)]
     [SerializeField] private int maxAgentQueueIterations = 1;

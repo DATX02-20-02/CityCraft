@@ -47,3 +47,5 @@ MonoBehaviour:
     type: 3}
   skyscraper: {fileID: 929978230862651424, guid: 297e4c73f2b64ed0fbdcaa067a31732b,
     type: 3}
+  maxQueueIterations: 251
+  generationTickInterval: 0

@@ -41,4 +41,12 @@ public class PlotGenerator : MonoBehaviour {
             }
         }
     }
+
+    public void DrawPlots(List<Plot> plots) {
+        if (this.debug) {
+            foreach (Plot plot in plots) {
+                DrawPlot(plot);
+            }
+        }
+    }
 }

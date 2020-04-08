@@ -143,6 +143,12 @@ public class WorldGenerator : MonoBehaviour {
     public void GenerateBuildings() {
         this.plots = new List<Plot>();
 
+        this.buildingGenerator.StartGeneration(
+            (List<GameObject> buildings) => {
+
+            }
+        );
+
         foreach (Block block in this.blocks) {
             // Split each block into plots
             List<Plot> plots = plotGenerator.Generate(block, terrain, populationNoise);
@@ -152,7 +158,7 @@ public class WorldGenerator : MonoBehaviour {
                 this.plots.Add(plot);
 
                 if (plot.type == PlotType.Apartments || plot.type == PlotType.Skyscraper)
-                    buildingGenerator.Generate(plot);
+                    this.buildingGenerator.Queue(plot);
 
                 // else if (plot.type == PlotType.Park) {
                 // GENERATE PARK HERE
@@ -198,9 +204,7 @@ public class WorldGenerator : MonoBehaviour {
 
     private void Update() {
         if (plotGenerator != null) {
-            foreach (Plot plot in this.plots) {
-                plotGenerator.DrawPlot(plot);
-            }
+            plotGenerator.DrawPlots(plots);
         }
 
         if (offsetSpeedX != 0 || offsetSpeedZ != 0) {

@@ -1,3 +1,8 @@
+// #define DEBUG_BUILDING_WORK
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BuildingGenerator : MonoBehaviour {
@@ -5,6 +10,64 @@ public class BuildingGenerator : MonoBehaviour {
     [SerializeField] private GameObject building = null;
     [SerializeField] private GameObject skyscraper = null;
 
+    [Range(0, 1000)]
+    [SerializeField] private int maxQueueIterations = 1;
+
+    [Range(0, 0.4f)]
+    [SerializeField] private float generationTickInterval = 0.2f;
+
+    private Stack<Plot> queue = new Stack<Plot>();
+    private List<GameObject> buildings;
+    private Action<List<GameObject>> callback;
+
+    private int prevQueueCount;
+    private bool isProcessing;
+
+    public void Reset() {
+        if (buildings != null) {
+            foreach (GameObject building in buildings) {
+                Destroy(building);
+            }
+        }
+
+        queue = new Stack<Plot>();
+        buildings = new List<GameObject>();
+    }
+
+    public void StartGeneration(Action<List<GameObject>> callback) {
+        Reset();
+        this.callback = callback;
+    }
+
+    public void Queue(Plot plot) {
+        this.queue.Push(plot);
+    }
+
+    IEnumerator ProcessQueue() {
+        if (prevQueueCount != 0 && this.queue.Count == 0) {
+            if (callback != null) {
+                this.callback(buildings);
+            }
+            prevQueueCount = 0;
+            yield break;
+        }
+
+        isProcessing = true;
+        prevQueueCount = this.queue.Count;
+
+        int iterations = 0;
+        while (this.queue.Count > 0 && iterations < maxQueueIterations) {
+            Plot plot = this.queue.Pop();
+
+            GameObject obj = Generate(plot);
+            buildings.Add(obj);
+
+            iterations++;
+        }
+
+        yield return new WaitForSeconds(generationTickInterval);
+        isProcessing = false;
+    }
 
     public GameObject Generate(Plot plot) {
         /* SkyscraperGenerator */
@@ -24,7 +87,7 @@ public class BuildingGenerator : MonoBehaviour {
 
             int plotLength = plot.vertices.Count;
             Vector3 up = Vector3.up;
-            float buildingHeight = Random.Range(0.5f, 1.5f);
+            float buildingHeight = UnityEngine.Random.Range(0.5f, 1.5f);
 
             Vector3[] meshVertices = new Vector3[plotLength * 4 + 4 + plotLength];
             int[] wallIndices = new int[(plotLength * 6 + 6)];
@@ -97,5 +160,11 @@ public class BuildingGenerator : MonoBehaviour {
         }
 
         return null;
+    }
+
+    private void Update() {
+        if (this.queue != null && this.queue.Count > 0 && !isProcessing) {
+            StartCoroutine("ProcessQueue");
+        }
     }
 }

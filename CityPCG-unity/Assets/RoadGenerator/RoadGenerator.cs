@@ -22,8 +22,6 @@ public class RoadGenerator : MonoBehaviour {
     [Range(0, 0.4f)]
     [SerializeField] private float generationTickInterval = 0.2f;
 
-    [SerializeField] private List<Vector3> debugPoints = new List<Vector3>();
-
     [SerializeField] private bool debug = false;
 
     private RoadNetwork network;
@@ -164,13 +162,8 @@ public class RoadGenerator : MonoBehaviour {
             StartCoroutine("DoAgentWork");
         }
 
-        if (debug) {
-            if (this.network != null)
-                this.network.DrawDebug();
-
-            foreach (Vector3 p in debugPoints) {
-                DrawUtil.DebugDrawCircle(p, 0.03f, new Color(1, 0.5f, 0));
-            }
+        if (this.debug && this.network != null) {
+            this.network.DrawDebug();
         }
     }
 }

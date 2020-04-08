@@ -22,7 +22,6 @@ public class RoadMesh : MonoBehaviour {
     [Range(0.01f, 0.5f)]
     private float precision = 0.02f;
 
-    [SerializeField] private bool debug = false;
 
     private ProjectOnTerrain projectOnTerrain;
 
@@ -84,12 +83,6 @@ public class RoadMesh : MonoBehaviour {
         roadMesh.sharedMesh = ExtrudeQuadFromSpline(Vector3.zero, roadWidth);
         leftSidewalkMesh.sharedMesh = ExtrudeQuadFromSpline(Vector3.left * (roadWidth + sidewalkWidth) / 2f, sidewalkWidth);
         rightSidewalkMesh.sharedMesh = ExtrudeQuadFromSpline(Vector3.right * (roadWidth + sidewalkWidth) / 2f, sidewalkWidth);
-
-        // In the application we don't want each road to keep its scripts.
-        if (!debug) {
-            Destroy(this);
-            Destroy(GetComponent<BezierSpline>());
-        }
     }
 
     private Mesh ExtrudeQuadFromSpline(Vector3 localCenterOffset, float width) {

@@ -16,7 +16,8 @@ public class RoadMeshGenerator : MonoBehaviour {
 
     [SerializeField] private GameObject roadMeshPrefab = null;
     [SerializeField] private GameObject roadIntersectionMeshPrefab = null;
-    public GameObject TerrainMesh;
+
+    [SerializeField] private bool debug = false;
 
     private RoadNetwork network;
     private GameObject roadParent;
@@ -160,6 +161,19 @@ public class RoadMeshGenerator : MonoBehaviour {
         foreach (var entry in this.intersections) {
             entry.Value.name = roadIntersectionMeshPrefab.name + " " + intersectionCount;
             intersectionCount++;
+
+            // In the application we don't want each road to keep its scripts.
+            if (!debug) {
+                Destroy(entry.Value);
+            }
+        }
+
+        foreach (RoadMesh road in this.placedRoads) {
+            // In the application we don't want each road to keep its scripts.
+            if (!debug) {
+                Destroy(road);
+                Destroy(road.GetComponent<BezierSpline>());
+            }
         }
 
         isTraversing = false;

@@ -96,7 +96,7 @@ public class RoadMesh : MonoBehaviour {
 
         int AddVertex(Vector3 pos, Vector3 normal, Vector2 uv) {
             Vector3 worldPos = transform.TransformPoint(pos);
-            RaycastHit hit = this.projectOnTerrain(worldPos.x, worldPos.z);
+            TerrainModel.TerrainHit hit = this.projectOnTerrain(worldPos.x, worldPos.z);
             verts.Add(transform.InverseTransformPoint(hit.point + hit.normal * 0.005f));
             // verts.Add(pos);
 
@@ -110,7 +110,7 @@ public class RoadMesh : MonoBehaviour {
             // TODO(anton): Sample curve at evenly spaced intervals (https://pomax.github.io/bezierinfo/#tracing)
             float t = (ringIndex / (ringSubdivisionCount - 1f));
             Vector3 globalSplinePosition = Spline.GetPoint(t);
-            RaycastHit hit = this.projectOnTerrain(globalSplinePosition.x, globalSplinePosition.z);
+            TerrainModel.TerrainHit hit = this.projectOnTerrain(globalSplinePosition.x, globalSplinePosition.z);
             OrientedPoint p = Spline.GetOrientedPointLocal(t, hit.normal);
 
             float splineDistance = splineDistanceLUT.Sample(t);
@@ -162,7 +162,7 @@ public class RoadMesh : MonoBehaviour {
 
         this.projectOnTerrain = (float x, float z) => {
             Vector3 vec = new Vector3(x, transform.position.y, z);
-            RaycastHit hit = new RaycastHit();
+            TerrainModel.TerrainHit hit = new TerrainModel.TerrainHit();
             hit.point = vec;
             hit.normal = Vector3.up;
             return hit;

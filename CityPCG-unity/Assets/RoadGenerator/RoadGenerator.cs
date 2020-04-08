@@ -14,6 +14,9 @@ using VisualDebugging;
   How? Uses agent-based generation, where each agent places down nodes and edges between them.
 */
 public class RoadGenerator : MonoBehaviour {
+
+    [SerializeField] private RoadMeshGenerator meshGenerator;
+
     [Range(0, 1000)]
     [SerializeField] private int maxAgentQueueIterations = 1;
 
@@ -57,9 +60,6 @@ public class RoadGenerator : MonoBehaviour {
 
     // Generates road meshes
     public void GenerateMesh() {
-        RoadMeshGenerator meshGenerator = GetComponent<RoadMeshGenerator>();
-        if (meshGenerator == null) return;
-
         meshGenerator.Generate(network, this.terrainModel);
     }
 

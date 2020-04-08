@@ -9,6 +9,11 @@ public struct TerrainModel {
     private int xResolution;
     private int zResolution;
 
+    public struct TerrainHit {
+        public Vector3 point;
+        public Vector3 normal;
+    }
+
     public TerrainModel(float width, float depth, float seaLevel, float maxHeight, Noise noise, int xResolution, int zResolution) {
         this.width = width;
         this.depth = depth;
@@ -47,7 +52,8 @@ public struct TerrainModel {
         return Vector3.Cross(forward, right).normalized;
     }
 
-    public RaycastHit GetMeshIntersection(float x, float z) {
+    // Performs a "raycast" from above on the terrain _mesh_
+    public TerrainHit GetMeshIntersection(float x, float z) {
         int xStep = (int)((x / width) * xResolution);
         int zStep = (int)((z / depth) * zResolution);
 
@@ -78,7 +84,7 @@ public struct TerrainModel {
         float y = -(normal.x * (x - p0.x) - normal.y * p0.y + normal.z * (z - p0.z)) / normal.y;
         Vector3 point = new Vector3(x, y, z);
 
-        RaycastHit hit = new RaycastHit();
+        TerrainHit hit = new TerrainHit();
         hit.point = point;
         hit.normal = normal;
 

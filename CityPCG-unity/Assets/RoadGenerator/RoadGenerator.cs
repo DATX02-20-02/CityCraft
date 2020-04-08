@@ -22,6 +22,8 @@ public class RoadGenerator : MonoBehaviour {
 
     [SerializeField] private List<Vector3> debugPoints = new List<Vector3>();
 
+    [SerializeField] private bool debug = false;
+
     private RoadNetwork network;
 
     private PriorityQueue<Agent> queue = new PriorityQueue<Agent>();
@@ -152,12 +154,10 @@ public class RoadGenerator : MonoBehaviour {
     }
 
     private void OnGUI() {
-        if (network == null) return;
-        GUI.Label(new Rect(10, 10, 100, 20), "node count: " + network.Nodes.Count);
-        GUI.Label(new Rect(10, 40, 100, 20), "tree count: " + network.Tree.Count);
-    }
-
-    private void Start() {
+        if (debug && network != null) {
+            GUI.Label(new Rect(10, 10, 100, 20), "node count: " + network.Nodes.Count);
+            GUI.Label(new Rect(10, 40, 100, 20), "tree count: " + network.Tree.Count);
+        }
     }
 
     private void Update() {
@@ -165,11 +165,13 @@ public class RoadGenerator : MonoBehaviour {
             StartCoroutine("DoAgentWork");
         }
 
-        if (this.network != null)
-            this.network.DrawDebug();
+        if (debug) {
+            if (this.network != null)
+                this.network.DrawDebug();
 
-        foreach (Vector3 p in debugPoints) {
-            DrawUtil.DebugDrawCircle(p, 0.03f, new Color(1, 0.5f, 0));
+            foreach (Vector3 p in debugPoints) {
+                DrawUtil.DebugDrawCircle(p, 0.03f, new Color(1, 0.5f, 0));
+            }
         }
     }
 }

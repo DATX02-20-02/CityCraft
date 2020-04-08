@@ -390,9 +390,10 @@ public class BlockGenerator : MonoBehaviour {
     }
 
     private void Update() {
-        List<Block> blocks = this.insetBlocks;
+        if (!debug) return;
 
-        if (debug && blocks != null) {
+        List<Block> blocks = this.insetBlocks;
+        if (blocks != null) {
             if (debugBlock < 0 || debugBlock > blocks.Count) return;
             foreach (var v in blocks[debugBlock].vertices) {
                 Debug.DrawLine(v, v + 0.5f * Vector3.up, Color.yellow, 0.1f);

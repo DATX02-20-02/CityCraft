@@ -117,15 +117,13 @@ public class RoadIntersectionMesh : MonoBehaviour {
         isValid = true;
 
         // sort roads in cw order
-        {
-            connectedRoads.Sort(delegate (RoadConnection r1, RoadConnection r2) {
-                Vector3 r1Dir = r1.angleOfAttack;
-                float r1Angle = Mathf.Atan2(r1Dir.z, r1Dir.x) * Mathf.Rad2Deg;
-                Vector3 r2Dir = r2.angleOfAttack;
-                float r2Angle = Mathf.Atan2(r2Dir.z, r2Dir.x) * Mathf.Rad2Deg;
-                return r1Angle.CompareTo(r2Angle);
-            });
-        }
+        connectedRoads.Sort(delegate (RoadConnection r1, RoadConnection r2) {
+            Vector3 r1Dir = r1.angleOfAttack;
+            float r1Angle = Mathf.Atan2(r1Dir.z, r1Dir.x) * Mathf.Rad2Deg;
+            Vector3 r2Dir = r2.angleOfAttack;
+            float r2Angle = Mathf.Atan2(r2Dir.z, r2Dir.x) * Mathf.Rad2Deg;
+            return r1Angle.CompareTo(r2Angle);
+        });
 
         void SetSplineConnectedPosition(RoadMesh r, Vector3 globalPosition) {
             Vector3 localEndPoint = r.Spline.transform.InverseTransformPoint(globalPosition);
@@ -177,7 +175,6 @@ public class RoadIntersectionMesh : MonoBehaviour {
                     VectorUtil.Vector3To2(rightLineEnd)
                 );
             }
-
 
             if (Vector3.Angle(left.tangent, right.tangent) > 170f) {
                 corner.sidewalkIntersection = transform.position + right.binormal * right.r.Width / 2f;
@@ -251,7 +248,7 @@ public class RoadIntersectionMesh : MonoBehaviour {
             List<int> triangles = new List<int>();
 
             int AddVertice(Vector3 worldPoint, Vector2 uv) {
-                RaycastHit hit = this.projectOnTerrain(worldPoint.x, worldPoint.z);
+                TerrainModel.TerrainHit hit = this.projectOnTerrain(worldPoint.x, worldPoint.z);
                 verts.Add(transform.InverseTransformPoint(hit.point + hit.normal * 0.005f));
                 normals.Add(transform.InverseTransformDirection(this.intersectionNormal));
                 uvs.Add(uv);
@@ -309,7 +306,7 @@ public class RoadIntersectionMesh : MonoBehaviour {
                 List<int> triangles = new List<int>();
 
                 int AddVertice(Vector3 vert, Vector2 uv) {
-                    RaycastHit hit = this.projectOnTerrain(vert.x, vert.z);
+                    TerrainModel.TerrainHit hit = this.projectOnTerrain(vert.x, vert.z);
                     verts.Add(transform.InverseTransformPoint(hit.point + hit.normal * 0.005f));
                     normals.Add(this.intersectionNormal);
                     uvs.Add(uv);

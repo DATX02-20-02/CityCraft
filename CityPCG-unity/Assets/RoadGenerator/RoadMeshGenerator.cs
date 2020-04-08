@@ -2,8 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// TODO: Return custom type because not all RaycastHit properties are not guranteed to be set
-public delegate RaycastHit ProjectOnTerrain(float x, float z);
+public delegate TerrainModel.TerrainHit ProjectOnTerrain(float x, float z);
 
 public class RoadMeshGenerator : MonoBehaviour {
     [Range(1, 1000)]
@@ -23,7 +22,7 @@ public class RoadMeshGenerator : MonoBehaviour {
     private GameObject roadParent;
     private GameObject intersectionParent;
 
-    private LinkedList<Traverser> queue;
+    private LinkedList<TraverseUntilIntersection> queue;
     private Dictionary<Node, bool> visited;
     private Dictionary<Node, Dictionary<Node, bool>> placed;
     private Dictionary<Node, RoadIntersectionMesh> intersections;
@@ -62,7 +61,7 @@ public class RoadMeshGenerator : MonoBehaviour {
     private IEnumerator GenerateRoadMesh() {
         isTraversing = true;
 
-        this.queue = new LinkedList<Traverser>();
+        this.queue = new LinkedList<TraverseUntilIntersection>();
         this.visited = new Dictionary<Node, bool>();
         this.placed = new Dictionary<Node, Dictionary<Node, bool>>();
         this.intersections = new Dictionary<Node, RoadIntersectionMesh>();
@@ -87,13 +86,13 @@ public class RoadMeshGenerator : MonoBehaviour {
         }
 
         foreach (NodeConnection c in startNode.connections) {
-            this.queue.AddLast(new Traverser(startNode, c.node, 0));
+            this.queue.AddLast(new TraverseUntilIntersection(startNode, c.node, 0));
         }
 
         while (this.queue.Count > 0) {
             for (int iteration = 0; iteration < maxIterations; iteration++) {
                 if (this.queue.Count == 0) { break; }
-                Traverser traverser = getFirst ? this.queue.First.Value : this.queue.Last.Value;
+                TraverseUntilIntersection traverser = getFirst ? this.queue.First.Value : this.queue.Last.Value;
 
                 Node prevNode = traverser.node;
 
@@ -150,7 +149,7 @@ public class RoadMeshGenerator : MonoBehaviour {
                             continue;
                         }
 
-                        this.queue.AddFirst(new Traverser(lastNode, c.node, traverser.Priority + 1));
+                        this.queue.AddFirst(new TraverseUntilIntersection(lastNode, c.node, traverser.Priority + 1));
                     }
                 }
             }
@@ -186,7 +185,7 @@ public class RoadMeshGenerator : MonoBehaviour {
         roadMesh.transform.position = path[0].pos;
 
         for (int i = 0; i < path.Count; i++) {
-            RaycastHit hit = this.projectOnTerrain(path[i].pos.x, path[i].pos.z);
+            TerrainModel.TerrainHit hit = this.projectOnTerrain(path[i].pos.x, path[i].pos.z);
             path[i].pos = hit.point + hit.normal * 0.01f;
             roadMesh.Spline.AddPoint(path[i].pos);
         }
@@ -243,7 +242,8 @@ public class RoadMeshGenerator : MonoBehaviour {
     }
 }
 
-class Traverser : System.IComparable {
+// Traverses road network until an intersection is found
+class TraverseUntilIntersection : System.IComparable {
     public Node node = null;
     private Node prev = null;
     private List<Node> path = new List<Node>();
@@ -253,7 +253,7 @@ class Traverser : System.IComparable {
         get { return this.priority; }
     }
 
-    public Traverser(Node startNode, Node node, float priority) {
+    public TraverseUntilIntersection(Node startNode, Node node, float priority) {
         this.node = node;
         this.priority = priority;
 
@@ -287,7 +287,7 @@ class Traverser : System.IComparable {
     public int CompareTo(object obj) {
         if (obj == null) return 1;
 
-        Traverser traverser = obj as Traverser;
+        TraverseUntilIntersection traverser = obj as TraverseUntilIntersection;
         if (traverser != null) {
             return priority.CompareTo(traverser.priority);
         }

@@ -93,7 +93,6 @@ public class App : MonoBehaviour {
     }
 
 
-
     private void NextMenu() {
         menuPanels[currentMenuPanel].SetActive(false);
         currentMenuPanel = Mathf.Min(menuPanels.Length - 1, currentMenuPanel + 1);

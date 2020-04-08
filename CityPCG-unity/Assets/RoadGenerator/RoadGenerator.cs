@@ -239,7 +239,7 @@ public class RoadGenerator : MonoBehaviour {
                 ghostObjectInstance.transform.localScale = Vector3.one * (radius * 2 + 10);
 
                 Vector3 scroll = Input.mouseScrollDelta;
-                radius += scroll.y * 2;
+                radius = Mathf.Clamp(radius + scroll.y * 2, 0.1f, 500f);
 
                 if (Input.GetMouseButtonDown(0)) {
                     if (!EventSystem.current.IsPointerOverGameObject()) {

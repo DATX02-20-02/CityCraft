@@ -159,19 +159,14 @@ public class RoadMeshGenerator : MonoBehaviour {
         int intersectionCount = 1;
         foreach (var entry in this.intersections) {
             entry.Value.name = roadIntersectionMeshPrefab.name + " " + intersectionCount;
-            entry.Value.UpdateMesh(this.projectOnTerrain);
             intersectionCount++;
-        }
-
-        foreach (RoadMesh r in placedRoads) {
-            r.GenerateRoadMesh(this.projectOnTerrain);
         }
 
         isTraversing = false;
     }
 
 
-    private void PlaceRoad(List<Node> path) {
+    private RoadMesh PlaceRoad(List<Node> path) {
         RoadMesh roadMesh = Instantiate(roadMeshPrefab, roadParent.transform).GetComponent<RoadMesh>();
         roadMesh.name = roadMeshPrefab.name + " " + roadParent.transform.childCount;
         roadMesh.transform.position = path[0].pos;
@@ -206,6 +201,13 @@ public class RoadMeshGenerator : MonoBehaviour {
             roadMesh.RoadStart = startIntersection;
             Vector3 angleOfAttack = (path[0].pos - path[1].pos).normalized;
             startIntersection.AddConnection(roadMesh, angleOfAttack);
+
+            if (startIntersection.ConnectedRoads.Count == path[0].connections.Count) {
+                startIntersection.UpdateMesh(this.projectOnTerrain);
+                foreach (var roadConnection in startIntersection.ConnectedRoads) {
+                    roadConnection.road.GenerateRoadMesh(this.projectOnTerrain);
+                }
+            }
         }
 
         RoadIntersectionMesh endIntersection = TryCreateIntersection(path[path.Count - 1]);
@@ -213,9 +215,17 @@ public class RoadMeshGenerator : MonoBehaviour {
             roadMesh.RoadEnd = endIntersection;
             Vector3 angleOfAttack = (path[path.Count - 1].pos - path[path.Count - 2].pos).normalized;
             endIntersection.AddConnection(roadMesh, angleOfAttack);
+
+            if (endIntersection.ConnectedRoads.Count == path[path.Count - 1].connections.Count) {
+                endIntersection.UpdateMesh(this.projectOnTerrain);
+                foreach (var roadConnection in endIntersection.ConnectedRoads) {
+                    roadConnection.road.GenerateRoadMesh(this.projectOnTerrain);
+                }
+            }
         }
 
         placedRoads.Add(roadMesh);
+        return roadMesh;
     }
 }
 

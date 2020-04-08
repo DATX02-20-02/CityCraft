@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class RoadIntersectionMesh : MonoBehaviour {
 
-    private class RoadConnection {
+    public class RoadConnection {
         public RoadMesh road;
         public Vector3 angleOfAttack;
 
@@ -23,6 +23,10 @@ public class RoadIntersectionMesh : MonoBehaviour {
     private ProjectOnTerrain projectOnTerrain;
     private Vector3 intersectionNormal;
     private bool isValid = false;
+
+    public List<RoadConnection> ConnectedRoads {
+        get => connectedRoads;
+    }
 
     public RoadSegment[] IntersectionState {
         get => connectionPoints;

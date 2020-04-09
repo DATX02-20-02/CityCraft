@@ -14,10 +14,13 @@ public class RoadIntersectionMesh : MonoBehaviour {
         }
     };
 
-    [SerializeField] private Material roadMaterial = null;
     [SerializeField] private Material sidewalkMaterial = null;
     [SerializeField] private List<RoadConnection> connectedRoads;
     [SerializeField] private bool debugView = false;
+
+    [Header("Generate Mesh For")]
+    [SerializeField] private MeshFilter intersectionMesh = null;
+    [SerializeField] private GameObject cornersParent = null;
 
     private RoadSegment[] connectionPoints = null;
     private ProjectOnTerrain projectOnTerrain;
@@ -84,24 +87,21 @@ public class RoadIntersectionMesh : MonoBehaviour {
         if (!isValid) return;
 
         // Remove any old mesh
-        foreach (Transform child in this.transform) { Destroy(child.gameObject); }
+        foreach (Transform child in cornersParent.transform) { Destroy(child.gameObject); }
+        intersectionMesh.sharedMesh = null;
 
         (Mesh result, Mesh[] cornerMeshes) = CreateMesh();
 
-        MeshFilter CreateEmptyRenderable(string name, Material material) {
-            GameObject go = new GameObject(name);
-            go.transform.parent = this.transform;
-            go.transform.localPosition = Vector3.zero;
-            go.AddComponent<MeshRenderer>().material = material;
-            return go.AddComponent<MeshFilter>();
-        }
-
-        MeshFilter intersection = CreateEmptyRenderable("Intersection", roadMaterial);
-        intersection.sharedMesh = result;
+        intersectionMesh.sharedMesh = result;
 
         for (int i = 0; i < cornerMeshes.Length; i++) {
-            MeshFilter sidewalks = CreateEmptyRenderable("Corner Sidewalk " + i, sidewalkMaterial);
-            sidewalks.sharedMesh = cornerMeshes[i];
+            GameObject go = new GameObject("Corner Sidewalk " + i);
+            go.transform.parent = cornersParent.transform;
+            go.transform.localPosition = Vector3.zero;
+            go.AddComponent<MeshRenderer>().material = sidewalkMaterial;
+
+            MeshFilter cornerMesh = go.AddComponent<MeshFilter>();
+            cornerMesh.sharedMesh = cornerMeshes[i];
         }
     }
 

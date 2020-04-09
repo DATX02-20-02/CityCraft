@@ -179,16 +179,16 @@ public class WorldGenerator : MonoBehaviour {
                     buildingGenerator.Generate(plot, this.terrain, this.populationNoise);
                 }
                 else if (plot.type == PlotType.Park) {
-                    parkGenerator.GeneratePaths(terrain,block,plot);
-                    parkGenerator.Generate(terrain,block,plot);
+                    parkGenerator.GeneratePaths(terrain, block, plot);
+                    parkGenerator.Generate(terrain, block, plot);
                 }
 
                 plotCounter++;
                 if (buildIntervalSize <= plotCounter) {
                     plotCounter = 0;
                     yield return new WaitForSeconds(buildIntervalDelay);
+                }
             }
-        }
         }
     }
     private void GenerateBlocks() {
@@ -203,7 +203,7 @@ public class WorldGenerator : MonoBehaviour {
         plotGenerator = Instantiate(plotGeneratorPrefab, transform).GetComponent<PlotGenerator>();
         buildingGenerator = Instantiate(buildingGeneratorPrefab, transform).GetComponent<BuildingGenerator>();
         parkGenerator = Instantiate(parkGeneratorPrefab, transform).GetComponent<ParkGenerator>();
-        parkingGenerator = Instantiate(parkingGeneratorPrefab,transform).GetComponent<ParkingGenerator>();
+        parkingGenerator = Instantiate(parkingGeneratorPrefab, transform).GetComponent<ParkingGenerator>();
     }
 
     private void Awake() {

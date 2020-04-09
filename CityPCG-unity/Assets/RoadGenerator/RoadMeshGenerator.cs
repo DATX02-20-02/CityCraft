@@ -26,6 +26,7 @@ public class RoadMeshGenerator : MonoBehaviour {
 
     private LinkedList<TraverseUntilIntersection> queue;
     private Dictionary<Node, bool> visited;
+    private HashSet<Node> notVisited;
     private Dictionary<Node, Dictionary<Node, bool>> placed;
     private Dictionary<Node, RoadIntersectionMesh> intersections;
     private List<RoadMesh> placedRoads;
@@ -58,6 +59,7 @@ public class RoadMeshGenerator : MonoBehaviour {
 
         this.queue = new LinkedList<TraverseUntilIntersection>();
         this.visited = new Dictionary<Node, bool>();
+        this.notVisited = new HashSet<Node>(this.network.Nodes);
         this.placed = new Dictionary<Node, Dictionary<Node, bool>>();
         this.intersections = new Dictionary<Node, RoadIntersectionMesh>();
         this.placedRoads = new List<RoadMesh>();
@@ -70,86 +72,89 @@ public class RoadMeshGenerator : MonoBehaviour {
             Destroy(child.gameObject);
         }
 
-        Node startNode = null;
-        { // Get startNode
-            foreach (Node n in this.network.Nodes) {
+        while (notVisited.Count > 0) {
+            Node startNode = null;
+            foreach (Node n in notVisited) {
                 if (n.connections.Count > 2) {
                     startNode = n;
                     break;
                 }
             }
-        }
 
-        foreach (NodeConnection c in startNode.connections) {
-            this.queue.AddLast(new TraverseUntilIntersection(startNode, c.node, 0));
-        }
-
-        while (this.queue.Count > 0) {
-            for (int iteration = 0; iteration < maxIterations; iteration++) {
-                if (this.queue.Count == 0) { break; }
-                TraverseUntilIntersection traverser = getFirst ? this.queue.First.Value : this.queue.Last.Value;
-
-                Node prevNode = traverser.node;
-
-                List<Node> path;
-                bool done = traverser.Traverse(out path);
-
-                if (placed.ContainsKey(traverser.node) && placed[traverser.node].ContainsKey(prevNode) ||
-                    placed.ContainsKey(prevNode) && placed[prevNode].ContainsKey(traverser.node)
-                ) {
-                    if (getFirst)
-                        this.queue.RemoveFirst();
-                    else
-                        this.queue.RemoveLast();
-                    continue;
-                }
-
-                if (done) {
-                    if (getFirst)
-                        this.queue.RemoveFirst();
-                    else
-                        this.queue.RemoveLast();
-
-                    bool shouldPlace = true;
-
-                    Node lastNode = path[path.Count - 1];
-                    for (int i = 0; i < path.Count - 1; i++) {
-                        Node n = path[i];
-                        Node nx = path[i + 1];
-
-                        if (!placed.ContainsKey(n)) {
-                            placed[n] = new Dictionary<Node, bool>();
-                        }
-
-                        if (placed.ContainsKey(nx) && placed[nx].ContainsKey(n) || placed[n].ContainsKey(nx)) {
-                            shouldPlace = false;
-                            break;
-                        };
-
-                        placed[n][nx] = true;
-
-                        visited[n] = true;
-                        visited[nx] = true;
-                    }
-
-                    if (shouldPlace) {
-                        PlaceRoad(path);
-                    }
-
-                    foreach (NodeConnection c in lastNode.connections) {
-                        if (visited.ContainsKey(c.node)) continue;
-                        if (placed.ContainsKey(lastNode) && placed[lastNode].ContainsKey(c.node) ||
-                            placed.ContainsKey(c.node) && placed[c.node].ContainsKey(lastNode)
-                        ) {
-                            continue;
-                        }
-
-                        this.queue.AddFirst(new TraverseUntilIntersection(lastNode, c.node, traverser.Priority + 1));
-                    }
-                }
+            foreach (NodeConnection c in startNode.connections) {
+                this.queue.AddLast(new TraverseUntilIntersection(startNode, c.node, 0));
             }
-            yield return new WaitForSeconds(tickInterval);
+
+            while (this.queue.Count > 0) {
+                for (int iteration = 0; iteration < maxIterations; iteration++) {
+                    if (this.queue.Count == 0) { break; }
+                    TraverseUntilIntersection traverser = getFirst ? this.queue.First.Value : this.queue.Last.Value;
+
+                    Node prevNode = traverser.node;
+
+                    List<Node> path;
+                    bool done = traverser.Traverse(out path);
+
+                    if (placed.ContainsKey(traverser.node) && placed[traverser.node].ContainsKey(prevNode) ||
+                        placed.ContainsKey(prevNode) && placed[prevNode].ContainsKey(traverser.node)
+                    ) {
+                        if (getFirst)
+                            this.queue.RemoveFirst();
+                        else
+                            this.queue.RemoveLast();
+                        continue;
+                    }
+
+                    if (done) {
+                        if (getFirst)
+                            this.queue.RemoveFirst();
+                        else
+                            this.queue.RemoveLast();
+
+                        bool shouldPlace = true;
+
+                        Node lastNode = path[path.Count - 1];
+                        for (int i = 0; i < path.Count - 1; i++) {
+                            Node n = path[i];
+                            Node nx = path[i + 1];
+
+                            if (!placed.ContainsKey(n)) {
+                                placed[n] = new Dictionary<Node, bool>();
+                            }
+
+                            if (placed.ContainsKey(nx) && placed[nx].ContainsKey(n) || placed[n].ContainsKey(nx)) {
+                                shouldPlace = false;
+                                break;
+                            };
+
+                            placed[n][nx] = true;
+
+                            visited[n] = true;
+                            visited[nx] = true;
+                            notVisited.Remove(n);
+                            notVisited.Remove(nx);
+                        }
+
+                        if (shouldPlace) {
+                            PlaceRoad(path);
+                        }
+
+                        foreach (NodeConnection c in lastNode.connections) {
+                            if (visited.ContainsKey(c.node)) continue;
+                            if (placed.ContainsKey(lastNode) && placed[lastNode].ContainsKey(c.node) ||
+                                placed.ContainsKey(c.node) && placed[c.node].ContainsKey(lastNode)
+                            ) {
+                                continue;
+                            }
+
+                            this.queue.AddFirst(new TraverseUntilIntersection(lastNode, c.node, traverser.Priority + 1));
+                        }
+                    }
+                }
+                yield return new WaitForSeconds(tickInterval);
+            }
         }
+
 
         int intersectionCount = 1;
         foreach (var entry in this.intersections) {

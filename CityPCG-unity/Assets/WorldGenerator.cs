@@ -16,6 +16,12 @@ public class WorldGenerator : MonoBehaviour {
     [SerializeField] private GameObject plotGeneratorPrefab = null;
     [SerializeField] private GameObject buildingGeneratorPrefab = null;
     [SerializeField] private GameObject parkGeneratorPrefab = null;
+
+    [Header("Building Generation Params")]
+    [SerializeField] private int buildIntervalSize = 0;
+    [SerializeField] private float buildIntervalDelay = 0;
+
+    [Header("Debug")]
     [SerializeField] private bool debug = false;
     [SerializeField] private int debugSeed = 0;
 
@@ -141,22 +147,31 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     public void GenerateBuildings() {
+        StartCoroutine(GenerateBuildings(this.blocks));
+    }
+
+    private IEnumerator GenerateBuildings(List<Block> blocks) {
         this.plots = new List<Plot>();
 
+        int plotCounter = 0;
         foreach (Block block in this.blocks) {
             // Split each block into plots
             List<Plot> plots = plotGenerator.Generate(block, terrain, populationNoise);
-
-            // Generate buildings in each plot.
-            foreach (Plot plot in plots) {
+            foreach (var plot in plots) {
                 this.plots.Add(plot);
 
-                if (plot.type == PlotType.Apartments || plot.type == PlotType.Skyscraper)
+                if (plot.type == PlotType.Apartments || plot.type == PlotType.Skyscraper) {
                     buildingGenerator.Generate(plot);
+                }
+                else if (plot.type == PlotType.Park) {
+                    // GENERATE PARK HERE
+                }
 
-                // else if (plot.type == PlotType.Park) {
-                // GENERATE PARK HERE
-                // }
+                plotCounter++;
+                if (buildIntervalSize <= plotCounter) {
+                    plotCounter = 0;
+                    yield return new WaitForSeconds(buildIntervalDelay);
+                }
             }
         }
     }

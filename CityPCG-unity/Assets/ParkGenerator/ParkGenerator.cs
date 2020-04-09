@@ -3,15 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class ParkGenerator : MonoBehaviour {
-    [Range(0, 1000)]
-    [SerializeField] private int count;
+    [Range(5, 100)]
+    [SerializeField] private int count = 20;
     [SerializeField] private GameObject[] trees = null;
     [SerializeField] private GameObject rock = null;
     [SerializeField] private GameObject[] bushes = null;
     [SerializeField] private int layerMask;
     [SerializeField] private int layerMasked;
-    [SerializeField] private GameObject step;
-    LineRenderer line;
+    [SerializeField] private GameObject step = null;
     private TerrainModel terrain;
 
 
@@ -65,7 +64,6 @@ public class ParkGenerator : MonoBehaviour {
 
     // InitMesh is called for spawning Game objects, assigning them a scale, position, and rotation.
     void InitMesh(GameObject g, Vector3 pos, float scale, Quaternion rotation) {
-        int segments = 0;
         GameObject obj = Instantiate(g, transform);
         obj.AddComponent<MeshCollider>();
         Mesh mesh = obj.GetComponent<MeshFilter>().mesh;
@@ -82,31 +80,12 @@ public class ParkGenerator : MonoBehaviour {
             if (miscCollisions.Length > 1) {
                 Destroy(obj);
             }
-            /*else {
-				segments = 50;
-				obj.AddComponent<LineRenderer>();
-				line = obj.GetComponent<LineRenderer>();
-        		line.SetVertexCount (segments + 1);
-        		line.useWorldSpace = false;
-        		CreatePoints(miscRadius,segments);
-        	}*/
-
         }
         if (obj.layer == 2) {
             Collider[] treeCollisions = Physics.OverlapSphere(obj.transform.position, treeRadius, layerMask);
             if (treeCollisions.Length > 1) {
                 Destroy(obj);
             }
-            /*			else {
-                            segments = 50;
-                            obj.AddComponent<LineRenderer>();
-                            line = obj.GetComponent<LineRenderer>();
-                            line.SetVertexCount (segments + 1);
-                            line.useWorldSpace = false;
-                            CreatePoints (treeRadius,segments);
-                        }
-            */
-
         }
         Collider[] pathCollisions = Physics.OverlapSphere(obj.transform.position, pathRadius, 1 << 4);
         if (pathCollisions.Length > 0)
@@ -138,30 +117,12 @@ public class ParkGenerator : MonoBehaviour {
 
         return result;
     }
-    void CreatePoints(float radius, int segments) {
-        float x;
-        float z;
-        float angle = 20f;
-        for (int i = 0; i < (segments + 1); i++) {
-            x = Mathf.Sin(Mathf.Deg2Rad * angle) * radius;
-            z = Mathf.Cos(Mathf.Deg2Rad * angle) * radius;
-            line.SetPosition(i, new Vector3(x, 0, z));
-            angle += (360f / segments);
-        }
-    }
+
     public void GeneratePaths(TerrainModel terrain, Block block, Plot plot) {
         GameObject path = new GameObject("Path Generator");
-        path.AddComponent<PathGenerator>();
-        var pg = path.GetComponent<PathGenerator>();
+        path.transform.parent = this.transform;
+        var pg = path.AddComponent<PathGenerator>();
         pg.step = step;
         pg.GeneratePlotPath(terrain, block, plot);
     }
-    void Start() {
-    }
-
-    void Update() {
-
-    }
 }
-
-

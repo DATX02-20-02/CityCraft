@@ -14,6 +14,8 @@ using VisualDebugging;
   How? Uses agent-based generation, where each agent places down nodes and edges between them.
 */
 public class RoadGenerator : MonoBehaviour {
+    [SerializeField] private RoadMeshGenerator meshGenerator = null;
+
     [Range(0, 1000)]
     [SerializeField] private int maxAgentQueueIterations = 1;
 
@@ -21,6 +23,8 @@ public class RoadGenerator : MonoBehaviour {
     [SerializeField] private float generationTickInterval = 0.2f;
 
     [SerializeField] private List<Vector3> debugPoints = new List<Vector3>();
+
+    [SerializeField] private bool debug = false;
 
     private RoadNetwork network;
 
@@ -30,6 +34,8 @@ public class RoadGenerator : MonoBehaviour {
     private bool areAgentsWorking = false;
     private Action<RoadNetwork> callback;
 
+    private TerrainModel terrainModel;
+
     public RoadNetwork Network {
         set { this.network = value; }
         get { return this.network; }
@@ -37,6 +43,7 @@ public class RoadGenerator : MonoBehaviour {
 
     // Generates a complete road network.
     public void Generate(TerrainModel terrain, Noise population, Action<RoadNetwork> callback = null) {
+        this.terrainModel = terrain;
         this.callback = callback;
         prevQueueCount = 0;
         areAgentsWorking = false;
@@ -45,29 +52,18 @@ public class RoadGenerator : MonoBehaviour {
         queue = new PriorityQueue<Agent>();
 
         IAgentFactory factory = new ParisAgentFactory();
+
         factory.Create(this, network, new Vector3(300 - 150, 0, 300));
         factory.Create(this, network, new Vector3(300 + 0, 0, 300));
+    }
 
-
-        // int max = 4;
-        // for (int i = 0; i < max; i++) {
-        //     float rad = (Mathf.PI * 2) / max;
-
-        //     Vector3 dir = new Vector3(Mathf.Cos(rad * i), 0, Mathf.Sin(rad * i));
-        // Vector3 dir = new Vector3(1, 0, 0);
-        // Agent agent = new Agent(
-        //     network,
-        //     new Vector3(128, 0, 128),
-        //     dir,
-        //     new HighwayAgentStrategy(),
-        //     1
-        // );
-        // agent.config.maxBranchCount = 5;
-        // this.AddAgent(agent);
-        // }
+    // Generates road meshes
+    public void GenerateMesh() {
+        meshGenerator.Generate(network, this.terrainModel);
     }
 
     public void GenerateStreets(TerrainModel terrain, Noise population, Action<RoadNetwork> callback) {
+        this.terrainModel = terrain;
         this.callback = callback;
 
         IAgentFactory factory = new StreetsAgentFactory();
@@ -83,6 +79,7 @@ public class RoadGenerator : MonoBehaviour {
     IEnumerator DoAgentWork() {
         if (prevQueueCount != 0 && this.queue.Count == 0) {
             if (callback != null) {
+                meshGenerator.Generate(network, this.terrainModel);
                 this.callback(network);
             }
             prevQueueCount = 0;
@@ -156,12 +153,10 @@ public class RoadGenerator : MonoBehaviour {
     }
 
     private void OnGUI() {
-        if (network == null) return;
-        GUI.Label(new Rect(10, 10, 100, 20), "node count: " + network.Nodes.Count);
-        GUI.Label(new Rect(10, 40, 100, 20), "tree count: " + network.Tree.Count);
-    }
-
-    private void Start() {
+        if (debug && network != null) {
+            GUI.Label(new Rect(10, 10, 100, 20), "node count: " + network.Nodes.Count);
+            GUI.Label(new Rect(10, 40, 100, 20), "tree count: " + network.Tree.Count);
+        }
     }
 
     private void Update() {
@@ -169,11 +164,13 @@ public class RoadGenerator : MonoBehaviour {
             StartCoroutine("DoAgentWork");
         }
 
-        if (this.network != null)
-            this.network.DrawDebug();
+        if (debug) {
+            if (this.network != null)
+                this.network.DrawDebug();
 
-        foreach (Vector3 p in debugPoints) {
-            DrawUtil.DebugDrawCircle(p, 0.03f, new Color(1, 0.5f, 0));
+            foreach (Vector3 p in debugPoints) {
+                DrawUtil.DebugDrawCircle(p, 0.03f, new Color(1, 0.5f, 0));
+            }
         }
     }
 }

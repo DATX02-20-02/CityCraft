@@ -16,8 +16,9 @@ public class RoadMesh : MonoBehaviour {
     private float sidewalkWidth = 0.025f;
 
     [SerializeField]
-    [Range(0.01f, 0.5f)]
-    private float precision = 0.02f;
+    [Range(0.05f, 0.5f)]
+    [Tooltip("The approximate distance between generated vertices along the spline")]
+    private float stepDistance = 0.15f;
 
     [Header("Road Connections")]
     [SerializeField] private RoadIntersectionMesh roadStart = null;
@@ -87,8 +88,8 @@ public class RoadMesh : MonoBehaviour {
     }
 
     private Mesh ExtrudeQuadFromSpline(Vector3 localCenterOffset, float width) {
-        int ringSubdivisionCount = Mathf.RoundToInt(1f / precision) * Spline.CurveCount;
-        BezierSplineDistanceLUT splineDistanceLUT = new BezierSplineDistanceLUT(Spline, ringSubdivisionCount);
+        int sampleCount = 100 * Spline.CurveCount; // sample 100 points per spline curve
+        BezierSplineDistanceLUT splineDistanceLUT = new BezierSplineDistanceLUT(Spline, sampleCount);
 
         // Vertices
         List<Vector3> verts = new List<Vector3>();
@@ -107,9 +108,32 @@ public class RoadMesh : MonoBehaviour {
             return verts.Count - 1;
         }
 
-        for (int ringIndex = 0; ringIndex < ringSubdivisionCount; ringIndex++) {
-            // TODO(anton): Sample curve at evenly spaced intervals (https://pomax.github.io/bezierinfo/#tracing)
-            float t = (ringIndex / (ringSubdivisionCount - 1f));
+        int ringSubdivisionCount = 0;
+        bool exceedsSplineDistance = false;
+        float targetDistance = 0f;
+        int i = 0;
+        while (!exceedsSplineDistance) {
+            exceedsSplineDistance = targetDistance > splineDistanceLUT.TotalDistance;
+
+            // Find t at targetdistance
+            float t = 0;
+            {
+                if (!exceedsSplineDistance) {
+                    for (; i < sampleCount; i++) {
+                        float d = splineDistanceLUT.GetDistance(i);
+                        if (d > targetDistance) {
+                            i--;
+                            break;
+                        }
+                    }
+                    t = splineDistanceLUT.IndexToT(i);
+                }
+                else {
+                    t = 1f;
+                }
+            }
+
+
             Vector3 globalSplinePosition = Spline.GetPoint(t);
             TerrainModel.TerrainHit hit = this.projectOnTerrain(globalSplinePosition.x, globalSplinePosition.z);
             OrientedPoint p = Spline.GetOrientedPointLocal(t, hit.normal);
@@ -121,9 +145,10 @@ public class RoadMesh : MonoBehaviour {
 
             Vector3 localRight = localCenterOffset + Vector3.right * width / 2f;
             AddVertex(p.localToWorld(localRight), p.normal, new Vector2(1f, splineDistance));
-        }
 
-        int verticesPerRing = verts.Count / ringSubdivisionCount;
+            ringSubdivisionCount++;
+            targetDistance += stepDistance;
+        }
 
         // Triangles
         List<int> triangles = new List<int>();
@@ -138,6 +163,7 @@ public class RoadMesh : MonoBehaviour {
             triangles.Add(currentRight);
         }
 
+        int verticesPerRing = verts.Count / ringSubdivisionCount;
         for (int ringIndex = 0; ringIndex < ringSubdivisionCount - 1; ringIndex++) {
             int rootIndex = ringIndex * verticesPerRing;
             int rootIndexNext = (ringIndex + 1) * verticesPerRing;

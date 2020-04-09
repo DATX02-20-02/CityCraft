@@ -238,14 +238,18 @@ public class BezierSplineDistanceLUT {
     BezierSpline spline;
     float[] distanceLUT;
 
-    public float TotalLength {
+    public float TotalDistance {
         get { return distanceLUT[distanceLUT.Length - 1]; }
+    }
+
+    public float GetDistance(int index) {
+        return distanceLUT[index];
     }
 
     public BezierSplineDistanceLUT(BezierSpline spline, int sampleCount) {
         this.spline = spline;
         this.distanceLUT = new float[sampleCount];
-        FillLengthTableInfo();
+        FillDistanceTableInfo();
     }
 
     public float Sample(float t) {
@@ -264,13 +268,17 @@ public class BezierSplineDistanceLUT {
         return Mathf.Lerp(distanceLUT[idLower], distanceLUT[idUpper], iFloat - idLower);
     }
 
-    private void FillLengthTableInfo() {
+    public float IndexToT(int index) {
+        return index / (distanceLUT.Length - 1f);
+    }
+
+    private void FillDistanceTableInfo() {
         distanceLUT[0] = 0f;
         float totalLength = 0f;
         Vector3 prev = spline[0];
 
         for (int i = 1; i < distanceLUT.Length; i++) {
-            float t = i / (distanceLUT.Length - 1f);
+            float t = IndexToT(i);
             Vector3 pt = spline.GetPointLocal(t);
             float distanceDiff = Vector3.Distance(prev, pt);
             totalLength += distanceDiff;

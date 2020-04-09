@@ -143,7 +143,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   roadWidth: 0.25
   sidewalkWidth: 0.025
-  precision: 0.065
+  stepDistance: 0.15
   roadStart: {fileID: 0}
   roadEnd: {fileID: 0}
   roadMesh: {fileID: 2250085908164603526}

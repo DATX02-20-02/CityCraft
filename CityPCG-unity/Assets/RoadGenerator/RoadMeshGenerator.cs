@@ -36,6 +36,16 @@ public class RoadMeshGenerator : MonoBehaviour {
     private TerrainModel terrainModel;
     private ProjectOnTerrain projectOnTerrain;
 
+    public void Reset() {
+        // Remove previously generated meshes
+        foreach (Transform child in roadParent.transform) {
+            Destroy(child.gameObject);
+        }
+        foreach (Transform child in intersectionParent.transform) {
+            Destroy(child.gameObject);
+        }
+    }
+
     public void Generate(RoadNetwork network, TerrainModel terrainModel) {
         if (network == null) {
             Debug.LogWarning("Failed to generate road meshes! Given network does not exist.");
@@ -56,21 +66,13 @@ public class RoadMeshGenerator : MonoBehaviour {
 
     private IEnumerator GenerateRoadMesh() {
         isTraversing = true;
-
+        Reset();
         this.queue = new LinkedList<TraverseUntilIntersection>();
         this.visited = new Dictionary<Node, bool>();
         this.notVisited = new HashSet<Node>(this.network.Nodes);
         this.placed = new Dictionary<Node, Dictionary<Node, bool>>();
         this.intersections = new Dictionary<Node, RoadIntersectionMesh>();
         this.placedRoads = new List<RoadMesh>();
-
-        // Remove previously generated meshes
-        foreach (Transform child in roadParent.transform) {
-            Destroy(child.gameObject);
-        }
-        foreach (Transform child in intersectionParent.transform) {
-            Destroy(child.gameObject);
-        }
 
         while (notVisited.Count > 0) {
             Node startNode = null;
@@ -79,6 +81,19 @@ public class RoadMeshGenerator : MonoBehaviour {
                     startNode = n;
                     break;
                 }
+            }
+
+            // If no startnodes were found, log the remaining ones and exit
+            if (startNode == null) {
+#if UNITY_EDITOR
+                Debug.LogWarning("Failed to find starting node when generating road mesh...");
+                foreach (Node node in notVisited) {
+                    Debug.Log("Unvisited Node at: " + node.pos + ", connections: " + node.connections.Count);
+                    Debug.DrawLine(node.pos, node.pos + Vector3.forward * 0.5f, Color.cyan, 1000f);
+                }
+#endif
+
+                break;
             }
 
             foreach (NodeConnection c in startNode.connections) {

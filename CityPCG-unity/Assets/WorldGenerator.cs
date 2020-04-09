@@ -31,6 +31,7 @@ public class WorldGenerator : MonoBehaviour {
     private TerrainGenerator terrainGenerator;
     private NoiseGenerator populationGenerator;
     private RoadGenerator roadGenerator;
+    private RoadMeshGenerator roadMeshGenerator;
     private BlockGenerator blockGenerator;
     private PlotGenerator plotGenerator;
     private BuildingGenerator buildingGenerator;
@@ -85,11 +86,14 @@ public class WorldGenerator : MonoBehaviour {
                 }
 
                 this.blockGenerator.Reset();
+                this.roadMeshGenerator.Generate(this.roadGenerator.Network, terrain);
+
                 break;
 
             case State.Roads:
                 this.roadNetwork = this.roadGenerator.Network = null;
                 this.roadNetworkSnapshot = null;
+                this.roadMeshGenerator.Reset();
                 break;
 
             case State.Buildings:
@@ -199,6 +203,7 @@ public class WorldGenerator : MonoBehaviour {
         terrainGenerator = Instantiate(terrainGeneratorPrefab, transform).GetComponent<TerrainGenerator>();
         populationGenerator = Instantiate(populationGeneratorPrefab, transform).GetComponent<NoiseGenerator>();
         roadGenerator = Instantiate(roadGeneratorPrefab, transform).GetComponent<RoadGenerator>();
+        roadMeshGenerator = roadGenerator.GetComponent<RoadMeshGenerator>();
         blockGenerator = Instantiate(blockGeneratorPrefab, transform).GetComponent<BlockGenerator>();
         plotGenerator = Instantiate(plotGeneratorPrefab, transform).GetComponent<PlotGenerator>();
         buildingGenerator = Instantiate(buildingGeneratorPrefab, transform).GetComponent<BuildingGenerator>();

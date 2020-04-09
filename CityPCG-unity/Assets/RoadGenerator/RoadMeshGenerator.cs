@@ -64,10 +64,10 @@ public class RoadMeshGenerator : MonoBehaviour {
 
         // Remove previously generated meshes
         foreach (Transform child in roadParent.transform) {
-            if (child.GetComponent<RoadMesh>() == null) { Destroy(child.gameObject); }
+            Destroy(child.gameObject);
         }
         foreach (Transform child in intersectionParent.transform) {
-            if (child.GetComponent<RoadIntersectionMesh>() == null) { Destroy(child.gameObject); }
+            Destroy(child.gameObject);
         }
 
         Node startNode = null;

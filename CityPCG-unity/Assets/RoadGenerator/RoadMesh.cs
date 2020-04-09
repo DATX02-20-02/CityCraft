@@ -5,26 +5,31 @@ using UnityEngine;
 
 [RequireComponent(typeof(BezierSpline))]
 public class RoadMesh : MonoBehaviour {
-    [SerializeField] private Material roadMaterial = null;
-    [SerializeField] private Material sidewalkMaterial = null;
-    [SerializeField] private RoadIntersectionMesh roadStart = null;
-    [SerializeField] private RoadIntersectionMesh roadEnd = null;
 
+    [Header("Road Settings")]
     [SerializeField]
     [Range(0.001f, 1.0f)]
-    private float roadWidth = 0.4f;
+    private float roadWidth = 0.25f;
 
     [SerializeField]
-    [Range(0.001f, 1.0f)]
-    private float sidewalkWidth = 0.005f;
+    [Range(0.001f, 0.5f)]
+    private float sidewalkWidth = 0.025f;
 
     [SerializeField]
     [Range(0.01f, 0.5f)]
     private float precision = 0.02f;
 
+    [Header("Road Connections")]
+    [SerializeField] private RoadIntersectionMesh roadStart = null;
+    [SerializeField] private RoadIntersectionMesh roadEnd = null;
+
+    [Header("Generate Mesh For")]
+    [SerializeField] private MeshFilter roadMesh = null;
+    [SerializeField] private MeshFilter leftSidewalkMesh = null;
+    [SerializeField] private MeshFilter rightSidewalkMesh = null;
+
 
     private ProjectOnTerrain projectOnTerrain;
-
 
     public float RoadWidth {
         get { return roadWidth; }
@@ -53,6 +58,13 @@ public class RoadMesh : MonoBehaviour {
     }
 
     public void GenerateRoadMesh() {
+        if (this.projectOnTerrain == null) {
+            this.projectOnTerrain = (float x, float z) => {
+                Vector3 vec = new Vector3(x, transform.position.y, z);
+                return new TerrainModel.TerrainHit() {point = vec, normal = Vector3.up};
+            };
+        }
+
         GenerateRoadMesh(this.projectOnTerrain);
     }
 
@@ -63,26 +75,15 @@ public class RoadMesh : MonoBehaviour {
             return;
         }
 
-        // remove any previous mesh
-        foreach (Transform child in this.transform) {
-            Destroy(child.gameObject);
-        }
-
-        MeshFilter CreateEmptyRenderable(string name, Material material) {
-            GameObject go = new GameObject(name);
-            go.transform.parent = this.transform;
-            go.transform.localPosition = Vector3.zero;
-            go.AddComponent<MeshRenderer>().material = material;
-            return go.AddComponent<MeshFilter>();
-        }
-
-        MeshFilter roadMesh = CreateEmptyRenderable("Road Mesh", roadMaterial);
-        MeshFilter leftSidewalkMesh = CreateEmptyRenderable("Left Sidewalk Mesh", sidewalkMaterial);
-        MeshFilter rightSidewalkMesh = CreateEmptyRenderable("Right Sidewalk Mesh", sidewalkMaterial);
-
         roadMesh.sharedMesh = ExtrudeQuadFromSpline(Vector3.zero, roadWidth);
-        leftSidewalkMesh.sharedMesh = ExtrudeQuadFromSpline(Vector3.left * (roadWidth + sidewalkWidth) / 2f, sidewalkWidth);
-        rightSidewalkMesh.sharedMesh = ExtrudeQuadFromSpline(Vector3.right * (roadWidth + sidewalkWidth) / 2f, sidewalkWidth);
+
+        if (leftSidewalkMesh) {
+            leftSidewalkMesh.sharedMesh = ExtrudeQuadFromSpline(Vector3.left * (roadWidth + sidewalkWidth) / 2f, sidewalkWidth);
+        }
+
+        if (rightSidewalkMesh) {
+            rightSidewalkMesh.sharedMesh = ExtrudeQuadFromSpline(Vector3.right * (roadWidth + sidewalkWidth) / 2f, sidewalkWidth);
+        }
     }
 
     private Mesh ExtrudeQuadFromSpline(Vector3 localCenterOffset, float width) {
@@ -153,19 +154,8 @@ public class RoadMesh : MonoBehaviour {
     }
 
     public void Reset() {
-        MeshFilter meshFilter = GetComponent<MeshFilter>();
-        if (meshFilter) {
-            if (meshFilter.sharedMesh) {
-                meshFilter.sharedMesh.Clear();
-            }
-        }
-
-        this.projectOnTerrain = (float x, float z) => {
-            Vector3 vec = new Vector3(x, transform.position.y, z);
-            TerrainModel.TerrainHit hit = new TerrainModel.TerrainHit();
-            hit.point = vec;
-            hit.normal = Vector3.up;
-            return hit;
-        };
+        if (roadMesh) { roadMesh.mesh = null; }
+        if (leftSidewalkMesh) { leftSidewalkMesh.mesh = null; }
+        if (rightSidewalkMesh) { rightSidewalkMesh.mesh = null; }
     }
 }

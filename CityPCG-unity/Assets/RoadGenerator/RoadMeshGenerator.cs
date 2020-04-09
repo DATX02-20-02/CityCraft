@@ -18,9 +18,11 @@ public class RoadMeshGenerator : MonoBehaviour {
 
     [SerializeField] private bool debug = false;
 
+    [Header("Instantiate Parents")]
+    [SerializeField] private GameObject roadParent = null;
+    [SerializeField] private GameObject intersectionParent = null;
+
     private RoadNetwork network;
-    private GameObject roadParent;
-    private GameObject intersectionParent;
 
     private LinkedList<TraverseUntilIntersection> queue;
     private Dictionary<Node, bool> visited;
@@ -32,13 +34,6 @@ public class RoadMeshGenerator : MonoBehaviour {
 
     private TerrainModel terrainModel;
     private ProjectOnTerrain projectOnTerrain;
-
-    void Start() {
-        roadParent = new GameObject("Roads");
-        roadParent.transform.parent = this.transform;
-        intersectionParent = new GameObject("Intersections");
-        intersectionParent.transform.parent = this.transform;
-    }
 
     public void Generate(RoadNetwork network, TerrainModel terrainModel) {
         if (network == null) {
@@ -65,14 +60,14 @@ public class RoadMeshGenerator : MonoBehaviour {
         this.visited = new Dictionary<Node, bool>();
         this.placed = new Dictionary<Node, Dictionary<Node, bool>>();
         this.intersections = new Dictionary<Node, RoadIntersectionMesh>();
-        placedRoads = new List<RoadMesh>();
+        this.placedRoads = new List<RoadMesh>();
 
         // Remove previously generated meshes
-        foreach (Transform child in intersectionParent.transform) {
-            Destroy(child.gameObject);
-        }
         foreach (Transform child in roadParent.transform) {
-            Destroy(child.gameObject);
+            if (child.GetComponent<RoadMesh>() == null) { Destroy(child.gameObject); }
+        }
+        foreach (Transform child in intersectionParent.transform) {
+            if (child.GetComponent<RoadIntersectionMesh>() == null) { Destroy(child.gameObject); }
         }
 
         Node startNode = null;
@@ -181,7 +176,7 @@ public class RoadMeshGenerator : MonoBehaviour {
 
     private RoadMesh PlaceRoad(List<Node> path) {
         RoadMesh roadMesh = Instantiate(roadMeshPrefab, roadParent.transform).GetComponent<RoadMesh>();
-        roadMesh.name = roadMeshPrefab.name + " " + roadParent.transform.childCount;
+        roadMesh.name = roadMeshPrefab.name + " " + (placedRoads.Count + 1);
         roadMesh.transform.position = path[0].pos;
 
         for (int i = 0; i < path.Count; i++) {

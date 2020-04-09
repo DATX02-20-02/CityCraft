@@ -6,6 +6,12 @@ public class BuildingGenerator : MonoBehaviour {
     [SerializeField] private GameObject skyscraper = null;
 
 
+    public void Reset() {
+        foreach (Transform child in transform) {
+            Destroy(child.gameObject);
+        }
+    }
+
     public GameObject Generate(Plot plot) {
         /* SkyscraperGenerator */
         if (plot.type == PlotType.Skyscraper) {

@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ParkingGenerator : MonoBehaviour {
-    [SerializeField] private GameObject whiteLine;
-    void Start() {
-    }
+    [SerializeField] private GameObject whiteLine = null;
 
     public void Generate(TerrainModel terrain, Plot plot) {
         List<Vector2> polygon = new List<Vector2>();
@@ -41,11 +39,9 @@ public class ParkingGenerator : MonoBehaviour {
         Debug.DrawLine(new Vector3(rect.botRight.x, terrain.GetPosition(rect.topRight).y, rect.botRight.y), new Vector3(rect.botLeft.x, terrain.GetPosition(rect.botRight).y, rect.botRight.y), Color.white, 10000);
         Vector3 top = new Vector3(rect.topLeft.x, terrain.GetPosition(rect.topLeft).y, rect.topLeft.y);
         Vector3 bot = new Vector3(rect.botRight.x, terrain.GetPosition(rect.topRight).y, rect.botRight.y);
-        // GameObject g = Instantiate(whiteLine,transform);
-        //  g.transform.localScale = new Vector3(5f,0.1f,2f);
-        Instantiate(whiteLine, top, Quaternion.identity);
+        Instantiate(whiteLine, top, Quaternion.identity, this.transform);
 
-        Instantiate(whiteLine, bot, Quaternion.identity);
+        Instantiate(whiteLine, bot, Quaternion.identity, this.transform);
 
         while (offset <= rect.width) {
             Debug.DrawLine(new Vector3(rect.topLeft.x + offset, terrain.GetPosition(rect.topLeft).y, rect.topLeft.y + 0.2f), new Vector3(rect.botLeft.x + offset, terrain.GetPosition(rect.botLeft).y, rect.topLeft.y - 0.2f), Color.white, 10000);
@@ -56,10 +52,10 @@ public class ParkingGenerator : MonoBehaviour {
             Vector3 v2 = new Vector3(rect.topRight.x - offset, terrain.GetPosition(rect.topRight).y, rect.topRight.y);
             Vector3 v3 = new Vector3(rect.botRight.x - offset, terrain.GetPosition(rect.botRight).y, rect.botRight.y);
             Vector3 v4 = new Vector3(rect.botLeft.x + offset, terrain.GetPosition(rect.botLeft).y, rect.botLeft.y);
-            Instantiate(whiteLine, v1, Quaternion.identity);
-            Instantiate(whiteLine, v2, Quaternion.identity);
-            Instantiate(whiteLine, v3, Quaternion.identity);
-            Instantiate(whiteLine, v4, Quaternion.identity);
+            Instantiate(whiteLine, v1, Quaternion.identity, this.transform);
+            Instantiate(whiteLine, v2, Quaternion.identity, this.transform);
+            Instantiate(whiteLine, v3, Quaternion.identity, this.transform);
+            Instantiate(whiteLine, v4, Quaternion.identity, this.transform);
             Debug.DrawLine(new Vector3(rect.topRight.x - offset, terrain.GetPosition(rect.topRight).y, rect.botRight.y + 0.2f), new Vector3(rect.botRight.x - offset, terrain.GetPosition(rect.botRight).y, rect.botRight.y - 0.2f), Color.white, 10000);
             offset += 0.1f;
         }

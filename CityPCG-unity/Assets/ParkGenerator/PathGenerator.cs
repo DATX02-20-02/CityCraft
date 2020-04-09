@@ -92,7 +92,7 @@ public class PathGenerator : MonoBehaviour {
                     prev = tryVec;
                 }
             }
-            var mesh = Instantiate(step, p.nodes[0], Quaternion.identity).GetComponent<RoadMesh>();
+            var mesh = Instantiate(step, p.nodes[0], Quaternion.identity, this.transform).GetComponent<RoadMesh>();
             for (int i = 0; i < p.nodes.Count; i++) {
                 mesh.Spline.AddPoint(p.nodes[i]);
             }
@@ -238,7 +238,8 @@ public class PathGenerator : MonoBehaviour {
 
         }
 
-        var mesh = Instantiate(step, p.nodes[0], Quaternion.identity).GetComponent<RoadMesh>();
+        this.transform.position = p.nodes[0];
+        var mesh = Instantiate(step, p.nodes[0], Quaternion.identity, this.transform).GetComponent<RoadMesh>();
         if (p.points.Count > 3) {
             for (int i = 0; i < p.nodes.Count; i += 2)
                 mesh.Spline.AddPoint(p.nodes[i]);

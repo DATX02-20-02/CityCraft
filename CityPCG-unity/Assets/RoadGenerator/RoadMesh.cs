@@ -61,7 +61,7 @@ public class RoadMesh : MonoBehaviour {
         if (this.projectOnTerrain == null) {
             this.projectOnTerrain = (float x, float z) => {
                 Vector3 vec = new Vector3(x, transform.position.y, z);
-                return new TerrainModel.TerrainHit() {point = vec, normal = Vector3.up};
+                return new TerrainModel.TerrainHit() { point = vec, normal = Vector3.up };
             };
         }
 

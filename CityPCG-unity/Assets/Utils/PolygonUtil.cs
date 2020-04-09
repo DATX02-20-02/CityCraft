@@ -4,39 +4,6 @@ using UnityEngine;
 
 namespace Utils {
     public class PolygonUtil {
-
-        public struct Rectangle {
-            public Vector2 topLeft;
-            public Vector2 topRight;
-            public Vector2 botLeft;
-            public Vector2 botRight;
-
-            public float angle; // counter-clockwise in radians
-            public float width;
-            public float height;
-        }
-
-        public static Rectangle CreateRectangle(float x, float y, float angle, float width, float height) {
-            Rectangle rect = new Rectangle();
-            float cos = Mathf.Cos(angle);
-            float sin = Mathf.Sin(angle);
-
-            Vector2 pos = new Vector2(x, y);
-            Vector2 forward = new Vector2(cos, sin);
-            Vector2 right = new Vector2(sin, -cos);
-
-            rect.topLeft = pos - forward * width / 2 - right * height / 2;
-            rect.topRight = pos + forward * width / 2 - right * height / 2;
-            rect.botLeft = pos - forward * width / 2 + right * height / 2;
-            rect.botRight = pos + forward * width / 2 + right * height / 2;
-
-            rect.angle = angle;
-            rect.width = width;
-            rect.height = height;
-
-            return rect;
-        }
-
         public static Rectangle ApproximateLargestRectangle(
                                                     List<Vector2> polygon,
                                                       float ratio,
@@ -123,30 +90,6 @@ namespace Utils {
                 area += vs[i].x * (vs[(i + 1) % vs.Count].z - vs[(i - 1 + vs.Count) % vs.Count].z);
 
             return Mathf.Abs(area / 2.0f);
-        }
-
-        public static Vector2 GetPointOnCenterLine(PolygonUtil.Rectangle rect, Vector2 pos) {
-            Vector2 center = (rect.topLeft + rect.topRight + rect.botLeft + rect.botRight) / 4f;
-
-            if (rect.width == rect.height)
-                return center;
-
-            Vector2 dir = pos - center;
-            Vector2 forward = rect.topLeft - rect.topRight;
-            Vector2 right = rect.topLeft - rect.botLeft;
-
-            if (forward.magnitude > right.magnitude) {
-                float dot = Vector2.Dot(dir, forward.normalized);
-                float len = forward.magnitude - right.magnitude;
-
-                return center + forward.normalized * Mathf.Clamp(dot, -len / 2, len / 2);
-            }
-            else {
-                float dot = Vector2.Dot(dir, right.normalized);
-                float len = right.magnitude - forward.magnitude;
-
-                return center + right.normalized * Mathf.Clamp(dot, -len / 2, len / 2);
-            }
         }
     }
 }

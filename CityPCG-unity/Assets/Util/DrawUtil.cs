@@ -26,7 +26,7 @@ public class DrawUtil {
         Debug.DrawLine(new Vector3(x, 0, y + h), new Vector3(x, 0, y), color);
     }
 
-    public static void DebugDrawRectangle(PolygonUtil.Rectangle rect, Color color) {
+    public static void DebugDrawRectangle(Rectangle rect, Color color) {
         Debug.DrawLine(VectorUtil.Vector2To3(rect.topLeft), VectorUtil.Vector2To3(rect.topRight), color);
         Debug.DrawLine(VectorUtil.Vector2To3(rect.topRight), VectorUtil.Vector2To3(rect.botRight), color);
         Debug.DrawLine(VectorUtil.Vector2To3(rect.botRight), VectorUtil.Vector2To3(rect.botLeft), color);

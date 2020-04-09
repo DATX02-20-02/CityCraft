@@ -57,3 +57,7 @@ MonoBehaviour:
     type: 3}
   parkGeneratorPrefab: {fileID: 9182401937566038333, guid: 260a0700a5adccf9794839ae765ed5c6,
     type: 3}
+  buildIntervalSize: 200
+  buildIntervalDelay: 0
+  debug: 0
+  debugSeed: 0

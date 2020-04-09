@@ -164,13 +164,8 @@ public class RoadGenerator : MonoBehaviour {
             StartCoroutine("DoAgentWork");
         }
 
-        if (debug) {
-            if (this.network != null)
-                this.network.DrawDebug();
-
-            foreach (Vector3 p in debugPoints) {
-                DrawUtil.DebugDrawCircle(p, 0.03f, new Color(1, 0.5f, 0));
-            }
+        if (debug && this.network != null) {
+            this.network.DrawDebug();
         }
     }
 }

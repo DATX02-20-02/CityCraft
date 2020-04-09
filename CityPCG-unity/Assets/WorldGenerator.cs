@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -121,7 +122,7 @@ public class WorldGenerator : MonoBehaviour {
         GenerateRoads((RoadNetwork network) => { });
     }
 
-    public void GenerateRoads(System.Action<RoadNetwork> callback) {
+    public void GenerateRoads(Action<RoadNetwork> callback) {
         this.blockGenerator.Reset();
         this.populationNoise = populationGenerator.Generate();
 
@@ -138,7 +139,7 @@ public class WorldGenerator : MonoBehaviour {
         GenerateStreets((RoadNetwork network) => { });
     }
 
-    public void GenerateStreets(System.Action<RoadNetwork> callback) {
+    public void GenerateStreets(Action<RoadNetwork> callback) {
         if (roadNetwork == null) return;
 
         if (this.roadNetworkSnapshot != null) {
@@ -203,7 +204,7 @@ public class WorldGenerator : MonoBehaviour {
 
     private void Awake() {
         if (debug) {
-            Random.InitState(debugSeed);
+            UnityEngine.Random.InitState(debugSeed);
         }
     }
 

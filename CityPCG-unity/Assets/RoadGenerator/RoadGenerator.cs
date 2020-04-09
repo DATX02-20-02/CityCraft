@@ -79,7 +79,7 @@ public class RoadGenerator : MonoBehaviour {
     IEnumerator DoAgentWork() {
         if (prevQueueCount != 0 && this.queue.Count == 0) {
             if (callback != null) {
-                GetComponent<RoadMeshGenerator>().Generate(network, this.terrainModel);
+                meshGenerator.Generate(network, this.terrainModel);
                 this.callback(network);
             }
             prevQueueCount = 0;

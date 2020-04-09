@@ -87,6 +87,10 @@ public class WorldGenerator : MonoBehaviour {
                 this.roadNetwork = this.roadGenerator.Network = null;
                 this.roadNetworkSnapshot = null;
                 break;
+
+            case State.Buildings:
+                this.buildingGenerator.Reset();
+                break;
         }
     }
 
@@ -147,6 +151,7 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     public void GenerateBuildings() {
+        this.buildingGenerator.Reset();
         StartCoroutine(GenerateBuildings(this.blocks));
     }
 

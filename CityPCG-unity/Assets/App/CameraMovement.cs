@@ -19,7 +19,6 @@ public class CameraMovement : MonoBehaviour {
     private bool cursorLocked = false;
 
     private void Start() {
-        mouseSensitivity = 1f;
         this.xRotation = transform.localEulerAngles.x;
         this.yRotation = transform.localEulerAngles.y;
     }

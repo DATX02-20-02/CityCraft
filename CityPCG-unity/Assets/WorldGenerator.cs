@@ -172,7 +172,7 @@ public class WorldGenerator : MonoBehaviour {
                 this.plots.Add(plot);
 
                 if (plot.type == PlotType.Apartments || plot.type == PlotType.Skyscraper) {
-                    buildingGenerator.Generate(plot, this.populationNoise);
+                    buildingGenerator.Generate(plot, this.terrain, this.populationNoise);
                 }
                 else if (plot.type == PlotType.Park) {
                     // GENERATE PARK HERE
@@ -244,18 +244,6 @@ public class WorldGenerator : MonoBehaviour {
             Vector2 speedamp = new Vector2(offsetSpeedX * Time.deltaTime, offsetSpeedZ * Time.deltaTime);
             Vector2 speed = terrainGenerator.NoiseOffset + speedamp;
             terrain = terrainGenerator.GenerateTerrain(speed);
-        }
-
-        // TODO: Remove?
-        if (debug) {
-            PolygonUtil.Rectangle rect = PolygonUtil.CreateRectangle(-10, 0, Mathf.PI / 3, 10, 10);
-            DrawUtil.DebugDrawRectangle(rect, Color.red);
-
-            Vector2 mousePos = VectorUtil.Vector3To2(VectorUtil.GetPlaneMousePos(new Vector3(0, 0, 0)));
-            DrawUtil.DebugDrawCircle(VectorUtil.Vector2To3(mousePos), 0.1f, Color.green);
-
-            Vector2 pos = PolygonUtil.GetPointOnCenterLine(rect, mousePos);
-            DrawUtil.DebugDrawCircle(VectorUtil.Vector2To3(pos), 0.2f, Color.blue);
         }
     }
 }

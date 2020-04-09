@@ -16,9 +16,9 @@ public class BuildingGenerator : MonoBehaviour {
         return Generate(plot, 1.0f);
     }
 
-    public GameObject Generate(Plot plot, Noise populationNoise) {
+    public GameObject Generate(Plot plot, TerrainModel terrain, Noise populationNoise) {
         Vector2 center = VectorUtil.Vector3To2(plot.Center);
-        float population = populationNoise.GetValue(center.x / 1000f, center.y / 1000f);
+        float population = populationNoise.GetValue(center.x / terrain.width, center.y / terrain.depth);
         return Generate(plot, population);
     }
 

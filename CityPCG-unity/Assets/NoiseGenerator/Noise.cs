@@ -21,12 +21,12 @@ public class CircularAmplifier : IAmplifier {
 }
 
 public class RectangularAmplifier : IAmplifier {
-    public PolygonUtil.Rectangle rectangle;
+    public Rectangle rectangle;
     public float magnitude;
     public float dropoff; // value 0-1
     public bool linear;
 
-    public RectangularAmplifier(PolygonUtil.Rectangle rectangle, float magnitude, float dropoff = 1, bool linear = false) {
+    public RectangularAmplifier(Rectangle rectangle, float magnitude, float dropoff = 1, bool linear = false) {
         this.rectangle = rectangle;
         this.magnitude = magnitude;
         this.dropoff = dropoff;
@@ -95,7 +95,7 @@ public class Noise {
             else if (amplifier is RectangularAmplifier) {
                 RectangularAmplifier rAmp = (RectangularAmplifier)amplifier;
 
-                Vector2 cPos = PolygonUtil.GetPointOnCenterLine(rAmp.rectangle, pos);
+                Vector2 cPos = VectorUtil.GetPointOnCenterLine(rAmp.rectangle, pos);
                 float distance = Vector2.Distance(pos, cPos);
                 float shortestSide = rAmp.rectangle.width > rAmp.rectangle.height ?
                     rAmp.rectangle.height :

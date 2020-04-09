@@ -19,9 +19,9 @@ public class PlotGenerator : MonoBehaviour {
             .Where(polygon => polygon != null).ToList()
             .ConvertAll(
                 polygon => {
-                    List<Vector3> points = polygon.points.Select(v => terrain.GetPosition(v)).ToList();
+                    List<Vector3> points = polygon.points.Select(v => terrain.GetMeshIntersection(v.x, v.y).point).ToList();
                     Vector2 center = VectorUtil.Vector3To2(PolygonUtil.PolygonCenter(points));
-                    float plotPopulation = populationNoise.GetValue(center.x / 1000f, center.y / 1000f);
+                    float plotPopulation = populationNoise.GetValue(center.x / terrain.width, center.y / terrain.depth);
 
                     return new Plot(
                         points,

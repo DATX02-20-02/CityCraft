@@ -62,7 +62,7 @@ public class SkyscraperGenerator : MonoBehaviour {
             Destroy(this);
     }
 
-    private Utils.PolygonUtil.Rectangle ApproximateLargestRectangle(List<Vector2> polygon) {
+    private Rectangle ApproximateLargestRectangle(List<Vector2> polygon) {
         return Utils.PolygonUtil.ApproximateLargestRectangle(polygon, Random.Range(1.0f, 3.0f), 0.1f, 6, 10);
     }
 

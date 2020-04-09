@@ -140,16 +140,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7889922274085798087, guid: 680a13e90fac6189e88d40ffc9bdf239,
         type: 3}
-<<<<<<< HEAD
       propertyPath: buildIntervalSize
       value: 200
       objectReference: {fileID: 0}
-=======
-      propertyPath: parkingGeneratorPrefab
-      value: 
-      objectReference: {fileID: 664780554407602641, guid: 0cef003d56f138649977d34e62b809ac,
-        type: 3}
->>>>>>> add park- and path generator
     - target: {fileID: 2663700008211637056, guid: 680a13e90fac6189e88d40ffc9bdf239,
         type: 3}
       propertyPath: m_LocalPosition.x

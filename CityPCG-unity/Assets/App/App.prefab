@@ -1161,7 +1161,7 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1829377441}
-  m_CullTransparentMesh: 0
+  m_CullTransparentMesh: 1
 --- !u!114 &1829377444
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1395,6 +1395,14 @@ MonoBehaviour:
   - {fileID: 1829377441}
   - {fileID: 1717181708}
   - {fileID: 1609802095}
+  btnGenTerrain: {fileID: 513031461}
+  btnGenRoad: {fileID: 1829377443}
+  btnGenStreets: {fileID: 1717181710}
+  btnGenBuildings: {fileID: 1609802097}
+  btnNext: {fileID: 1878692205765842604}
+  btnUndo: {fileID: 1068973266}
+  btnExportGLTF: {fileID: 1242125910}
+  btnExportGLB: {fileID: 5050094185960732881}
   debug: 0
 --- !u!1 &216227704104077005
 GameObject:

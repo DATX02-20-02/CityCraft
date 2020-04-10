@@ -17,10 +17,19 @@ public class App : MonoBehaviour {
     [SerializeField] private Slider sliderZ = null;
     [SerializeField] private WorldGenerator worldGenerator = null;
     [SerializeField] private GameObject[] menuPanels = null;
+    [SerializeField] private Button btnGenTerrain = null;
+    [SerializeField] private Button btnGenRoad = null;
+    [SerializeField] private Button btnGenStreets = null;
+    [SerializeField] private Button btnGenBuildings = null;
+    [SerializeField] private Button btnNext = null;
+    [SerializeField] private Button btnUndo = null;
+    [SerializeField] private Button btnExportGLTF = null;
+    [SerializeField] private Button btnExportGLB = null;
     [SerializeField] private bool debug = false;
-
+    
+    
+    private bool isBusy = false;
     private int currentMenuPanel = 0;
-
 
     public void Next() {
         worldGenerator.NextState();
@@ -41,13 +50,19 @@ public class App : MonoBehaviour {
 
     public void GenerateRoads() {
         Log("Generating roads...");
-        worldGenerator.GenerateRoads();
+        
+        worldGenerator.GenerateRoads((RoadNetwork network) => {
+            SetBusy(false);
+        });
         Log("Roads generated.");
     }
 
     public void GenerateStreets() {
         Log("Generating streets...");
-        worldGenerator.GenerateStreets();
+        SetBusy(true);
+        worldGenerator.GenerateStreets((RoadNetwork network) => {
+            SetBusy(false);
+        });
         Log("Streets generated.");
     }
 
@@ -92,6 +107,17 @@ public class App : MonoBehaviour {
         worldGenerator.ModifyTerrainSea(a);
     }
 
+    private void SetBusy(bool busy) {
+        isBusy = busy;
+        btnGenTerrain.interactable = !busy;
+        btnGenRoad.interactable = !busy;
+        btnGenStreets.interactable = !busy;
+        btnGenBuildings.interactable = !busy;
+        btnNext.interactable = !busy;
+        btnUndo.interactable = !busy;
+        btnExportGLTF.interactable = !busy;
+        btnExportGLB.interactable = !busy;
+    }
 
     private void NextMenu() {
         menuPanels[currentMenuPanel].SetActive(false);

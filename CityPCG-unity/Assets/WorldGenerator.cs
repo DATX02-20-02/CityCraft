@@ -171,6 +171,8 @@ public class WorldGenerator : MonoBehaviour {
 
     private IEnumerator GenerateBuildings(List<Block> blocks) {
         this.plots = new List<Plot>();
+        var manhattanBuildings = new GameObject("ManhattanBuildings");
+        manhattanBuildings.transform.parent = buildingGenerator.transform;
 
         int plotCounter = 0;
         foreach (Block block in this.blocks) {

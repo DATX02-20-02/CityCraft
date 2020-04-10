@@ -25,6 +25,9 @@ public class RoadGenerator : MonoBehaviour {
     [SerializeField] private List<Vector3> debugPoints = new List<Vector3>();
 
     private GameObject ghostObjectInstance = null;
+    private CityInput selected;
+    private CityInput dragging;
+    private Vector3 dragOffset;
 
     private RoadNetwork network;
 
@@ -44,17 +47,46 @@ public class RoadGenerator : MonoBehaviour {
         Manhattan
     }
 
-    public struct CityInput {
+    public class CityInput {
         public Vector3 position;
         public CityType type;
         public GameObject ghostObject;
         public float radius;
+
+        private bool hovering;
+        private bool selected;
 
         public CityInput(Vector3 position, CityType type, GameObject ghostObject, float radius) {
             this.position = position;
             this.type = type;
             this.ghostObject = ghostObject;
             this.radius = radius;
+        }
+
+        public void SetHovering(bool hovering) {
+            if (!this.selected && this.hovering != hovering) {
+                if (hovering) {
+                    ghostObject.GetComponent<Renderer>().material.SetColor("_MainColor", Color.red);
+                }
+                else {
+                    ghostObject.GetComponent<Renderer>().material.SetColor("_MainColor", new Color(93 / 255f, 151 / 255f, 1));
+                }
+            }
+
+            this.hovering = hovering;
+        }
+
+        public void SetSelected(bool selected) {
+            if (this.selected != selected) {
+                if (selected) {
+                    ghostObject.GetComponent<Renderer>().material.SetColor("_MainColor", new Color(1, 0.5f, 0));
+                }
+                else {
+                    ghostObject.GetComponent<Renderer>().material.SetColor("_MainColor", new Color(93 / 255f, 151 / 255f, 1));
+                }
+            }
+
+            this.selected = selected;
         }
     }
 
@@ -233,18 +265,82 @@ public class RoadGenerator : MonoBehaviour {
             if (Physics.Raycast(ray, out hit)) {
                 Vector3 pos = hit.point;
 
-                ghostObjectInstance.SetActive(true);
+                CityInput hover = null;
+                foreach (CityInput input in cityInputs) {
+                    input.SetHovering(false);
+                    if (hover == null && Vector3.Distance(pos, input.position) < 20) {
+                        input.SetHovering(true);
+                        hover = input;
+                    }
+                }
 
-                ghostObjectInstance.transform.position = pos;
-                ghostObjectInstance.transform.localScale = Vector3.one * (radius * 2 + 10);
+                if (dragging != null) {
+                    dragging.position = pos - dragOffset;
+                    dragging.ghostObject.transform.position = dragging.position;
 
-                Vector3 scroll = Input.mouseScrollDelta;
-                radius = Mathf.Clamp(radius + scroll.y * 2, 0.1f, 500f);
+                    if (Input.GetMouseButtonUp(0)) {
+                        dragging = null;
+                    }
+                }
 
-                if (Input.GetMouseButtonDown(0)) {
-                    if (!EventSystem.current.IsPointerOverGameObject()) {
-                        cityInputs.Add(new CityInput(pos, CityType.Paris, ghostObjectInstance, radius));
-                        ghostObjectInstance = null;
+                if (hover != null && hover != selected) {
+                    ghostObjectInstance.SetActive(false);
+
+                    if (Input.GetMouseButtonDown(0)) {
+                        if (!EventSystem.current.IsPointerOverGameObject()) {
+                            if (selected != null)
+                                selected.SetSelected(false);
+
+                            selected = hover;
+                            selected.SetSelected(true);
+
+                            dragging = hover;
+                            dragOffset = pos - dragging.position;
+                        }
+                    }
+                }
+                else {
+                    if (selected == null) {
+                        ghostObjectInstance.SetActive(true);
+
+                        Vector3 scroll = Input.mouseScrollDelta;
+                        radius = Mathf.Clamp(radius + scroll.y * 2, 0.1f, 500f);
+
+                        ghostObjectInstance.transform.position = pos;
+                        ghostObjectInstance.transform.localScale = Vector3.one * (radius * 2 + 10);
+
+                        if (Input.GetMouseButtonDown(0)) {
+                            if (!EventSystem.current.IsPointerOverGameObject()) {
+                                cityInputs.Add(new CityInput(pos, CityType.Paris, ghostObjectInstance, radius));
+                                ghostObjectInstance = null;
+                            }
+                        }
+                    }
+                    else {
+                        if (Input.GetMouseButtonDown(0)) {
+                            if (hover != selected) {
+                                if (!EventSystem.current.IsPointerOverGameObject()) {
+                                    selected.SetSelected(false);
+                                    selected = null;
+                                }
+                            }
+                            else {
+                                dragging = hover;
+                                dragOffset = pos - dragging.position;
+                            }
+                        }
+                    }
+                }
+
+                if (selected != null) {
+                    Vector3 scroll = Input.mouseScrollDelta;
+                    selected.radius = Mathf.Clamp(selected.radius + scroll.y * 2, 0.1f, 500f);
+                    selected.ghostObject.transform.localScale = Vector3.one * (selected.radius * 2 + 10);
+
+                    if (Input.GetKeyDown(KeyCode.Delete)) {
+                        Destroy(selected.ghostObject);
+                        cityInputs.Remove(selected);
+                        selected = null;
                     }
                 }
             }

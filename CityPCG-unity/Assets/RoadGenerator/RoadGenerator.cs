@@ -264,6 +264,7 @@ public class RoadGenerator : MonoBehaviour {
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit)) {
                 Vector3 pos = hit.point;
+                pos.y = Mathf.Max(terrain.seaLevel, pos.y);
 
                 CityInput hover = null;
                 foreach (CityInput input in cityInputs) {

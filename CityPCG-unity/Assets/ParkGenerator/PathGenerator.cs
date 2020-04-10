@@ -15,12 +15,12 @@ public class PathGenerator : MonoBehaviour {
         Vector3 prev = new Vector3();
         int index = 0;
 
-        foreach (Vector3 edge in plot.vertices) 
+        foreach (Vector3 edge in plot.vertices)
             polygonPlot.Add(new Vector2(edge.x, edge.z));
 
         int numberOfPoints = 3;
         Polygon plotArea = new Polygon(polygonPlot);
-        
+
         if (plotArea.GetArea() < 10) {
             return;
         }
@@ -29,7 +29,7 @@ public class PathGenerator : MonoBehaviour {
 
         goalPoints2D.Add(plotArea.points[Random.Range(0, plotArea.points.Count - 1)]);
         goalPoints3D.Add(terrain.GetPosition(goalPoints2D[0]));
-        
+
         for (int i = 0; i < numberOfPoints; i++) {
             Vector2 pointToAdd = getRandomPoint(plotArea, goalPoints2D);
             goalPoints2D.Add(pointToAdd);
@@ -43,8 +43,8 @@ public class PathGenerator : MonoBehaviour {
         int currGoal = 1;
         p.nodes.Add(prev);
         int maxTries = 10000;
-        int tries = 0; 
-        int visitedPoints = 1; 
+        int tries = 0;
+        int visitedPoints = 1;
         while (visitedPoints < pointsToVisit) {
             tries += 1;
             if (tries == maxTries) {
@@ -52,10 +52,10 @@ public class PathGenerator : MonoBehaviour {
             }
 
             if (stuck > 10) {
-                prev = p.goals[currGoal-1];
+                prev = p.goals[currGoal - 1];
                 p.goals.RemoveAt(currGoal);
                 pointsToVisit--;
-                visitedPoints ++;
+                visitedPoints++;
                 stuck = 0;
             }
 
@@ -63,7 +63,7 @@ public class PathGenerator : MonoBehaviour {
             float newZ = prev.z + Random.Range(-0.1f, 0.1f);
             float newY = terrain.GetPosition(newX, newZ).y;
             tryVec = new Vector3(newX, newY, newZ);
-            
+
             if (index >= 2) {
                 Vector3 prevprev = p.nodes[index - 2];
                 Vector3 dir = (p.goals[currGoal] - prev).normalized;
@@ -89,7 +89,7 @@ public class PathGenerator : MonoBehaviour {
 
                 else if ((tryVec - p.goals[currGoal]).magnitude > (prev - p.goals[currGoal]).magnitude) {
                     tryVec = prev;
-                    stuck+= 1;
+                    stuck += 1;
                 }
                 prev = tryVec;
             }
@@ -100,11 +100,11 @@ public class PathGenerator : MonoBehaviour {
         var mesh = Instantiate(road, p.nodes[0], Quaternion.identity, this.transform).GetComponent<RoadMesh>();
         if (p.goals.Count >= numberOfPoints) {
             for (int i = 0; i < p.nodes.Count; i += 2)
-                 mesh.Spline.AddPoint(p.nodes[i]);
+                mesh.Spline.AddPoint(p.nodes[i]);
 
-        mesh.GenerateRoadMesh((float x, float z) => {
-            return terrain.GetMeshIntersection(x, z);
-        });
+            mesh.GenerateRoadMesh((float x, float z) => {
+                return terrain.GetMeshIntersection(x, z);
+            });
             var filter = mesh.RoadMeshFilter;
             var collider = mesh.GetComponent<MeshCollider>();
             collider.sharedMesh = filter.sharedMesh;
@@ -148,8 +148,8 @@ public class PathGenerator : MonoBehaviour {
         do {
             vec = new Vector2((Random.Range(minX, maxX)), (Random.Range(minY, maxY)));
         }
-        while (!(p.Contains(vec) && isValidDistance(points,vec)));
+        while (!(p.Contains(vec) && isValidDistance(points, vec)));
         return vec;
     }
-    
+
 }

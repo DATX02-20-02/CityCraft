@@ -190,7 +190,7 @@ public class WorldGenerator : MonoBehaviour {
             }
         }
     }
-    
+
     private void GenerateBlocks() {
         this.blocks = blockGenerator.Generate(roadNetwork);
     }

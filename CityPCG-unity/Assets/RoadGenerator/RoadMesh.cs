@@ -44,6 +44,10 @@ public class RoadMesh : MonoBehaviour {
         get { return roadWidth + (sidewalkWidth * 2); }
     }
 
+    public MeshFilter RoadMeshFilter {
+        get { return roadMesh; }
+    }
+
     public BezierSpline Spline {
         get { return GetComponent<BezierSpline>(); }
     }

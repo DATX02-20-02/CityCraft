@@ -43,19 +43,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e797a301bdd38641a87062606437813, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  randomSeed: 1
-  seed: 0
+  randomOffset: 1
+  offset: {x: 0, y: 0}
   layers:
   - offset: {x: 0, y: 0}
-    scale: 3
+    scale: 8
     magnitude: 1
     exponent: 2
   - offset: {x: 0, y: 0}
-    scale: 12
+    scale: 18
     magnitude: 0.3
     exponent: 1
-  width: 100
-  height: 100
+  width: 1000
+  height: 1000
   textureWidth: 512
   textureHeight: 512
   debugPlane: {fileID: 0}

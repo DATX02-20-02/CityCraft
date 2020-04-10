@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using RBush;
+using Utils;
 
 public class DrawUtil {
 
@@ -23,6 +24,13 @@ public class DrawUtil {
         Debug.DrawLine(new Vector3(x + w, 0, y), new Vector3(x + w, 0, y + h), color);
         Debug.DrawLine(new Vector3(x + w, 0, y + h), new Vector3(x, 0, y + h), color);
         Debug.DrawLine(new Vector3(x, 0, y + h), new Vector3(x, 0, y), color);
+    }
+
+    public static void DebugDrawRectangle(Rectangle rect, Color color) {
+        Debug.DrawLine(VectorUtil.Vector2To3(rect.topLeft), VectorUtil.Vector2To3(rect.topRight), color);
+        Debug.DrawLine(VectorUtil.Vector2To3(rect.topRight), VectorUtil.Vector2To3(rect.botRight), color);
+        Debug.DrawLine(VectorUtil.Vector2To3(rect.botRight), VectorUtil.Vector2To3(rect.botLeft), color);
+        Debug.DrawLine(VectorUtil.Vector2To3(rect.botLeft), VectorUtil.Vector2To3(rect.topLeft), color);
     }
 
     public static void DebugDrawEnvelope(Envelope bounds, Color color) {

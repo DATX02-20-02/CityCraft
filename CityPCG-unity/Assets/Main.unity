@@ -138,6 +138,11 @@ PrefabInstance:
       propertyPath: debugSeed
       value: 123
       objectReference: {fileID: 0}
+    - target: {fileID: -7889922274085798087, guid: 680a13e90fac6189e88d40ffc9bdf239,
+        type: 3}
+      propertyPath: buildIntervalSize
+      value: 200
+      objectReference: {fileID: 0}
     - target: {fileID: 2663700008211637056, guid: 680a13e90fac6189e88d40ffc9bdf239,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -530,8 +535,8 @@ Camera:
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
-  m_HDR: 0
-  m_AllowMSAA: 0
+  m_HDR: 1
+  m_AllowMSAA: 1
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
   m_OcclusionCulling: 1

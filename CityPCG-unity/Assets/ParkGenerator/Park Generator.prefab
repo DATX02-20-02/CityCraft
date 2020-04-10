@@ -43,3 +43,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3be9453b46e63b3dbabb473d26677ca5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  objectFrequency: 0.507
+  trees:
+  - {fileID: 114418, guid: be878d9ea17907f4a8068678a5ce7908, type: 3}
+  - {fileID: 114418, guid: 8b2d47fdc2e25ac4f9721480a68bbefa, type: 3}
+  - {fileID: 114418, guid: 956bd2acf7aae244dac8fc20cf57858d, type: 3}
+  - {fileID: 114418, guid: 9b8fc966f95ea9c4194dc091fc40b478, type: 3}
+  rock: {fileID: 110990, guid: 840372b642cf0714da46d91731e60c92, type: 3}
+  bushes:
+  - {fileID: 100000, guid: d5250e0ad00303e4f92371864d4b783f, type: 3}
+  - {fileID: 100000, guid: b9116b54da5ef114ca329209da8b42b8, type: 3}
+  - {fileID: 100000, guid: 5aa10efbe58081a4b9cad6a2ea5d8d1a, type: 3}
+  - {fileID: 100000, guid: c06e931c728bd6a4294831a23c63683a, type: 3}
+  road: {fileID: 5572524620803104925, guid: 3ccf36bbf9f9ab04da805bc3b707d62b, type: 3}

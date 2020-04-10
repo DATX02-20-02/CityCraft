@@ -1,20 +1,9 @@
-using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace Utils {
     public class PolygonUtil {
-
-        public struct Rectangle {
-            public Vector2 topLeft;
-            public Vector2 topRight;
-            public Vector2 botLeft;
-            public Vector2 botRight;
-
-            public float angle; // counter-clockwise in radians
-            public float width;
-            public float height;
-        }
-
         public static Rectangle ApproximateLargestRectangle(
                                                     List<Vector2> polygon,
                                                       float ratio,
@@ -87,6 +76,10 @@ namespace Utils {
             }
 
             return best;
+        }
+
+        public static Vector3 PolygonCenter(List<Vector3> vertices) {
+            return vertices.Aggregate(Vector3.zero, (s, v) => s + v) / (float)vertices.Count;
         }
 
         public static float PolygonArea(List<Vector3> vertices) {

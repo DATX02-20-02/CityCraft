@@ -55,4 +55,27 @@ public class VectorUtil {
         return Vector3.zero;
     }
 
+    public static Vector2 GetPointOnCenterLine(Rectangle rect, Vector2 pos) {
+        Vector2 center = (rect.topLeft + rect.topRight + rect.botLeft + rect.botRight) / 4f;
+
+        if (rect.width == rect.height)
+            return center;
+
+        Vector2 dir = pos - center;
+        Vector2 forward = rect.topLeft - rect.topRight;
+        Vector2 right = rect.topLeft - rect.botLeft;
+
+        if (forward.magnitude > right.magnitude) {
+            float dot = Vector2.Dot(dir, forward.normalized);
+            float len = forward.magnitude - right.magnitude;
+
+            return center + forward.normalized * Mathf.Clamp(dot, -len / 2, len / 2);
+        }
+        else {
+            float dot = Vector2.Dot(dir, right.normalized);
+            float len = right.magnitude - forward.magnitude;
+
+            return center + right.normalized * Mathf.Clamp(dot, -len / 2, len / 2);
+        }
+    }
 }

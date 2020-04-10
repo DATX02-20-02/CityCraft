@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Utils;
+
 using UnityEngine;
 
 public enum PlotType {
@@ -18,14 +20,9 @@ public class Plot {
         this.type = type;
     }
 
-    public static PlotType DecidePlotType(BlockType type) {
-        switch (type) {
-            case BlockType.Building:
-                return UnityEngine.Random.value < 0.25 ? PlotType.Skyscraper : PlotType.Apartments;
-            case BlockType.Park:
-                return PlotType.Park;
-            default:
-                return PlotType.Empty;
+    public Vector3 Center {
+        get {
+            return PolygonUtil.PolygonCenter(vertices);
         }
     }
 }

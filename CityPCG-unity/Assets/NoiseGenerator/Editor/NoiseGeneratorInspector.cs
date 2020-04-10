@@ -10,7 +10,14 @@ public class NoiseGeneratorInspector : Editor {
         if (GUILayout.Button("Generate map")) {
             Undo.RecordObject(generator, "Generate map");
 
-            generator.Generate();
+            generator.Generate(true);
+
+            EditorUtility.SetDirty(generator);
+        }
+        if (GUILayout.Button("Update debug plane")) {
+            Undo.RecordObject(generator, "Update debug plane");
+
+            generator.UpdateDebugPlane();
 
             EditorUtility.SetDirty(generator);
         }

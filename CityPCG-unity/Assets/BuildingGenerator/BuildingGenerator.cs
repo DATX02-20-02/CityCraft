@@ -1,23 +1,20 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
-using Utils.LSystems;
 
 public class BuildingGenerator : MonoBehaviour {
 
-    public void Generate(Plot plot) {
-        /*
-        var floorSystem = new LSystem<FloorType>();
+    public List<BuildingGeneratorType> buildingGenerators;
 
-        floorSystem.CreateRules(FloorType.First)
-            .Add(1.0f, FloorType.Normal);
+    public GameObject Generate(Plot plot, BuildingType buildingType, GameObject buildings) {
+        var buildingGenerator = buildingGenerators.Find(bg => bg.buildingType == buildingType).buildingGenerator.GetComponent<IBuildingGenerator>();
+        return buildingGenerator.Generate(plot, buildings);
+    }
 
-        floorSystem.CreateRules(FloorType.Normal)
-            .Add(0.75f, FloorType.Normal)
-            .Add(0.25f, FloorType.Roof);
-
-        floorSystem.CreateRules(FloorType.Roof);
-
-        var result = floorSystem.Run(FloorType.First);
-        */
+    [Serializable]
+    public class BuildingGeneratorType {
+        public BuildingType buildingType;
+        public GameObject buildingGenerator;
     }
 
 }

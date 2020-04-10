@@ -1,0 +1,3 @@
+public enum BuildingType {
+    Manhattan
+}

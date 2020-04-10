@@ -63,7 +63,7 @@ public class RoadGenerator : MonoBehaviour {
 
     // Generates road meshes
     public void GenerateMesh() {
-        meshGenerator.Generate(network, this.terrainModel);
+        meshGenerator.Generate(network, this.terrainModel, (List<RoadMesh> roads) => { });
     }
 
     public void GenerateStreets(TerrainModel terrain, Noise population, Action<RoadNetwork> callback) {
@@ -82,10 +82,15 @@ public class RoadGenerator : MonoBehaviour {
     // Iterate through queue and let the agents work.
     IEnumerator DoAgentWork() {
         if (prevQueueCount != 0 && this.queue.Count == 0) {
-            if (callback != null) {
-                meshGenerator.Generate(network, this.terrainModel);
-                this.callback(network);
-            }
+            meshGenerator.Generate(
+                network,
+                this.terrainModel,
+                (List<RoadMesh> roads) => {
+                    if (callback != null) {
+                        this.callback(network);
+                    }
+                }
+            );
             prevQueueCount = 0;
             yield break;
         }

@@ -69,6 +69,8 @@ public class WorldGenerator : MonoBehaviour {
     private List<Block> blocks;
     private List<Plot> plots = new List<Plot>();
 
+    private Action buildingsCallback;
+
     public State NextState() {
         if (stateMap.ContainsKey(currentStateIndex + 1)) {
             currentState = stateMap[++currentStateIndex];
@@ -86,7 +88,7 @@ public class WorldGenerator : MonoBehaviour {
                 }
 
                 this.blockGenerator.Reset();
-                this.roadMeshGenerator.Generate(this.roadGenerator.Network, terrain);
+                this.roadMeshGenerator.Generate(this.roadGenerator.Network, terrain, null);
 
                 break;
 
@@ -165,6 +167,12 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     public void GenerateBuildings() {
+        GenerateBuildings(() => { });
+    }
+
+    public void GenerateBuildings(Action callback) {
+        this.buildingsCallback = callback;
+
         this.buildingGenerator.Reset();
         StartCoroutine(GenerateBuildings(this.blocks));
     }
@@ -193,6 +201,9 @@ public class WorldGenerator : MonoBehaviour {
                 }
             }
         }
+
+        if (this.buildingsCallback != null)
+            this.buildingsCallback();
     }
 
     private void GenerateBlocks() {

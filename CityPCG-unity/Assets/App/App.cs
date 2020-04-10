@@ -27,16 +27,20 @@ public class App : MonoBehaviour {
     [SerializeField] private Button btnExportGLB = null;
     [SerializeField] private bool debug = false;
     
-    
+    private bool canProceed = false;
     private bool isBusy = false;
     private int currentMenuPanel = 0;
 
     public void Next() {
+        if (!canProceed) return;
+
+        SetCanProceed(false);
         worldGenerator.NextState();
         NextMenu();
     }
 
     public void Undo() {
+        SetCanProceed(false);
         worldGenerator.Undo();
         worldGenerator.PreviousState();
         PrevMenu();
@@ -44,15 +48,19 @@ public class App : MonoBehaviour {
 
     public void GenerateTerrain() {
         Log("Generating terrain...");
+        SetBusy(true);
         worldGenerator.GenerateTerrain();
+        SetBusy(false);
+        SetCanProceed(true);
         Log("Terrain generated.");
     }
 
     public void GenerateRoads() {
         Log("Generating roads...");
-        
+        SetBusy(true);
         worldGenerator.GenerateRoads((RoadNetwork network) => {
             SetBusy(false);
+            SetCanProceed(true);
         });
         Log("Roads generated.");
     }
@@ -62,13 +70,18 @@ public class App : MonoBehaviour {
         SetBusy(true);
         worldGenerator.GenerateStreets((RoadNetwork network) => {
             SetBusy(false);
+            SetCanProceed(true);
         });
         Log("Streets generated.");
     }
 
     public void GenerateBuildings() {
         Log("Generating buildings...");
-        worldGenerator.GenerateBuildings();
+        SetBusy(true);
+        worldGenerator.GenerateBuildings(() => {
+            SetBusy(false);
+            SetCanProceed(true);
+        });
         Log("Buildings generated.");
     }
 
@@ -107,16 +120,22 @@ public class App : MonoBehaviour {
         worldGenerator.ModifyTerrainSea(a);
     }
 
+    private void SetCanProceed(bool flag) {
+        canProceed = flag;
+        btnNext.interactable = flag;
+    }
+
     private void SetBusy(bool busy) {
         isBusy = busy;
         btnGenTerrain.interactable = !busy;
         btnGenRoad.interactable = !busy;
         btnGenStreets.interactable = !busy;
         btnGenBuildings.interactable = !busy;
-        btnNext.interactable = !busy;
         btnUndo.interactable = !busy;
         btnExportGLTF.interactable = !busy;
         btnExportGLB.interactable = !busy;
+
+        // btnNext.interactable = !busy;
     }
 
     private void NextMenu() {

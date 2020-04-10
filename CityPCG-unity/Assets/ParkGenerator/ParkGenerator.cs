@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Utils;
 
 public class ParkGenerator : MonoBehaviour {
-	[Range (0,1)]
+    [Range(0, 1)]
     [SerializeField] private float objectFrequency = 1;
     [SerializeField] private GameObject[] trees = null;
     [SerializeField] private GameObject rock = null;
@@ -16,9 +16,9 @@ public class ParkGenerator : MonoBehaviour {
     // Coordinates calls the Triangulator function in order to divide polygons into triangles
     public void Generate(TerrainModel terrain, Block block, Plot plot) {
         this.terrain = terrain;
-        GeneratePaths(terrain,block,plot);
+        GeneratePaths(terrain, block, plot);
         Vector3[] area = plot.vertices.ToArray();
-        int objectsToPlace = Mathf.RoundToInt(PolygonUtil.PolygonArea(plot.vertices)*objectFrequency);
+        int objectsToPlace = Mathf.RoundToInt(PolygonUtil.PolygonArea(plot.vertices) * objectFrequency);
         Triangulator triangulator = new Triangulator(area);
         int[] triangulated = triangulator.Triangulate();
         Triangle[] triangles = FromTriangulator(area, triangulated);
@@ -71,19 +71,19 @@ public class ParkGenerator : MonoBehaviour {
         float treeRadius = 0.06f;
         float miscRadius = 0.001f;
         float pathRadius = 0.02f;
-        if (obj.layer == 8) { 
-            Collider[] miscCollisions = Physics.OverlapSphere(obj.transform.position, miscRadius, 1<<obj.layer);
+        if (obj.layer == 8) {
+            Collider[] miscCollisions = Physics.OverlapSphere(obj.transform.position, miscRadius, 1 << obj.layer);
             if (miscCollisions.Length > 1) {
                 Destroy(obj);
             }
         }
         if (obj.layer == 9) {
-            Collider[] treeCollisions = Physics.OverlapSphere(obj.transform.position, treeRadius, 1<<obj.layer);
+            Collider[] treeCollisions = Physics.OverlapSphere(obj.transform.position, treeRadius, 1 << obj.layer);
             if (treeCollisions.Length > 1) {
                 Destroy(obj);
             }
         }
-        Collider[] pathCollisions = Physics.OverlapSphere(obj.transform.position,pathRadius);
+        Collider[] pathCollisions = Physics.OverlapSphere(obj.transform.position, pathRadius);
         if (pathCollisions.Length > 0)
             Destroy(obj);
 

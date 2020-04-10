@@ -47,7 +47,7 @@ public class CameraMovement : MonoBehaviour {
         // Lock cursor for 3D camera movement
         if (Input.GetMouseButton(1)) {
             // Lock the mouse on the center
-            if (!cursorLocked){
+            if (!cursorLocked) {
                 Cursor.lockState = CursorLockMode.Locked;
                 cursorLocked = true;
             }
@@ -66,7 +66,7 @@ public class CameraMovement : MonoBehaviour {
             transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0f); // Apply the rotation
         }
         else {
-            if (cursorLocked){
+            if (cursorLocked) {
                 Cursor.lockState = CursorLockMode.None;
                 cursorLocked = false;
             }

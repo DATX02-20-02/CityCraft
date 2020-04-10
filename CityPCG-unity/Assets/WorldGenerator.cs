@@ -105,7 +105,8 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     public void ModifyTerrainSea(float sl) {
-        terrainGenerator.SetSeaLevel(sl);
+        float newLevel = terrainGenerator.SetSeaLevel(sl);
+        terrain.seaLevel = newLevel;
     }
 
     public void GenerateRoads(System.Action<RoadNetwork> callback) {

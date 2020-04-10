@@ -11,6 +11,7 @@ public struct AgentConfiguration {
     public float snapRadius;
 
     public int maxStepCount;
+    public int maxFailedNodes;
     public int maxBranchCount;
 
     public bool requeue;
@@ -29,6 +30,7 @@ public class Agent : IComparable {
     private float priority = 0;
     private int stepCount = 0;
     private int branchCount = 0;
+    private int failedNodes = 0;
 
     private bool terminated = false;
     private bool started = false;
@@ -128,6 +130,7 @@ public class Agent : IComparable {
         this.config.snapRadius = 1f;
 
         this.config.maxStepCount = 40;
+        this.config.maxFailedNodes = 5;
         this.config.maxBranchCount = 4;
 
         this.config.requeue = true;
@@ -150,6 +153,7 @@ public class Agent : IComparable {
         info = null;
 
         if (!VectorUtil.IsInBounds(VectorUtil.Vector3To2(pos), this.network.Width, this.network.Height)) {
+            failedNodes++;
             return null;
         }
 
@@ -157,6 +161,7 @@ public class Agent : IComparable {
         float yLevel = node.pos.y;
 
         if (yLevel <= network.Terrain.seaLevel) {
+            failedNodes++;
             return null;
         }
 
@@ -166,6 +171,7 @@ public class Agent : IComparable {
 
         // TODO: Do not hardcode this.
         if (Mathf.Abs(angle) <= 45) {
+            failedNodes++;
             return null;
         }
 
@@ -181,11 +187,11 @@ public class Agent : IComparable {
 
 
         if (this.prevNode == null) {
-            this.network.AddNode(node);
-            this.prevNode = node;
+            Node newNode = this.network.AddNodeNearby(node, config.snapRadius);
+            this.prevNode = newNode;
             this.hasPlacedNode = true;
 
-            return node;
+            return newNode;
         }
         else if (connectionType != ConnectionType.None) {
             info = this.network.ConnectNodesWithIntersect(this.prevNode, node, config.snapRadius, connectionType);
@@ -197,6 +203,7 @@ public class Agent : IComparable {
             return info.prevNode;
         }
 
+        failedNodes++;
         return null;
     }
 
@@ -210,6 +217,7 @@ public class Agent : IComparable {
     public void SetStrategy(AgentStrategy strat) {
         this.strategy = strat;
         this.data = null;
+        this.stepCount = 0;
 
         this.started = false;
     }
@@ -226,13 +234,17 @@ public class Agent : IComparable {
 
         this.strategy.Work(this);
 
+        if (failedNodes > config.maxFailedNodes)
+            this.Terminate();
+
         if (!VectorUtil.IsInBounds(VectorUtil.Vector3To2(this.pos), this.network.Width, this.network.Height)) {
             this.Terminate();
         }
 
         this.stepCount++;
-        if (!this.terminated && this.strategy.ShouldDie(this, this.prevNode))
+        if (!this.terminated && this.strategy.ShouldDie(this, this.prevNode)) {
             this.Terminate();
+        }
 
         if (!this.terminated) {
             newAgents = this.strategy.Branch(this, this.prevNode);

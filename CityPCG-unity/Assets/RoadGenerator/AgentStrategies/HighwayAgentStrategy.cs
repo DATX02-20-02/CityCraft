@@ -19,20 +19,28 @@ public class HighwayAgentStrategy : AgentStrategy {
             agent.Data = data;
         }
 
-        agent.config.maxStepCount = 100;
+        agent.config.stepSize = 20;
+        agent.config.maxStepCount = 20;
         agent.config.maxBranchCount = 2;
-
-        if (agent.PreviousNode == null) {
-            Vector3 pos = agent.Position;
-
-            Node node = agent.Network.AddNodeNearby(new Node(pos), agent.config.snapRadius);
-            agent.PreviousNode = node;
-        };
     }
 
     public override void Work(Agent agent) {
         AgentData agentData = (AgentData)agent.Data;
         AgentConfiguration config = agent.config;
+
+        Node n = agent.PlaceNode(agent.Position, this.nodeType, this.connectionType, out ConnectionResult info);
+        if (n != null && info != null) {
+            Vector3 dir = n.pos - agent.Position;
+            Vector3 newDir = Vector3.Lerp(dir, agent.Direction, 0.2f);
+            agent.Angle = Mathf.Atan2(newDir.z, newDir.x);
+
+            if (!info.success) {
+                agent.Terminate();
+            }
+        }
+        else {
+            agent.Terminate();
+        }
 
         Noise popMap = agent.Network.Population;
 
@@ -56,22 +64,7 @@ public class HighwayAgentStrategy : AgentStrategy {
         if (Vector3.Dot(agent.Direction, agentData.startDirection) < 0.4)
             agent.Direction = oldDir;
 
-        Vector3 oldPos = agent.Position;
         agent.Position += agent.Direction * config.stepSize;
-
-        Node n = agent.PlaceNode(agent.Position, this.nodeType, this.connectionType, out ConnectionResult info);
-        if (n != null && info != null) {
-            Vector3 dir = n.pos - oldPos;
-            Vector3 newDir = Vector3.Lerp(dir, agent.Direction, 0.2f);
-            agent.Angle = Mathf.Atan2(newDir.z, newDir.x);
-
-            if (!info.success) {
-                agent.Terminate();
-            }
-        }
-        else {
-            agent.Terminate();
-        }
     }
 
     public override List<Agent> Branch(Agent agent, Node node) {

@@ -21,20 +21,23 @@ public class ParisAgentFactory : IAgentFactory {
 
         foreach (float ringRadius in rings) {
             foreach (Vector2 dir in directions) {
+                Vector3 dir3 = VectorUtil.Vector2To3(dir);
                 for (int reverse = -1; reverse <= 1; reverse += 2) {
-                    float angleIncrement = (10 * Mathf.PI) / 180 * reverse;
+                    float circumference = 2 * Mathf.PI * ringRadius;
+                    float angleIncrement = Mathf.PI * 2 / Mathf.Max(circumference / 10, 10) * reverse;
                     Agent agent = new Agent(
                         network,
-                        origin,
-                        new Vector3(0, 0, 0),
+                        origin + dir3 * ringRadius,
+                        dir3,
                         new ParisAgentStrategy(origin, ringRadius, false, angleIncrement),
                         priority
                     );
-                    agent.Angle = Mathf.Atan2(dir.y, dir.x);
+                    agent.config.maxStepCount = (int)Mathf.Ceil(2f * Mathf.PI / Mathf.Abs(angleIncrement) / 2f / (float)directions.Length);
                     generator.AddAgent(agent);
                 }
             }
         }
+
         priority++;
 
         int max = (int)Mathf.Floor(Random.Range(3, 9));

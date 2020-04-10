@@ -56,14 +56,19 @@ public class CameraMovement : MonoBehaviour {
             float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
             float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
+            // Reduce rotation snaps
+            if (Mathf.Abs(mouseX - prevMouseX) < rotationSnapLimit && Mathf.Abs(mouseY - prevMouseY) < rotationSnapLimit) {
+                // Rotate camera
+                xRotation -= mouseY;    // rotate up & down
+                yRotation += mouseX;    // rotate left & right
 
-            // Rotate camera
-            xRotation -= mouseY;    // rotate up & down
-            yRotation += mouseX;    // rotate left & right
+                xRotation = Mathf.Clamp(xRotation, -90f, 90f); // Disallow looking behind
 
-            xRotation = Mathf.Clamp(xRotation, -90f, 90f); // Disallow looking behind
+                transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0f); // Apply the rotation
+            }
 
-            transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0f); // Apply the rotation
+            prevMouseX = mouseX;
+            prevMouseY = mouseY;
         }
         else {
             if (cursorLocked) {

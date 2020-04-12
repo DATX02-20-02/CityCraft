@@ -85,14 +85,7 @@ public class RoadMeshGenerator : MonoBehaviour {
 
             // If no startnodes were found, log the remaining ones and exit
             if (startNode == null) {
-#if UNITY_EDITOR
-                Debug.LogWarning("Failed to find starting node when generating road mesh...");
-                foreach (Node node in notVisited) {
-                    Debug.Log("Unvisited Node at: " + node.pos + ", connections: " + node.connections.Count);
-                    Debug.DrawLine(node.pos, node.pos + Vector3.forward * 0.5f, Color.cyan, 1000f);
-                }
-#endif
-
+                Debug.LogWarning("Failed to find starting node when generating road mesh... aborting");
                 break;
             }
 

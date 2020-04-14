@@ -66,14 +66,19 @@ public class ManhattanBuildingWallGenerator {
                 obj.transform.localScale = new Vector3(segmentData.width / 10, 1, wallSegmentHeightMeter / 10);
             }
 
+            MeshCombiner.Combine(floorObject);
+
             var floorPosition = u * (y + 0.5f);
             floorObject.transform.parent = wallObject.transform;
             floorObject.transform.rotation = Quaternion.identity;
             floorObject.transform.position = floorPosition;
             floorObject.transform.localScale = new Vector3(dir3.magnitude / totalSpecifiedWidth, 1, 1);
 
+
             y++;
         }
+
+        MeshCombiner.Combine(wallObject);
 
         wallObject.transform.position = end3;
         wallObject.transform.rotation = Quaternion.LookRotation(face);

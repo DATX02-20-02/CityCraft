@@ -5,7 +5,6 @@ public static class ManhattanBuildingBasementGenerator {
 
     public static GameObject Generate(List<Vector2> vertices, Material basementMaterial, GameObject buildingObject,
         float depth) {
-        Debug.Log(depth);
 
         var basementObject = new GameObject("Basement");
         basementObject.transform.parent = buildingObject.transform;

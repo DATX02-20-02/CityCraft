@@ -5,40 +5,54 @@ using UnityEngine;
 
 public class ManhattanBuildingGenerator : MonoBehaviour, IBuildingGenerator {
 
+    public Material basementMaterial;
     public Material roofMaterial;
     public List<ManhattanFloorGenerator> floorGenerators;
     public List<ManhattanSegmentGenerator> segmentGenerators;
     public List<ManhattanSegmentToSegmentData> segmentToData;
     public float wallSegmentHeightMeter = 2;
 
-    public GameObject Generate(Plot plot, GameObject buildings) {
+    public GameObject Generate(Plot plot, GameObject buildings, float population) {
         var buildingObject = new GameObject("ManhattanBuilding");
         buildingObject.transform.parent = buildings.transform;
 
         //Here you can change the building type, right now it will always be Straight
         const ManhattanBuildingType buildingType = ManhattanBuildingType.Straight;
         var floorGenerator = floorGenerators.Find(a => a.buildingType == buildingType).floorsGenerator.GetComponent<IManhattanFloorsGenerator>();
-        var floorTypes = floorGenerator.Generate();
+        var floorTypes = floorGenerator.Generate(population);
 
         var floorToSegmentGeneratorDict = segmentGenerators.ToDictionary(sg => sg.floorType, sg => sg.segmentGenerator.GetComponent<IManhattanWallSegmentsGenerator>());
         var segmentToDataDict = segmentToData.ToDictionary(sto => sto.segmentType, sto => sto.data);
 
         var wallGenerator = new ManhattanBuildingWallGenerator(wallSegmentHeightMeter, floorTypes, floorToSegmentGeneratorDict, segmentToDataDict, buildingObject);
 
-
         foreach (var sg in floorToSegmentGeneratorDict.Values)
         {
             sg.Init(segmentToDataDict);
         }
 
-        for (var i = plot.vertices.Count - 1; i >= 0; i--) {
-            var cur = plot.vertices[i];
-            var next = plot.vertices[i == 0 ? plot.vertices.Count - 1 : (i - 1)];
+        var zero = VectorUtil.Vector3To2(plot.vertices[0]);
+        var relativeVertices = plot.vertices.ConvertAll(v => VectorUtil.Vector3To2(v) - zero);
+
+        for (var i = relativeVertices.Count - 1; i >= 0; i--) {
+            var cur = relativeVertices[i];
+            var next = relativeVertices[i == 0 ? relativeVertices.Count - 1 : (i - 1)];
 
             wallGenerator.Generate(cur, next);
         }
 
-        ManhattanBuildingRoofGenerator.Generate(plot.vertices, roofMaterial, buildingObject, wallSegmentHeightMeter * floorTypes.Count);
+        var biggestYDifference = 0.0f;
+        foreach (var v1 in plot.vertices) {
+            foreach (var v2 in plot.vertices) {
+                if (v1 != v2) {
+                    biggestYDifference = Math.Max(biggestYDifference, Math.Abs(v1.y - v2.y));
+                }
+            }
+        }
+
+        ManhattanBuildingRoofGenerator.Generate(relativeVertices, roofMaterial, buildingObject, wallSegmentHeightMeter * floorTypes.Count);
+        ManhattanBuildingBasementGenerator.Generate(relativeVertices, basementMaterial, buildingObject,
+            biggestYDifference);
 
         return buildingObject;
     }

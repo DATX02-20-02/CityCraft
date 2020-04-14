@@ -5,8 +5,7 @@ using Utils;
 using UnityEngine;
 
 public enum PlotType {
-    Apartments,
-    Skyscraper,
+    Manhattan,
     Park,
     Empty
 }

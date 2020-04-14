@@ -32,7 +32,11 @@ namespace Utils.LSystems {
 
         //TODO Validate that all values has a rule
         public List<T> Run(T axiom, U value) {
-            var result = new List<T> {axiom};
+            return Run(new List<T>() {axiom}, value);
+        }
+
+        public List<T> Run(List<T> axioms, U value) {
+            var result = axioms;
 
             //TODO: Break out result.Last()
             while (rules[result.Last()].HasRules()) {

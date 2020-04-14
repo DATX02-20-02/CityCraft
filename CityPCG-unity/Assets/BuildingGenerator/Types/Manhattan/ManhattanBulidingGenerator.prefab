@@ -43,6 +43,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 658756d25e2eef1488be2e5542ce0f2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  basementMaterial: {fileID: 2100000, guid: ace3ebcf9bec1084f8387dbe3982d8eb, type: 2}
   roofMaterial: {fileID: 2100000, guid: ace3ebcf9bec1084f8387dbe3982d8eb, type: 2}
   floorGenerators:
   - buildingType: 0

@@ -54,6 +54,8 @@ public class ManhattanBuildingGenerator : MonoBehaviour, IBuildingGenerator {
         ManhattanBuildingBasementGenerator.Generate(relativeVertices, basementMaterial, buildingObject,
             biggestYDifference);
 
+        MeshCombiner.Combine(buildingObject);
+
         return buildingObject;
     }
 

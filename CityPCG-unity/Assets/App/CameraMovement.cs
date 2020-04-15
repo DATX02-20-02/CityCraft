@@ -40,10 +40,10 @@ public class CameraMovement : MonoBehaviour {
         if (Input.GetKey("q")) {
             transform.position -= transform.up * moveSpeed * Mathf.Min(Time.deltaTime,0.5f);
         }
-        if (Input.GetKey("e")) {
+        if (Input.GetKey("e") || Input.GetKey(KeyCode.Space)) {
             transform.position += transform.up * moveSpeed * Mathf.Min(Time.deltaTime,0.5f);
         }
-        
+
 
         // Lock cursor for 3D camera movement
         if (Input.GetMouseButton(1)) {

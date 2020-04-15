@@ -26,23 +26,24 @@ public class CameraMovement : MonoBehaviour {
     private void Update() {
 
         if (Input.GetKey("w")) {
-            transform.position += transform.forward * moveSpeed * Time.deltaTime;
+            transform.position += transform.forward * moveSpeed * Mathf.Min(Time.deltaTime,0.5f);
         }
         if (Input.GetKey("a")) {
-            transform.position -= transform.right * moveSpeed * Time.deltaTime;
+            transform.position -= transform.right * moveSpeed * Mathf.Min(Time.deltaTime,0.5f);
         }
         if (Input.GetKey("s")) {
-            transform.position -= transform.forward * moveSpeed * Time.deltaTime;
+            transform.position -= transform.forward * moveSpeed * Mathf.Min(Time.deltaTime,0.5f);
         }
         if (Input.GetKey("d")) {
-            transform.position += transform.right * moveSpeed * Time.deltaTime;
+            transform.position += transform.right * moveSpeed * Mathf.Min(Time.deltaTime,0.5f);
         }
         if (Input.GetKey("q")) {
-            transform.position -= transform.up * moveSpeed * Time.deltaTime;
+            transform.position -= transform.up * moveSpeed * Mathf.Min(Time.deltaTime,0.5f);
         }
         if (Input.GetKey("e")) {
-            transform.position += transform.up * moveSpeed * Time.deltaTime;
+            transform.position += transform.up * moveSpeed * Mathf.Min(Time.deltaTime,0.5f);
         }
+        
 
         // Lock cursor for 3D camera movement
         if (Input.GetMouseButton(1)) {

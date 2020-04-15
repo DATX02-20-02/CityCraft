@@ -67,16 +67,17 @@ public class TerrainGenerator : MonoBehaviour {
     public void SetSeaLevel(float sl) {
         seaLevel = sl * maxHeight;
     }
+    
     public void SetWidth(int w) {
         width = w;
-        //xResolution = (int) (w/2.4f);
+        xResolution = (int) (w / 4);
     }
+    
     public void SetDepth(int d) {
         depth = d;
-        //zResolution = (int) (d/2.4f);
+        zResolution = (int) (d / 4);
     }
-
-
+    
     public Vector2 NoiseOffset {
         get { return this.noiseGenerator.Offset; }
     }
@@ -94,7 +95,7 @@ public class TerrainGenerator : MonoBehaviour {
                     for (int b = 0; b < 2; b++) {
                         float xPos = (float)((x + a) / (float)xResolution) * width;
                         float zPos = (float)((z + b) / (float)zResolution) * depth;
-                        float yPos = terrainModel.GetHeight((xPos / width) * 1000f, (zPos / depth) * 1000f);
+                        float yPos = terrainModel.GetHeight(xPos, zPos);
 
                         this.vertices[i++] = new Vector3(xPos, yPos, zPos);
                     }

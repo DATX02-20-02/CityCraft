@@ -15,6 +15,8 @@ public class App : MonoBehaviour {
 
     [SerializeField] private Slider sliderX = null;
     [SerializeField] private Slider sliderZ = null;
+    [SerializeField] private Slider sliderWidth = null;
+    [SerializeField] private Slider sliderDepth = null;
     [SerializeField] private WorldGenerator worldGenerator = null;
     [SerializeField] private GameObject[] menuPanels = null;
     [SerializeField] private bool debug = false;
@@ -91,11 +93,11 @@ public class App : MonoBehaviour {
     public void ModifyTerrainSea(float a) {
         worldGenerator.ModifyTerrainSea(a);
     }
-    public void ModifyTerrainWidth(float a) {
-        worldGenerator.SetTerrainWidth((int) a);
+    public void ModifyTerrainWidth() {
+        worldGenerator.SetTerrainWidth((int) sliderWidth.value);
     }
-    public void ModifyTerrainDepth(float a) {
-        worldGenerator.SetTerrainDepth((int) a);
+    public void ModifyTerrainDepth() {
+        worldGenerator.SetTerrainDepth((int) sliderDepth.value);
     }
     
     private void NextMenu() {

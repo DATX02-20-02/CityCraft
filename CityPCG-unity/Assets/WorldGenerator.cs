@@ -124,10 +124,16 @@ public class WorldGenerator : MonoBehaviour {
         terrainGenerator.SetSeaLevel(sl);
     }
     public void SetTerrainWidth(int w) {
-        terrainGenerator.SetWidth(w);
+        if (terrainGenerated) {
+            terrainGenerator.SetWidth(w);
+            terrainGenerator.GenerateTerrain();
+        }
     }
     public void SetTerrainDepth(int d) {
-        terrainGenerator.SetDepth(d);
+        if (terrainGenerated) {
+            terrainGenerator.SetDepth(d);
+            terrainGenerator.GenerateTerrain();
+        }
     }
 
     public void GenerateRoads() {

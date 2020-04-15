@@ -1391,6 +1391,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sliderX: {fileID: 2628772144936170299}
   sliderZ: {fileID: 4690588422780115106}
+  sliderWidth: {fileID: 2993857858812221554}
+  sliderDepth: {fileID: 1829268769061327364}
   worldGenerator: {fileID: 0}
   menuPanels:
   - {fileID: 513031459}
@@ -1681,7 +1683,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 18
+    m_FontSize: 16
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 1
@@ -2011,6 +2013,21 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+  - eventID: 1
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 69592967819174802}
+          m_MethodName: EndDragOffset
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &1583141128772085753
 GameObject:
   m_ObjectHideFlags: 0
@@ -2112,7 +2129,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 18
+    m_FontSize: 16
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 1
@@ -2727,7 +2744,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 18
+    m_FontSize: 16
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 1
@@ -3305,7 +3322,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 18
+    m_FontSize: 16
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 1
@@ -3327,7 +3344,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6395865008180328395}
   - component: {fileID: 1829268769061327364}
-  - component: {fileID: 2880186223314738951}
+  - component: {fileID: 5222718887170458816}
   m_Layer: 0
   m_Name: Slider5
   m_TagString: Untagged
@@ -3357,7 +3374,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -383.4}
+  m_AnchoredPosition: {x: 0, y: -386.29996}
   m_SizeDelta: {x: 160, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1829268769061327364
@@ -3403,25 +3420,14 @@ MonoBehaviour:
   m_FillRect: {fileID: 5133736089137247663}
   m_HandleRect: {fileID: 5490139778628325763}
   m_Direction: 0
-  m_MinValue: 100
-  m_MaxValue: 1000
+  m_MinValue: 500
+  m_MaxValue: 1500
   m_WholeNumbers: 1
-  m_Value: 100
+  m_Value: 1000
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 69592967819174802}
-        m_MethodName: ModifyTerrainDepth
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
---- !u!114 &2880186223314738951
+      m_Calls: []
+--- !u!114 &5222718887170458816
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3439,7 +3445,22 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: 69592967819174802}
-          m_MethodName: EndDragOffset
+          m_MethodName: ModifyTerrainDepth
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 4
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 69592967819174802}
+          m_MethodName: ModifyTerrainDepth
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -3846,7 +3867,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 18
+    m_FontSize: 16
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 1
@@ -3857,7 +3878,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 100 km
+  m_Text: 150 km
 --- !u!1 &6058061935292746216
 GameObject:
   m_ObjectHideFlags: 0
@@ -4198,7 +4219,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 18
+    m_FontSize: 16
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 1
@@ -4275,7 +4296,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 18
+    m_FontSize: 16
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 1
@@ -4352,7 +4373,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 18
+    m_FontSize: 16
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 1
@@ -4363,7 +4384,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 10 km
+  m_Text: 50 km
 --- !u!1 &7005326821738333219
 GameObject:
   m_ObjectHideFlags: 0
@@ -4429,7 +4450,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 18
+    m_FontSize: 16
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 1
@@ -4440,7 +4461,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 100 km
+  m_Text: 150 km
 --- !u!1 &7184660909739332614
 GameObject:
   m_ObjectHideFlags: 0
@@ -4559,6 +4580,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Delegates:
   - eventID: 14
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 69592967819174802}
+          m_MethodName: EndDragOffset
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 1
     callback:
       m_PersistentCalls:
         m_Calls:
@@ -5006,7 +5042,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 18
+    m_FontSize: 16
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 1
@@ -5017,7 +5053,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 10 km
+  m_Text: 50 km
 --- !u!1 &8355821630784633994
 GameObject:
   m_ObjectHideFlags: 0
@@ -5101,6 +5137,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8770206135758742326}
   - component: {fileID: 2993857858812221554}
+  - component: {fileID: 477858608478808763}
   m_Layer: 0
   m_Name: Slider4
   m_TagString: Untagged
@@ -5130,7 +5167,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -323.4}
+  m_AnchoredPosition: {x: 0, y: -326.3}
   m_SizeDelta: {x: 160, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2993857858812221554
@@ -5176,21 +5213,53 @@ MonoBehaviour:
   m_FillRect: {fileID: 228907463197373102}
   m_HandleRect: {fileID: 9116129306428057718}
   m_Direction: 0
-  m_MinValue: 100
-  m_MaxValue: 1000
+  m_MinValue: 500
+  m_MaxValue: 1500
   m_WholeNumbers: 1
-  m_Value: 100
+  m_Value: 1000
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 69592967819174802}
-        m_MethodName: ModifyTerrainWidth
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
+--- !u!114 &477858608478808763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8415438512098194483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 14
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 69592967819174802}
+          m_MethodName: ModifyTerrainWidth
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 4
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 69592967819174802}
+          m_MethodName: ModifyTerrainWidth
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2

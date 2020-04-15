@@ -3404,9 +3404,9 @@ MonoBehaviour:
   m_HandleRect: {fileID: 5490139778628325763}
   m_Direction: 0
   m_MinValue: 100
-  m_MaxValue: 10000
+  m_MaxValue: 1000
   m_WholeNumbers: 1
-  m_Value: 505
+  m_Value: 100
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -3816,7 +3816,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -10, y: 10}
-  m_SizeDelta: {x: 82, y: 20}
+  m_SizeDelta: {x: 70, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &123126245014673160
 CanvasRenderer:
@@ -3857,7 +3857,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 1 000 km
+  m_Text: 100 km
 --- !u!1 &6058061935292746216
 GameObject:
   m_ObjectHideFlags: 0
@@ -4399,7 +4399,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -10, y: 10}
-  m_SizeDelta: {x: 82, y: 20}
+  m_SizeDelta: {x: 70, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8963248672993641310
 CanvasRenderer:
@@ -4440,7 +4440,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 1 000 km
+  m_Text: 100 km
 --- !u!1 &7184660909739332614
 GameObject:
   m_ObjectHideFlags: 0
@@ -5177,9 +5177,9 @@ MonoBehaviour:
   m_HandleRect: {fileID: 9116129306428057718}
   m_Direction: 0
   m_MinValue: 100
-  m_MaxValue: 10000
+  m_MaxValue: 1000
   m_WholeNumbers: 1
-  m_Value: 505
+  m_Value: 100
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:

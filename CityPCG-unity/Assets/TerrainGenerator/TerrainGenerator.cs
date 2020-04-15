@@ -67,6 +67,13 @@ public class TerrainGenerator : MonoBehaviour {
     public void SetSeaLevel(float sl) {
         seaLevel = sl * maxHeight;
     }
+    public void SetWidth(int w) {
+        width = w;
+    }
+    public void SetDepth(int d) {
+        depth = d;
+    }
+
 
     public Vector2 NoiseOffset {
         get { return this.noiseGenerator.Offset; }

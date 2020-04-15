@@ -91,8 +91,13 @@ public class App : MonoBehaviour {
     public void ModifyTerrainSea(float a) {
         worldGenerator.ModifyTerrainSea(a);
     }
-
-
+    public void ModifyTerrainWidth(float a) {
+        worldGenerator.SetTerrainWidth((int) a);
+    }
+    public void ModifyTerrainDepth(float a) {
+        worldGenerator.SetTerrainDepth((int) a);
+    }
+    
     private void NextMenu() {
         menuPanels[currentMenuPanel].SetActive(false);
         currentMenuPanel = Mathf.Min(menuPanels.Length - 1, currentMenuPanel + 1);

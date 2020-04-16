@@ -12,6 +12,8 @@ public class PlotGenerator : MonoBehaviour {
     [SerializeField] private AnimationCurve skyscraperGradient = null;
     [SerializeField] private bool debug = false;
 
+    [SerializeField] private float parkingProbability = 0.1f;
+
 
     public List<Plot> Generate(Block block, TerrainModel terrain, Noise populationNoise) {
         float blockArea = PolygonUtil.PolygonArea(block.vertices);
@@ -43,6 +45,10 @@ public class PlotGenerator : MonoBehaviour {
         float skyscraperProb = skyscraperGradient.Evaluate(population);
         PlotType blendType = UnityEngine.Random.value < 0.5f ? PlotType.Manhattan : PlotType.Skyscraper;
 
+        if (type == BlockType.Industrial || type == BlockType.Downtown) {
+            if (UnityEngine.Random.value < parkingProbability) return PlotType.Parking;
+        }
+
         switch (type) {
             case BlockType.Industrial:
                 return (UnityEngine.Random.value < skyscraperProb) ? PlotType.Skyscraper : PlotType.Manhattan;
@@ -52,6 +58,9 @@ public class PlotGenerator : MonoBehaviour {
 
             case BlockType.Downtown:
                 return (UnityEngine.Random.value < skyscraperProb) ? PlotType.Skyscraper : PlotType.Manhattan;
+
+            case BlockType.Suburbs:
+                return PlotType.Apartments;
 
             case BlockType.Skyscrapers:
                 return UnityEngine.Random.value < 0.5f ? PlotType.Manhattan : PlotType.Skyscraper;

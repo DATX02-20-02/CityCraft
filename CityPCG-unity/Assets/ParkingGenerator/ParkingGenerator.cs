@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Utils;
 
 public class ParkingGenerator : MonoBehaviour {
     [SerializeField] private GameObject whiteLine = null;
-
+    [SerializeField] private GameObject square = null;
     public void Generate(TerrainModel terrain, Plot plot) {
         List<Vector2> polygon = new List<Vector2>();
         Vector3 center = Vector3.zero;
@@ -13,72 +14,60 @@ public class ParkingGenerator : MonoBehaviour {
             polygon.Add(VectorUtil.Vector3To2(v));
         }
         center /= plot.vertices.Count;
-
+        var c = terrain.GetMeshIntersection(center.x,center.z);
         var rect = ApproximateLargestRectangle(polygon);
-
-        transform.position = center;
-
-        rect.topLeft.x = terrain.GetPosition(rect.topLeft).x;
-        rect.topRight.x = terrain.GetPosition(rect.topRight).x;
-        rect.botLeft.x = terrain.GetPosition(rect.botLeft).x;
-        rect.botRight.x = terrain.GetPosition(rect.botRight).x;
-
-        rect.topLeft.y = terrain.GetPosition(rect.topLeft).z;
-        rect.topRight.y = terrain.GetPosition(rect.topRight).z;
-        rect.botLeft.y = terrain.GetPosition(rect.botLeft).z;
-        rect.botRight.y = terrain.GetPosition(rect.botRight).z;
-
+        Quaternion rot = Quaternion.Euler(0, -rect.angle * Mathf.Rad2Deg, 0);
+        GameObject g = Instantiate(square,c.point+c.normal*0.03f,Quaternion.FromToRotation(square.transform.up,c.normal)*rot,this.transform);
+        g.transform.localScale = new Vector3(rect.width*0.2f,g.transform.localScale.y,rect.height*0.2f);
         float offset = 0.1f;
-        float border = Mathf.Abs(rect.topRight.x - rect.topLeft.x) / 4;
-        Debug.DrawLine(terrain.GetPosition(rect.topLeft), terrain.GetPosition(rect.topRight), Color.cyan, 1000);
-        Debug.DrawLine(terrain.GetPosition(rect.topRight), terrain.GetPosition(rect.botRight), Color.cyan, 1000);
-        Debug.DrawLine(terrain.GetPosition(rect.botRight), terrain.GetPosition(rect.botLeft), Color.cyan, 1000);
-        Debug.DrawLine(terrain.GetPosition(rect.botLeft), terrain.GetPosition(rect.topLeft), Color.cyan, 1000);
+        float border = 0.2f;
+        Vector2 rectRightDir = (rect.botRight - rect.botLeft).normalized;
+        Vector2 rectUpDir   = (rect.topLeft - rect.botLeft).normalized;
+        Vector2 origin = rect.botLeft;
 
-        Debug.DrawLine(new Vector3(rect.topLeft.x, terrain.GetPosition(rect.topLeft).y, rect.topLeft.y), new Vector3(rect.topRight.x, terrain.GetPosition(rect.botLeft).y, rect.topLeft.y), Color.white, 10000);
-        Debug.DrawLine(new Vector3(rect.botRight.x, terrain.GetPosition(rect.topRight).y, rect.botRight.y), new Vector3(rect.botLeft.x, terrain.GetPosition(rect.botRight).y, rect.botRight.y), Color.white, 10000);
-        Vector3 top = new Vector3(rect.topLeft.x, terrain.GetPosition(rect.topLeft).y, rect.topLeft.y);
-        Vector3 bot = new Vector3(rect.botRight.x, terrain.GetPosition(rect.topRight).y, rect.botRight.y);
-        Instantiate(whiteLine, top, Quaternion.identity, this.transform);
+        if(rect.height < 0.4f) {
+            origin = (rect.botLeft+rect.topLeft)/2;
+            border = 0; 
+        } 
+            while (offset <= rect.width-border) {
+                Vector2 localV1 = rectRightDir * (offset + border)              + rectUpDir * (rect.height*2 - border); // top left
+                Vector2 localV2 = rectRightDir * (rect.width*2 - offset - border) + rectUpDir * (rect.height*2 - border); // top right
+                Vector2 localV3 = rectRightDir * (offset + border)              + rectUpDir * border;                 // bottom left
+                Vector2 localV4 = rectRightDir * (rect.width*2 - offset - border) + rectUpDir * border;                 // bottom right
 
-        Instantiate(whiteLine, bot, Quaternion.identity, this.transform);
+                var v1 = terrain.GetMeshIntersection(origin.x + localV1.x, origin.y + localV1.y);
+                var v2 = terrain.GetMeshIntersection(origin.x + localV2.x, origin.y + localV2.y);
+                var v3 = terrain.GetMeshIntersection(origin.x + localV3.x, origin.y + localV3.y);
+                var v4 = terrain.GetMeshIntersection(origin.x + localV4.x, origin.y + localV4.y);
 
-        while (offset <= rect.width) {
-            Debug.DrawLine(new Vector3(rect.topLeft.x + offset, terrain.GetPosition(rect.topLeft).y, rect.topLeft.y + 0.2f), new Vector3(rect.botLeft.x + offset, terrain.GetPosition(rect.botLeft).y, rect.topLeft.y - 0.2f), Color.white, 10000);
-            Debug.DrawLine(new Vector3(rect.topRight.x - offset, terrain.GetPosition(rect.topRight).y, rect.topRight.y + 0.2f), new Vector3(rect.botRight.x - offset, terrain.GetPosition(rect.botRight).y, rect.topRight.y - 0.2f), Color.white, 10000);
+                GameObject lowRightObj = Instantiate(whiteLine,v3.point + v3.normal*0.05f, Quaternion.FromToRotation(whiteLine.transform.up, v3.normal)*rot,this.transform);
+                lowRightObj.transform.Rotate(0,-90,0);
+                lowRightObj.transform.localScale = new Vector3(lowRightObj.transform.localScale.x,lowRightObj.transform.localScale.y,lowRightObj.transform.localScale.z/4);
 
-            Debug.DrawLine(new Vector3(rect.topLeft.x + offset, terrain.GetPosition(rect.topLeft).y, rect.botLeft.y + 0.2f), new Vector3(rect.botLeft.x + offset, terrain.GetPosition(rect.botLeft).y, rect.botLeft.y - 0.2f), Color.white, 10000);
-            Vector3 v1 = new Vector3(rect.topLeft.x + offset, terrain.GetPosition(rect.topLeft).y, rect.topLeft.y);
-            Vector3 v2 = new Vector3(rect.topRight.x - offset, terrain.GetPosition(rect.topRight).y, rect.topRight.y);
-            Vector3 v3 = new Vector3(rect.botRight.x - offset, terrain.GetPosition(rect.botRight).y, rect.botRight.y);
-            Vector3 v4 = new Vector3(rect.botLeft.x + offset, terrain.GetPosition(rect.botLeft).y, rect.botLeft.y);
-            Instantiate(whiteLine, v1, Quaternion.identity, this.transform);
-            Instantiate(whiteLine, v2, Quaternion.identity, this.transform);
-            Instantiate(whiteLine, v3, Quaternion.identity, this.transform);
-            Instantiate(whiteLine, v4, Quaternion.identity, this.transform);
-            Debug.DrawLine(new Vector3(rect.topRight.x - offset, terrain.GetPosition(rect.topRight).y, rect.botRight.y + 0.2f), new Vector3(rect.botRight.x - offset, terrain.GetPosition(rect.botRight).y, rect.botRight.y - 0.2f), Color.white, 10000);
-            offset += 0.1f;
-        }
+                GameObject lowLeftObj = Instantiate(whiteLine,v4.point + v4.normal*0.05f, Quaternion.FromToRotation(whiteLine.transform.up, v4.normal)*rot,this.transform);
+                lowLeftObj.transform.Rotate(0,-90,0);
+                lowLeftObj.transform.localScale = new Vector3(lowLeftObj.transform.localScale.x,lowLeftObj.transform.localScale.y,lowLeftObj.transform.localScale.z/4); 
+                    
+                if(rect.height >= 0.4f) {
+                    
+                    GameObject topLeftObj = Instantiate(whiteLine, v1.point + v1.normal*0.05f, Quaternion.FromToRotation(whiteLine.transform.up, v1.normal)*rot, this.transform);
+                    topLeftObj.transform.Rotate(0,-90,0);
+                    topLeftObj.transform.localScale = new Vector3(topLeftObj.transform.localScale.x,topLeftObj.transform.localScale.y,topLeftObj.transform.localScale.z/4);
+                
+                    GameObject topRightObj = Instantiate(whiteLine, v2.point + v2.normal*0.05f, Quaternion.FromToRotation(whiteLine.transform.up, v2.normal)*rot, this.transform);
+                    topRightObj.transform.Rotate(0,-90,0);
+                    topRightObj.transform.localScale = new Vector3(topRightObj.transform.localScale.x,topRightObj.transform.localScale.y,topRightObj.transform.localScale.z/4);
+                    
+                    Instantiate(whiteLine, v1.point + v1.normal*0.05f, Quaternion.FromToRotation(whiteLine.transform.up, v1.normal)*rot, this.transform);
+                    Instantiate(whiteLine, v2.point + v2.normal*0.05f, Quaternion.FromToRotation(whiteLine.transform.up, v2.normal)*rot, this.transform);
 
+                }            
 
-        /*   Debug.DrawLine(new Vector3(rect.topLeft.x + border,terrain.GetPosition(rect.topLeft).y, zHigh ),new Vector3(rect.topLeft.x + border,terrain.GetPosition(rect.topLeft).y,zHigh - zHigh /2.5f),Color.white,10000);
-           Debug.DrawLine(new Vector3(rect.botLeft.x + border,terrain.GetPosition(rect.botLeft).y, zLow),new Vector3(rect.topLeft.x + border,terrain.GetPosition(rect.botLeft).y,zLow + zHigh/2.5f),Color.white,10000);
-           Debug.DrawLine(new Vector3(rect.topRight.x - border,terrain.GetPosition(rect.topRight).y, zHigh ),new Vector3(rect.topRight.x - border,terrain.GetPosition(rect.topRight).y,zHigh - zHigh/2.5f),Color.white,10000);
-           Debug.DrawLine(new Vector3(rect.botRight.x - border,terrain.GetPosition(rect.botRight).y, zLow),new Vector3(rect.topRight.x - border,terrain.GetPosition(rect.botRight).y,zLow + zHigh/2.5f),Color.white,10000);
+                Instantiate(whiteLine, v3.point + v3.normal*0.05f, Quaternion.FromToRotation(whiteLine.transform.up, v3.normal)*rot, this.transform);
+                Instantiate(whiteLine, v4.point + v4.normal*0.05f, Quaternion.FromToRotation(whiteLine.transform.up, v4.normal)*rot, this.transform);
 
-           while(zHigh >= rect.topLeft.y - rect.topLeft.y/2.5f) {
-               Debug.DrawLine(new Vector3(rect.topLeft.x + border-offset,terrain.GetPosition(rect.topLeft).y,zHigh), new Vector3(rect.topLeft.x + border + offset,terrain.GetPosition(rect.topLeft).y,zHigh),Color.white,1000);
-               Debug.DrawLine(new Vector3(rect.topRight.x - border-offset,terrain.GetPosition(rect.topRight).y,zHigh), new Vector3(rect.topRight.x - border + offset,terrain.GetPosition(rect.topRight).y,zHigh),Color.white,1000);
-               zHigh -= 4;
-           }
-           while(zLow <= rect.botLeft.y + rect.topLeft.y/2.5f) {
-               Debug.DrawLine(new Vector3(rect.botLeft.x + border-offset,terrain.GetPosition(rect.botLeft).y,zLow), new Vector3(rect.botLeft.x + border + offset,terrain.GetPosition(rect.botLeft).y,zLow),Color.white,1000);
-               Debug.DrawLine(new Vector3(rect.botRight.x - border-offset,terrain.GetPosition(rect.botRight).y,zLow), new Vector3(rect.botRight.x - border + offset,terrain.GetPosition(rect.botRight).y,zLow),Color.white,1000);
-               zLow += 4;
-           } */
-
-
-
+                offset += 0.1f;
+            }
         /*  tl--tm--tr
             |---|---|
             |---|---|
@@ -86,7 +75,7 @@ public class ParkingGenerator : MonoBehaviour {
         */
     }
     private Rectangle ApproximateLargestRectangle(List<Vector2> polygon) {
-        return Utils.PolygonUtil.ApproximateLargestRectangle(polygon, Random.Range(1.0f, 5.0f), 0.25f, 10, 14);
+        return Utils.PolygonUtil.ApproximateLargestRectangle(polygon, Random.Range(1.0f, 3.0f), 0.1f, 6, 10);
     }
 
 }

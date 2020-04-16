@@ -45,3 +45,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   whiteLine: {fileID: 9211046939822616710, guid: fe218d7e17355854dac4e1fea3525484,
     type: 3}
+  square: {fileID: 3885278745966290859, guid: 60be8aebf79f1b24ea622f9b7cec9908, type: 3}

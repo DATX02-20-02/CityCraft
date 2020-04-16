@@ -9,6 +9,7 @@ public enum PlotType {
     Manhattan,
     Skyscraper,
     Park,
+    Parking,
     Empty
 }
 

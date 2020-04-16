@@ -339,6 +339,7 @@ public class BlockGenerator : MonoBehaviour {
 
     private List<Block> InsetBlocks() {
         // Go through all blocks and perform the inset algorithm on each
+        int decider = 0;
         foreach (Block block in this.blocks) {
             List<Block> newBlocks = InsetBlock(block, this.inset);
 
@@ -352,6 +353,7 @@ public class BlockGenerator : MonoBehaviour {
                     else {
                         float rng = UnityEngine.Random.value;
                         BlockType t = BlockType.Skyscrapers;
+
                         if (rng < 0.15f)
                             t = BlockType.Apartments;
                         else if (rng < 0.25f)
@@ -360,6 +362,7 @@ public class BlockGenerator : MonoBehaviour {
                             t = BlockType.Industrial;
                         else if (rng < 0.9f)
                             t = BlockType.Suburbs;
+
                         this.insetBlocks.Add(new Block(newBlock.vertices, t));
                     }
                 }

@@ -9,6 +9,7 @@ public enum PlotType {
     Apartments,
     Skyscraper,
     Park,
+    Parking,
     Empty
 }
 

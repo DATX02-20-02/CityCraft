@@ -13,6 +13,8 @@ public class PlotGenerator : MonoBehaviour {
     [SerializeField] private bool debug = false;
     [SerializeField] private int parts = 3;
 
+    [SerializeField] private float parkingProbability = 0.1f;
+
 
     public List<Plot> Generate(Block block, TerrainModel terrain, Noise populationNoise) {
         var plots = Split(CreatePolygon(block.Vertices2D()), parts)
@@ -39,15 +41,19 @@ public class PlotGenerator : MonoBehaviour {
     private PlotType DecidePlotType(BlockType type, float population) {
         float skyscraperProb = skyscraperGradient.Evaluate(population);
 
+        if (type == BlockType.Industrial || type == BlockType.Downtown) {
+            if (UnityEngine.Random.value < parkingProbability) return PlotType.Parking;
+        }
+
         switch (type) {
             case BlockType.Industrial:
                 return (UnityEngine.Random.value < skyscraperProb) ? PlotType.Skyscraper : PlotType.Apartments;
 
-            case BlockType.Suburbs:
-                return PlotType.Apartments;
-
             case BlockType.Downtown:
                 return (UnityEngine.Random.value < skyscraperProb) ? PlotType.Skyscraper : PlotType.Apartments;
+
+            case BlockType.Suburbs:
+                return PlotType.Apartments;
 
             case BlockType.Skyscrapers:
                 return PlotType.Skyscraper;

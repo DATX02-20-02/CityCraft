@@ -2294,7 +2294,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Generator options:'
+  m_Text: Generator Options
 --- !u!1 &1967404977697031145
 GameObject:
   m_ObjectHideFlags: 0

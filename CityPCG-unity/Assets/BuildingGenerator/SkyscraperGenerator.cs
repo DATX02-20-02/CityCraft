@@ -34,20 +34,22 @@ public class SkyscraperGenerator : MonoBehaviour {
 
     public void Generate(Plot plot) {
         List<Vector2> polygon = new List<Vector2>();
-        Vector3 center = Vector3.zero;
+        Vector3 lowest = new Vector3(0, float.MaxValue, 0);
         foreach (var v in plot.vertices) {
-            center += v;
+            if (v.y < lowest.y) lowest = v;
             polygon.Add(VectorUtil.Vector3To2(v));
         }
-        center /= plot.vertices.Count;
 
         var rect = ApproximateLargestRectangle(polygon);
+        DrawUtil.DebugDrawRectangle(rect, Color.yellow);
+        Vector2 center2 = (rect.topLeft + rect.topRight + rect.botLeft + rect.botRight) / 4;
+        Vector3 center = new Vector3(center2.x, lowest.y, center2.y);
 
         transform.position = center;
 
-        this.worldSize.x = 2 * rect.width;
+        this.worldSize.x = rect.width;
         this.worldSize.y = 4f / (1f + Mathf.Pow(rect.width * rect.height, 1.5f));
-        this.worldSize.z = 2 * rect.height;
+        this.worldSize.z = rect.height;
 
         this.sizeX = (int)(2 * this.worldSize.x + 1);
         this.sizeY = (int)(3 * this.worldSize.y + 1);

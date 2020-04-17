@@ -29,12 +29,12 @@ public class VectorUtil {
         return mx >= 0 && mx < 1 && my >= 0 && my < 1;
     }
 
-    public static Vector2 GetProjectedPointOnLine(Vector2 point, Vector2 from, Vector2 to) {
+    public static Vector2 GetProjectedPointOnLine(Vector2 point, Vector2 from, Vector2 to, bool limit = true) {
         float l2 = (to - from).sqrMagnitude;
         if (l2 == 0) return from;
 
         float t = Vector2.Dot(point - from, to - from) / l2;
-        if (t < 0 || t > 1) return Vector2.negativeInfinity;
+        if (limit && (t < 0 || t > 1)) return Vector2.negativeInfinity;
 
         Vector2 proj = from + t * (to - from);
         return proj;

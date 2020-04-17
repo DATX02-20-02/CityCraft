@@ -60,4 +60,47 @@ public class PlotGenerator : MonoBehaviour {
             }
         }
     }
+
+    [SerializeField] List<Vector3> vertices = new List<Vector3>() {
+        new Vector3(0, 0, 0),
+        new Vector3(1, 0, 0),
+        new Vector3(1, 0, 1),
+        new Vector3(0, 0, 1),
+    };
+
+    [SerializeField] float a = 1.0f;
+    [SerializeField] float b = 0.1f;
+    [SerializeField] int c = 6;
+    [SerializeField] int d = 10;
+
+    void Update() {
+        // if (prev != null) {
+        //     Destroy(prev);
+        //     prev = null;
+        // }
+
+        Plot plot = new Plot(vertices, PlotType.Empty);
+        DrawPlot(plot);
+
+        Rectangle rect = PolygonUtil.ApproximateLargestRectangle(
+            plot.vertices.Select(v => VectorUtil.Vector3To2(v)).ToList(),
+            a,
+            b,
+            c,
+            d
+        );
+
+        DrawUtil.DebugDrawRectangle(rect, Color.yellow);
+
+        Debug.DrawLine(
+            VectorUtil.Vector2To3(rect.topLeft) + Vector3.up * 0.1f,
+            VectorUtil.Vector2To3(rect.topLeft + (rect.topRight - rect.topLeft).normalized * rect.width) + Vector3.up * 0.1f,
+            Color.green
+        );
+
+        // if (prev == null) {
+        //     prev = Instantiate(objGen, transform);
+        //     prev.GetComponent<SkyscraperGenerator>().Generate(plot);
+        // }
+    }
 }

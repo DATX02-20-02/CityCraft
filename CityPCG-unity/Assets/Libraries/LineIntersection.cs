@@ -15,6 +15,7 @@ public class LineIntersection {
 
     public class Result {
         public Type type;
+        public Vector2 origin;
         public Vector2 point;
         public float factorA;
         public float factorB;
@@ -23,7 +24,8 @@ public class LineIntersection {
             this.type = type;
         }
 
-        public Result(Type type, Vector2 point, float factorA, float factorB) : this(type) {
+        public Result(Type type, Vector2 origin, Vector2 point, float factorA, float factorB) : this(type) {
+            this.origin = origin;
             this.point = point;
             this.factorA = factorA;
             this.factorB = factorB;
@@ -46,7 +48,7 @@ public class LineIntersection {
         float uB = numeB / denom;
 
         if (uA >= 0 && uA <= 1 && uB >= 0) {
-            return new Result(Type.Intersecting, origin + uB * dir, uA, uB);
+            return new Result(Type.Intersecting, origin, origin + uB * dir, uA, uB);
         }
 
         return new Result(Type.None);

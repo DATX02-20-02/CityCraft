@@ -38,6 +38,7 @@ public class App : MonoBehaviour {
     public void GenerateTerrain() {
         Log("Generating terrain...");
         worldGenerator.GenerateTerrain();
+        worldGenerator.SetGenerated();
         Log("Terrain generated.");
     }
 

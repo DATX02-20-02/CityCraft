@@ -107,33 +107,34 @@ public class WorldGenerator : MonoBehaviour {
             currentState = stateMap[--currentStateIndex];
         }
     }
-
-    public void GenerateTerrain() {
+    
+    
+    public void SetGenerated(){ 
         terrainGenerated = true;
-        terrain = terrainGenerator.GenerateTerrain();
+    }
+    public void GenerateTerrain() {
+        if (terrainGenerated) {
+            terrain = terrainGenerator.GenerateTerrain();
+        }
     }
 
     public void SetOffsetSpeedX(float x) {
-        if (terrainGenerated) offsetSpeedX = x;
+        offsetSpeedX = x;
     }
     public void SetOffsetSpeedZ(float z) {
-        if (terrainGenerated) offsetSpeedZ = z * (-1);
+        offsetSpeedZ = z * (-1);
     }
 
     public void ModifyTerrainSea(float sl) {
         terrainGenerator.SetSeaLevel(sl);
     }
     public void SetTerrainWidth(int w) {
-        if (terrainGenerated) {
-            terrainGenerator.SetWidth(w);
-            terrainGenerator.GenerateTerrain();
-        }
+        terrainGenerator.SetWidth(w);
+        GenerateTerrain();
     }
     public void SetTerrainDepth(int d) {
-        if (terrainGenerated) {
-            terrainGenerator.SetDepth(d);
-            terrainGenerator.GenerateTerrain();
-        }
+        terrainGenerator.SetDepth(d);
+        GenerateTerrain();
     }
 
     public void GenerateRoads() {
@@ -262,7 +263,7 @@ public class WorldGenerator : MonoBehaviour {
             }
         }
 
-        if (offsetSpeedX != 0 || offsetSpeedZ != 0) {
+        if ((offsetSpeedX != 0 || offsetSpeedZ != 0) && terrainGenerated) {
             Vector2 speedamp = new Vector2(offsetSpeedX * Time.deltaTime, offsetSpeedZ * Time.deltaTime);
             Vector2 speed = terrainGenerator.NoiseOffset + speedamp;
             terrain = terrainGenerator.GenerateTerrain(speed);

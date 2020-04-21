@@ -34,11 +34,13 @@ public class ManhattanBuildingGenerator : MonoBehaviour, IBuildingGenerator {
         var zero = VectorUtil.Vector3To2(plot.vertices[0]);
         var relativeVertices = plot.vertices.ConvertAll(v => VectorUtil.Vector3To2(v) - zero);
 
+        var ttmSegments = new List<TemporaryTransformedMesh>();
+
         for (var i = relativeVertices.Count - 1; i >= 0; i--) {
             var cur = relativeVertices[i];
             var next = relativeVertices[i == 0 ? relativeVertices.Count - 1 : (i - 1)];
 
-            wallGenerator.Generate(cur, next);
+            ttmSegments.AddRange(wallGenerator.Generate(cur, next));
         }
 
         var biggestYDifference = 0.0f;
@@ -50,11 +52,11 @@ public class ManhattanBuildingGenerator : MonoBehaviour, IBuildingGenerator {
             }
         }
 
-        ManhattanBuildingRoofGenerator.Generate(relativeVertices, roofMaterial, buildingObject, wallSegmentHeightMeter * floorTypes.Count);
-        ManhattanBuildingBasementGenerator.Generate(relativeVertices, basementMaterial, buildingObject,
-            biggestYDifference);
+        ttmSegments.Add(ManhattanBuildingRoofGenerator.Generate(relativeVertices, roofMaterial, wallSegmentHeightMeter * floorTypes.Count));
+        ttmSegments.Add(ManhattanBuildingBasementGenerator.Generate(relativeVertices, basementMaterial,
+            biggestYDifference));
 
-        MeshCombiner.Combine(buildingObject);
+        MeshCombiner.Combine(buildingObject, ttmSegments);
 
         return buildingObject;
     }

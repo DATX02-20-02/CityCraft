@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 public class ManhattanBuildingWallGenerator {
@@ -22,9 +24,7 @@ public class ManhattanBuildingWallGenerator {
         this.buildingObject = buildingObject;
     }
 
-    public void Generate(Vector2 start, Vector2 end) {
-        var wallObject = new GameObject("Wall");
-        wallObject.transform.parent = buildingObject.transform;
+    public List<TemporaryTransformedMesh> Generate(Vector2 start, Vector2 end) {
         var segments = new List<List<ManhattanWallSegmentType>>();
 
         foreach (var floorType in floorTypes) {
@@ -47,40 +47,38 @@ public class ManhattanBuildingWallGenerator {
         var dir3 = start3 - end3;
         var face = Vector3.Cross(dir3, Vector3.up).normalized;
 
+        var ttmSegments = new List<TemporaryTransformedMesh>();
+
+        var length = Vector2.Distance(start, end);
+
         var y = 0;
         foreach (var floorSegments in segments) {
             //The size won't be exact what is specified.
             var totalSpecifiedWidth = floorSegments.Aggregate(0f, (prod, next) => prod + segmentToData[next].width);
 
             var x = 0f;
-            var u = new Vector3(0, wallSegmentHeightMeter, 0);
+            var u = new Vector3(0, 0, wallSegmentHeightMeter);
 
-            var floorObject = new GameObject("floor");
+            var floorPosition = u * (y + 0.5f);
+            var scl = length / totalSpecifiedWidth;
 
             foreach (var wallSegmentType in floorSegments) {
                 var segmentData = segmentToData[wallSegmentType];
-                var obj = Object.Instantiate(segmentToData[wallSegmentType].wallSegmentObject, floorObject.transform);
-                obj.transform.position = new Vector3(x + segmentData.width / 2, 0, 0);
-                x += segmentData.width;
-                obj.transform.rotation = Quaternion.LookRotation(Vector3.up);
-                obj.transform.localScale = new Vector3(segmentData.width / 10, 1, wallSegmentHeightMeter / 10);
+                var segmentPosition = new Vector3(x + (segmentData.width * scl) / 2, 0, 0) + floorPosition;
+                x += segmentData.width * scl;
+                var segmentRotation = Quaternion.LookRotation(Vector3.up);
+                var segmentLocalScale = new Vector3((segmentData.width / 10) * scl, 1, wallSegmentHeightMeter / 10);
+
+                var transform = Matrix4x4.Translate(end3) * Matrix4x4.Rotate(Quaternion.LookRotation(face)) *
+                                Matrix4x4.Rotate(segmentRotation) * Matrix4x4.Translate(segmentPosition) *
+                                Matrix4x4.Scale(segmentLocalScale);
+
+                ttmSegments.Add(new TemporaryTransformedMesh(transform, segmentData.wallSegmentObject));
             }
-
-            MeshCombiner.Combine(floorObject);
-
-            var floorPosition = u * (y + 0.5f);
-            floorObject.transform.parent = wallObject.transform;
-            floorObject.transform.rotation = Quaternion.identity;
-            floorObject.transform.position = floorPosition;
-            floorObject.transform.localScale = new Vector3(dir3.magnitude / totalSpecifiedWidth, 1, 1);
-
 
             y++;
         }
 
-        MeshCombiner.Combine(wallObject);
-
-        wallObject.transform.position = end3;
-        wallObject.transform.rotation = Quaternion.LookRotation(face);
+        return ttmSegments;
     }
 }

@@ -19,7 +19,7 @@ public class StraightManhattanFloorsGenerator : MonoBehaviour, IManhattanFloorsG
     }
 
     public List<ManhattanFloorType> Generate(float population) {
-        var floors = (int) Math.Floor(population * 15);
+        var floors = (int) Math.Floor(population * 5) - 2;
         return lSystem.Run(new List<ManhattanFloorType>() {First, Normal}, new StraightManhattanFloorsGeneratorData(floors));
     }
 

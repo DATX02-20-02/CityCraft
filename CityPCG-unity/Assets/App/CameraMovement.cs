@@ -17,6 +17,7 @@ public class CameraMovement : MonoBehaviour {
     private float prevMouseX = 0f;
     private float prevMouseY = 0f;
     private bool cursorLocked = false;
+    private float cappedDeltaTime = 0f;
 
     private void Start() {
         this.xRotation = transform.localEulerAngles.x;
@@ -25,23 +26,25 @@ public class CameraMovement : MonoBehaviour {
 
     private void Update() {
 
+        cappedDeltaTime = Mathf.Min(Time.deltaTime, 0.1f);
+
         if (Input.GetKey("w")) {
-            transform.position += transform.forward * moveSpeed * Time.deltaTime;
+            transform.position += transform.forward * moveSpeed * cappedDeltaTime;
         }
         if (Input.GetKey("a")) {
-            transform.position -= transform.right * moveSpeed * Time.deltaTime;
+            transform.position -= transform.right * moveSpeed * cappedDeltaTime;
         }
         if (Input.GetKey("s")) {
-            transform.position -= transform.forward * moveSpeed * Time.deltaTime;
+            transform.position -= transform.forward * moveSpeed * cappedDeltaTime;
         }
         if (Input.GetKey("d")) {
-            transform.position += transform.right * moveSpeed * Time.deltaTime;
+            transform.position += transform.right * moveSpeed * cappedDeltaTime;
         }
         if (Input.GetKey("q")) {
-            transform.position -= transform.up * moveSpeed * Time.deltaTime;
+            transform.position -= transform.up * moveSpeed * cappedDeltaTime;
         }
-        if (Input.GetKey("e")) {
-            transform.position += transform.up * moveSpeed * Time.deltaTime;
+        if (Input.GetKey("e") || Input.GetKey(KeyCode.Space)) {
+            transform.position += transform.up * moveSpeed * cappedDeltaTime;
         }
 
         // Lock cursor for 3D camera movement

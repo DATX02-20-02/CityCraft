@@ -4,11 +4,11 @@ using UnityEngine;
 
 public static class ManhattanBuildingRoofGenerator {
 
-    public static GameObject Generate(List<Vector2> topVertices, Material roofMaterial, GameObject buildingObject,
+    public static TemporaryTransformedMesh Generate(List<Vector2> topVertices, Material roofMaterial,
         float buildingHeight) {
+
+        //this can be optimzed via not having to create a object.
         var roofObject = new GameObject("Roof");
-        roofObject.transform.parent = buildingObject.transform;
-        roofObject.transform.position = new Vector3(0, buildingHeight, 0);
 
         var vertices = topVertices.ConvertAll(v => new Vector3(v.x, 0, v.y)).ToArray();
 
@@ -24,7 +24,11 @@ public static class ManhattanBuildingRoofGenerator {
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
 
-        return roofObject;
+        var transform = Matrix4x4.Translate(new Vector3(0, buildingHeight, 0));
+
+        Object.Destroy(roofObject);
+
+        return new TemporaryTransformedMesh(transform, roofObject);
     }
 
 }

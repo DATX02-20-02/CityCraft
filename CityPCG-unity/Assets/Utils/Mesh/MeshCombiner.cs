@@ -4,28 +4,21 @@ using UnityEngine;
 
 //http://answers.unity.com/answers/1123487/view.html
 //Credit: Bunzaga
+//Modified by Theodor
 public static class MeshCombiner {
 
-     public static void Combine(GameObject o)
+     public static void Combine(GameObject gameObject, List<TemporaryTransformedMesh> data)
      {
-         ArrayList materials = new ArrayList();
-         ArrayList combineInstanceArrays = new ArrayList();
-         MeshFilter[] meshFilters = o.GetComponentsInChildren<MeshFilter>();
+         var materials = new ArrayList();
+         var combineInstanceArrays = new ArrayList();
 
-         foreach (MeshFilter meshFilter in meshFilters)
-         {
-             MeshRenderer meshRenderer = meshFilter.GetComponent<MeshRenderer>();
-
-             if (!meshRenderer ||
-                 !meshFilter.sharedMesh ||
-                 meshRenderer.sharedMaterials.Length != meshFilter.sharedMesh.subMeshCount)
-             {
-                 continue;
-             }
+         foreach (var tto in data) {
+             var meshFilter = tto.gameObject.GetComponent<MeshFilter>();
+             var meshRenderer = meshFilter.GetComponent<MeshRenderer>();
 
              for (int s = 0; s < meshFilter.sharedMesh.subMeshCount; s++)
              {
-                 int materialArrayIndex = Contains(materials, meshRenderer.sharedMaterials[s].name);
+                 var materialArrayIndex = Contains(materials, meshRenderer.sharedMaterials[s].name);
                  if (materialArrayIndex == -1)
                  {
                      materials.Add(meshRenderer.sharedMaterials[s]);
@@ -33,8 +26,8 @@ public static class MeshCombiner {
                  }
                  combineInstanceArrays.Add(new ArrayList());
 
-                 CombineInstance combineInstance = new CombineInstance();
-                 combineInstance.transform = meshRenderer.transform.localToWorldMatrix;
+                 var combineInstance = new CombineInstance();
+                 combineInstance.transform = tto.transform;
                  combineInstance.subMeshIndex = s;
                  combineInstance.mesh = meshFilter.sharedMesh;
                  (combineInstanceArrays[materialArrayIndex] as ArrayList).Add(combineInstance);
@@ -42,15 +35,15 @@ public static class MeshCombiner {
          }
 
          // Get / Create mesh filter & renderer
-         MeshFilter meshFilterCombine = o.GetComponent<MeshFilter>();
+         MeshFilter meshFilterCombine = gameObject.GetComponent<MeshFilter>();
          if (meshFilterCombine == null)
          {
-             meshFilterCombine = o.AddComponent<MeshFilter>();
+             meshFilterCombine = gameObject.AddComponent<MeshFilter>();
          }
-         MeshRenderer meshRendererCombine = o.GetComponent<MeshRenderer>();
+         MeshRenderer meshRendererCombine = gameObject.GetComponent<MeshRenderer>();
          if (meshRendererCombine == null)
          {
-             meshRendererCombine = o.AddComponent<MeshRenderer>();
+             meshRendererCombine = gameObject.AddComponent<MeshRenderer>();
          }
 
          // Combine by material index into per-material meshes
@@ -83,11 +76,6 @@ public static class MeshCombiner {
          // Assign materials
          Material[] materialsArray = materials.ToArray(typeof(Material)) as Material[];
          meshRendererCombine.materials = materialsArray;
-
-         foreach (MeshFilter meshFilter in meshFilters)
-         {
-             Object.DestroyImmediate(meshFilter.gameObject);
-         }
      }
 
      private static int Contains(ArrayList searchList, string searchName)

@@ -3,12 +3,9 @@ using UnityEngine;
 
 public static class ManhattanBuildingBasementGenerator {
 
-    public static GameObject Generate(List<Vector2> vertices, Material basementMaterial, GameObject buildingObject,
+    public static TemporaryTransformedMesh Generate(List<Vector2> vertices, Material basementMaterial,
         float depth) {
-
         var basementObject = new GameObject("Basement");
-        basementObject.transform.parent = buildingObject.transform;
-        basementObject.transform.position = new Vector3(0, 0, 0);
 
         var meshRenderer = basementObject.AddComponent<MeshRenderer>();
         meshRenderer.material = basementMaterial;
@@ -44,7 +41,9 @@ public static class ManhattanBuildingBasementGenerator {
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
 
-        return basementObject;
+        Object.Destroy(basementObject);
+
+        return new TemporaryTransformedMesh(Matrix4x4.identity, basementObject);
     }
 
 }

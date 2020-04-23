@@ -17,33 +17,36 @@ public class App : MonoBehaviour {
     [SerializeField] private Slider sliderZ = null;
     [SerializeField] private WorldGenerator worldGenerator = null;
     [SerializeField] private GameObject[] menuPanels = null;
-    [SerializeField] private Button btnGenTerrain = null;
-    [SerializeField] private Button btnGenRoad = null;
-    [SerializeField] private Button btnGenStreets = null;
-    [SerializeField] private Button btnGenBuildings = null;
-    [SerializeField] private Button btnNext = null;
+    [SerializeField] private Button btnBack = null;
     [SerializeField] private Button btnUndo = null;
-    [SerializeField] private Button btnExportGLTF = null;
-    [SerializeField] private Button btnExportGLB = null;
+    [SerializeField] private Button btnNext = null;
     [SerializeField] private bool debug = false;
-    
-    private bool canProceed = false;
-    private bool isBusy = false;
+
     private int currentMenuPanel = 0;
 
     public void Next() {
-        if (!canProceed) return;
+        btnNext.interactable = false;
+        btnBack.interactable = true;
 
-        SetCanProceed(false);
         worldGenerator.NextState();
         NextMenu();
     }
 
     public void Undo() {
-        SetCanProceed(false);
+        btnUndo.interactable = false;
+        if (currentMenuPanel == 0)
+            btnNext.interactable = false;
+
         worldGenerator.Undo();
+    }
+
+    public void Prev() {
         worldGenerator.PreviousState();
         PrevMenu();
+        if (currentMenuPanel == 0)
+            btnBack.interactable = false;
+        btnUndo.interactable = true;
+        btnNext.interactable = true;
     }
 
     public void GenerateTerrain() {
@@ -51,7 +54,6 @@ public class App : MonoBehaviour {
         SetBusy(true);
         worldGenerator.GenerateTerrain();
         SetBusy(false);
-        SetCanProceed(true);
         Log("Terrain generated.");
     }
 
@@ -60,7 +62,6 @@ public class App : MonoBehaviour {
         SetBusy(true);
         worldGenerator.GenerateRoads((RoadNetwork network) => {
             SetBusy(false);
-            SetCanProceed(true);
         });
         Log("Roads generated.");
     }
@@ -70,7 +71,6 @@ public class App : MonoBehaviour {
         SetBusy(true);
         worldGenerator.GenerateStreets((RoadNetwork network) => {
             SetBusy(false);
-            SetCanProceed(true);
         });
         Log("Streets generated.");
     }
@@ -80,7 +80,6 @@ public class App : MonoBehaviour {
         SetBusy(true);
         worldGenerator.GenerateBuildings(() => {
             SetBusy(false);
-            SetCanProceed(true);
         });
         Log("Buildings generated.");
     }
@@ -113,29 +112,26 @@ public class App : MonoBehaviour {
     public void ModifyTerrainOffsetX(float v) {
         worldGenerator.SetOffsetSpeedX(v);
     }
+
     public void ModifyTerrainOffsetZ(float v) {
         worldGenerator.SetOffsetSpeedZ(v);
     }
+
     public void ModifyTerrainSea(float a) {
         worldGenerator.ModifyTerrainSea(a);
     }
 
-    private void SetCanProceed(bool flag) {
-        canProceed = flag;
-        btnNext.interactable = flag;
-    }
+    private void SetBusy(bool isBusy) {
+        var selectables = GetComponentsInChildren<Selectable>();
+        foreach (var s in selectables)
+            s.interactable = !isBusy;
 
-    private void SetBusy(bool busy) {
-        isBusy = busy;
-        btnGenTerrain.interactable = !busy;
-        btnGenRoad.interactable = !busy;
-        btnGenStreets.interactable = !busy;
-        btnGenBuildings.interactable = !busy;
-        btnUndo.interactable = !busy;
-        btnExportGLTF.interactable = !busy;
-        btnExportGLB.interactable = !busy;
+        if (currentMenuPanel == 0)
+            btnBack.interactable = false;
 
-        // btnNext.interactable = !busy;
+        // There is no "next" at the last panel.
+        if (currentMenuPanel == menuPanels.Length - 1)
+            btnNext.interactable = false;
     }
 
     private void NextMenu() {

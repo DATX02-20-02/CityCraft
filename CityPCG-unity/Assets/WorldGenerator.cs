@@ -81,6 +81,16 @@ public class WorldGenerator : MonoBehaviour {
 
     public void Undo() {
         switch (currentState) {
+            case State.Terrain:
+                this.terrainGenerator.Reset();
+                break;
+
+            case State.Roads:
+                this.roadNetwork = this.roadGenerator.Network = null;
+                this.roadNetworkSnapshot = null;
+                this.roadMeshGenerator.Reset();
+                break;
+
             case State.Streets:
                 if (this.roadNetworkSnapshot != null) {
                     this.roadNetwork = this.roadGenerator.Network = this.roadNetworkSnapshot;
@@ -92,14 +102,9 @@ public class WorldGenerator : MonoBehaviour {
 
                 break;
 
-            case State.Roads:
-                this.roadNetwork = this.roadGenerator.Network = null;
-                this.roadNetworkSnapshot = null;
-                this.roadMeshGenerator.Reset();
-                break;
-
             case State.Buildings:
                 this.buildingGenerator.Reset();
+                this.parkGenerator.Reset();
                 break;
         }
     }
@@ -164,10 +169,6 @@ public class WorldGenerator : MonoBehaviour {
 
             }
         );
-    }
-
-    public void GenerateBuildings() {
-        GenerateBuildings(() => { });
     }
 
     public void GenerateBuildings(Action callback) {

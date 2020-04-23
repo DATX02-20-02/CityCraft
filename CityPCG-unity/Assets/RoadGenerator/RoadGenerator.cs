@@ -5,9 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using RBush;
-using VisualDebugging;
 
 /*
   What? Generates a road network based on terrain and population.
@@ -22,20 +19,11 @@ public class RoadGenerator : MonoBehaviour {
 
     [Range(0, 0.4f)]
     [SerializeField] private float generationTickInterval = 0.2f;
-    [SerializeField] private GameObject ghostObject = null;
-
-    [Header("Instantiate Parents")]
-    [SerializeField] private GameObject ghostParent = null;
 
     [Header("Debug")]
     [SerializeField] private List<Vector3> debugPoints = new List<Vector3>();
 
     [SerializeField] private bool debug = false;
-
-    private GameObject ghostObjectInstance = null;
-    private CityInput selected;
-    private CityInput dragging;
-    private Vector3 dragOffset;
 
     private RoadNetwork network;
 
@@ -52,69 +40,12 @@ public class RoadGenerator : MonoBehaviour {
         get { return this.network; }
     }
 
-    public enum CityType {
-        Paris,
-        Manhattan
-    }
-
-    public class CityInput {
-        public Vector3 position;
-        public CityType type;
-        public GameObject ghostObject;
-        public float radius;
-
-        private bool hovering;
-        private bool selected;
-
-        public CityInput(Vector3 position, CityType type, GameObject ghostObject, float radius) {
-            this.position = position;
-            this.type = type;
-            this.ghostObject = ghostObject;
-            this.radius = radius;
-        }
-
-        public void SetHovering(bool hovering) {
-            if (!this.selected && this.hovering != hovering) {
-                if (hovering) {
-                    ghostObject.GetComponent<Renderer>().material.SetColor("_MainColor", Color.red);
-                }
-                else {
-                    ghostObject.GetComponent<Renderer>().material.SetColor("_MainColor", new Color(93 / 255f, 151 / 255f, 1));
-                }
-            }
-
-            this.hovering = hovering;
-        }
-
-        public void SetSelected(bool selected) {
-            if (this.selected != selected) {
-                if (selected) {
-                    ghostObject.GetComponent<Renderer>().material.SetColor("_MainColor", new Color(1, 0.5f, 0));
-                }
-                else {
-                    ghostObject.GetComponent<Renderer>().material.SetColor("_MainColor", new Color(93 / 255f, 151 / 255f, 1));
-                }
-            }
-
-            this.selected = selected;
-        }
-    }
-
-    private List<CityInput> cityInputs = new List<CityInput>();
-
     public void Reset() {
         this.network = null;
-
-        if (ghostParent != null)
-            foreach (Transform child in ghostParent.transform) {
-                Destroy(child.gameObject);
-            }
-
-        this.cityInputs = new List<CityInput>();
     }
 
     // Generates a complete road network.
-    public void Generate(TerrainModel terrain, Noise population, Action<RoadNetwork> callback = null) {
+    public void Generate(TerrainModel terrain, Noise population, List<CityInput> cityInputs, Action<RoadNetwork> callback = null) {
         this.terrainModel = terrain;
         this.callback = callback;
         prevQueueCount = 0;
@@ -164,16 +95,6 @@ public class RoadGenerator : MonoBehaviour {
     // Adds an agent to the pool of active agents.
     public void AddAgent(Agent agent) {
         this.queue.Enqueue(agent);
-    }
-
-    public void AddCityInput(CityInput input) {
-        if (input.ghostObject == null)
-            input.ghostObject = Instantiate(ghostObject, ghostParent.transform);
-
-        input.ghostObject.transform.position = input.position;
-        input.ghostObject.transform.localScale = Vector3.one * (input.radius * 2 + 10);
-
-        cityInputs.Add(input);
     }
 
     // Iterate through queue and let the agents work.
@@ -267,105 +188,6 @@ public class RoadGenerator : MonoBehaviour {
 
         if (debug && this.network != null) {
             this.network.DrawDebug();
-        }
-    }
-
-    float radius = 70;
-    public void UpdateWhenState(TerrainModel terrain) {
-        if (ghostObject != null && ghostObjectInstance == null) {
-            ghostObjectInstance = Instantiate(ghostObject, ghostParent.transform);
-        }
-
-        if (ghostObjectInstance != null) {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit)) {
-                Vector3 pos = hit.point;
-                pos.y = Mathf.Max(terrain.seaLevel, pos.y);
-
-                CityInput hover = null;
-                foreach (CityInput input in cityInputs) {
-                    input.SetHovering(false);
-                    if (hover == null && Vector3.Distance(pos, input.position) < 20) {
-                        input.SetHovering(true);
-                        hover = input;
-                    }
-                }
-
-                if (dragging != null) {
-                    dragging.position = pos - dragOffset;
-                    dragging.ghostObject.transform.position = dragging.position;
-
-                    if (Input.GetMouseButtonUp(0)) {
-                        dragging = null;
-                    }
-                }
-
-                if (hover != null && hover != selected) {
-                    ghostObjectInstance.SetActive(false);
-
-                    if (Input.GetMouseButtonDown(0)) {
-                        if (!EventSystem.current.IsPointerOverGameObject()) {
-                            if (selected != null)
-                                selected.SetSelected(false);
-
-                            selected = hover;
-                            selected.SetSelected(true);
-
-                            dragging = hover;
-                            dragOffset = pos - dragging.position;
-                        }
-                    }
-                }
-                else {
-                    if (selected == null) {
-                        ghostObjectInstance.SetActive(true);
-
-                        Vector3 scroll = Input.mouseScrollDelta;
-                        radius = Mathf.Clamp(radius + scroll.y * 2, 0.1f, 500f);
-
-                        ghostObjectInstance.transform.position = pos;
-                        ghostObjectInstance.transform.localScale = Vector3.one * (radius * 2 + 10);
-
-                        if (Input.GetMouseButtonDown(0)) {
-                            if (!EventSystem.current.IsPointerOverGameObject()) {
-                                cityInputs.Add(new CityInput(pos, CityType.Manhattan, ghostObjectInstance, radius));
-                                ghostObjectInstance = null;
-                            }
-                        }
-                    }
-                    else {
-                        if (Input.GetMouseButtonDown(0)) {
-                            if (hover != selected) {
-                                if (!EventSystem.current.IsPointerOverGameObject()) {
-                                    selected.SetSelected(false);
-                                    selected = null;
-                                }
-                            }
-                            else {
-                                dragging = hover;
-                                dragOffset = pos - dragging.position;
-                            }
-                        }
-                    }
-                }
-
-                if (selected != null) {
-                    Vector3 scroll = Input.mouseScrollDelta;
-                    selected.radius = Mathf.Clamp(selected.radius + scroll.y * 2, 0.1f, 500f);
-                    selected.ghostObject.transform.localScale = Vector3.one * (selected.radius * 2 + 10);
-
-                    if (Input.GetKeyDown(KeyCode.Delete)) {
-                        Destroy(selected.ghostObject);
-                        cityInputs.Remove(selected);
-                        selected = null;
-                    }
-                }
-            }
-            else {
-                ghostObjectInstance.SetActive(false);
-            }
         }
     }
 }

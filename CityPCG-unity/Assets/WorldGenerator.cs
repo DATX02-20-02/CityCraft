@@ -10,7 +10,7 @@ using Utils;
 // Why? The many generators need a pipeline that handles the IO between generators.
 // How? Splits the workload into many subgenerators, and only manages their inputs/outputs.
 public class WorldGenerator : MonoBehaviour {
-
+    [Header("Generators")]
     [SerializeField] private GameObject terrainGeneratorPrefab = null;
     [SerializeField] private GameObject populationGeneratorPrefab = null;
     [SerializeField] private GameObject roadGeneratorPrefab = null;
@@ -19,6 +19,9 @@ public class WorldGenerator : MonoBehaviour {
     [SerializeField] private GameObject buildingGeneratorPrefab = null;
     [SerializeField] private GameObject parkGeneratorPrefab = null;
     [SerializeField] private GameObject parkingGeneratorPrefab = null;
+
+    [Header("UI Handlers")]
+    [SerializeField] private GameObject roadUIHandlerObject = null;
 
     [Header("Building Generation Params")]
     [SerializeField] private int buildIntervalSize = 0;
@@ -37,6 +40,8 @@ public class WorldGenerator : MonoBehaviour {
     private BuildingGenerator buildingGenerator;
     private ParkGenerator parkGenerator;
     private ParkingGenerator parkingGenerator;
+
+    private RoadUIHandler roadUIHandler;
 
     // State properties
     public enum State {
@@ -70,9 +75,13 @@ public class WorldGenerator : MonoBehaviour {
     private List<Plot> plots = new List<Plot>();
 
     public State NextState() {
+        State prevState = currentState;
+
         if (stateMap.ContainsKey(currentStateIndex + 1)) {
             currentState = stateMap[++currentStateIndex];
         }
+
+        if (currentState != prevState) OnStateChanged(prevState);
 
         return currentState;
     }
@@ -105,8 +114,21 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     public void PreviousState() {
+        State prevState = currentState;
+
         if (stateMap.ContainsKey(currentStateIndex - 1)) {
             currentState = stateMap[--currentStateIndex];
+        }
+
+        if (currentState != prevState) OnStateChanged(prevState, true);
+    }
+
+    private void OnStateChanged(State prevState, bool previous = false) {
+        this.roadUIHandler.enabled = currentState == State.Roads;
+        this.roadUIHandler.SetTerrain(terrain);
+
+        if (previous && prevState == State.Roads) {
+            this.roadUIHandler.Reset();
         }
     }
 
@@ -137,6 +159,7 @@ public class WorldGenerator : MonoBehaviour {
 
         roadGenerator.Generate(
             this.terrain, this.populationNoise,
+            this.roadUIHandler.CityInputs,
             (RoadNetwork network) => {
                 this.roadNetwork = this.roadGenerator.Network = network;
                 callback(network);
@@ -159,7 +182,8 @@ public class WorldGenerator : MonoBehaviour {
 
         this.blockGenerator.Reset();
         roadGenerator.GenerateStreets(
-            terrain, populationNoise, (roadNetwork) => {
+            terrain, populationNoise,
+            (roadNetwork) => {
                 GenerateBlocks();
                 callback(roadNetwork);
 
@@ -212,6 +236,14 @@ public class WorldGenerator : MonoBehaviour {
         buildingGenerator = Instantiate(buildingGeneratorPrefab, transform).GetComponent<BuildingGenerator>();
         parkGenerator = Instantiate(parkGeneratorPrefab, transform).GetComponent<ParkGenerator>();
         parkingGenerator = Instantiate(parkingGeneratorPrefab, transform).GetComponent<ParkingGenerator>();
+
+        if (roadUIHandlerObject != null) {
+            roadUIHandler = roadUIHandlerObject.GetComponent<RoadUIHandler>();
+            roadUIHandler.enabled = false;
+        }
+        else {
+            throw new Exception("No road UI handler is connected!");
+        }
     }
 
     private void Awake() {
@@ -227,32 +259,32 @@ public class WorldGenerator : MonoBehaviour {
 
     // Just for debug purposes so I don't have to step through
     // generation every single time
-    private void AutoStart() {
-        if (this.blockGenerator == null || this.buildingGenerator == null) return;
-        this.roadGenerator.Reset();
-        this.roadMeshGenerator.Reset();
-        this.blockGenerator.Reset();
-        this.buildingGenerator.Reset();
+    // private void AutoStart() {
+    //     if (this.blockGenerator == null || this.buildingGenerator == null) return;
+    //     this.roadGenerator.Reset();
+    //     this.roadMeshGenerator.Reset();
+    //     this.blockGenerator.Reset();
+    //     this.buildingGenerator.Reset();
 
-        GenerateTerrain();
+    //     GenerateTerrain();
 
-        Vector3 pos = terrain.GetMeshIntersection(300, 300).point;
+    //     Vector3 pos = terrain.GetMeshIntersection(300, 300).point;
 
-        this.roadGenerator.AddCityInput(new RoadGenerator.CityInput(pos, RoadGenerator.CityType.Manhattan, null, 50));
+    //     this.roadUIHandler.AddCityInput(new CityInput(pos, CityType.Manhattan, null, 50));
 
-        GenerateRoads(
-            (RoadNetwork network) => {
-                // GenerateStreets((RoadNetwork _) => {
-                //         // GenerateBuildings();
-                //     }
-                // );
-            }
-        );
-    }
+    //     GenerateRoads(
+    //         (RoadNetwork network) => {
+    //             // GenerateStreets((RoadNetwork _) => {
+    //             //         // GenerateBuildings();
+    //             //     }
+    //             // );
+    //         }
+    //     );
+    // }
 
-    void OnEnable() {
-        AutoStart();
-    }
+    // void OnEnable() {
+    //     AutoStart();
+    // }
 
     private void Update() {
         if (plotGenerator != null) {
@@ -265,13 +297,6 @@ public class WorldGenerator : MonoBehaviour {
             Vector2 speedamp = new Vector2(offsetSpeedX * Time.deltaTime, offsetSpeedZ * Time.deltaTime);
             Vector2 speed = terrainGenerator.NoiseOffset + speedamp;
             terrain = terrainGenerator.GenerateTerrain(speed);
-        }
-
-        switch (currentState) {
-            case State.Roads:
-                this.roadGenerator.UpdateWhenState(terrain);
-
-                break;
         }
     }
 }

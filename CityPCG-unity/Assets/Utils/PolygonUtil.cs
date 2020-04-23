@@ -33,7 +33,7 @@ namespace Utils {
             float stepSize,
             int angleResolution,
             int widthResolution,
-            int centerIteraions = 4
+            int centerIterations = 4
         ) {
             var best = new Rectangle();
 
@@ -80,7 +80,6 @@ namespace Utils {
                         AddIfIntersecting(candidatesA, LineIntersection.RayTest(v1, v2, o1, -perp));
                         AddIfIntersecting(candidatesA, LineIntersection.RayTest(v1, v2, o2, -perp));
 
-                        int count = 0;
                         // There will always be either 0 or 2 candidates
                         if (candidatesA.Count == 2) {
                             LineIntersection.Result res0 = candidatesA[0];
@@ -134,7 +133,7 @@ namespace Utils {
             Triangulator triangulator = new Triangulator(poly3D);
             int[] triangulated = triangulator.Triangulate();
 
-            for (int c = 0; c < centerIteraions; c++) {
+            for (int c = 0; c < centerIterations; c++) {
                 int randIndex = Random.Range(0, triangulated.Length / 3) * 3;
 
                 float r1 = Random.Range(0.3f, 0.7f);

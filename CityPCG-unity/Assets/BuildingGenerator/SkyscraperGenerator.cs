@@ -41,9 +41,10 @@ public class SkyscraperGenerator : MonoBehaviour {
         }
 
         var rect = ApproximateLargestRectangle(polygon);
-        DrawUtil.DebugDrawRectangle(rect, Color.yellow);
-        Vector2 center2 = (rect.topLeft + rect.topRight + rect.botLeft + rect.botRight) / 4;
-        Vector3 center = new Vector3(center2.x, lowest.y, center2.y);
+        if (debug)
+            DrawUtil.DebugDrawRectangle(rect, Color.yellow);
+        Vector2 center2D = (rect.topLeft + rect.topRight + rect.botLeft + rect.botRight) / 4;
+        Vector3 center = new Vector3(center2D.x, lowest.y, center2D.y);
 
         transform.position = center;
 

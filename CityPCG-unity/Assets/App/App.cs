@@ -15,6 +15,7 @@ public class App : MonoBehaviour {
 
     [SerializeField] private Slider sliderX = null;
     [SerializeField] private Slider sliderZ = null;
+    [SerializeField] private Slider sliderStep = null;
     [SerializeField] private WorldGenerator worldGenerator = null;
     [SerializeField] private GameObject[] menuPanels = null;
     [SerializeField] private bool debug = false;
@@ -93,17 +94,20 @@ public class App : MonoBehaviour {
     }
 
 
-
     private void NextMenu() {
         menuPanels[currentMenuPanel].SetActive(false);
         currentMenuPanel = Mathf.Min(menuPanels.Length - 1, currentMenuPanel + 1);
         menuPanels[currentMenuPanel].SetActive(true);
+
+        sliderStep.value = currentMenuPanel;
     }
 
     private void PrevMenu() {
         menuPanels[currentMenuPanel].SetActive(false);
         currentMenuPanel = Mathf.Max(0, currentMenuPanel - 1);
         menuPanels[currentMenuPanel].SetActive(true);
+
+        sliderStep.value = currentMenuPanel;
     }
 
     private void Log(object msg) {

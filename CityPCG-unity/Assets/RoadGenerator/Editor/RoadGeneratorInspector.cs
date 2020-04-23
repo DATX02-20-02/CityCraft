@@ -18,5 +18,13 @@ public class RoadGeneratorInspector : Editor {
 
             EditorUtility.SetDirty(generator);
         }
+
+        if (GUILayout.Button("Generate mesh")) {
+            Undo.RecordObject(generator, "Generate mesh");
+
+            generator.GenerateMesh();
+
+            EditorUtility.SetDirty(generator);
+        }
     }
 }

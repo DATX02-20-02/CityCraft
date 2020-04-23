@@ -34,7 +34,7 @@ public class StreetAgentStrategy : AgentStrategy {
         }
 
         agent.config.stepSize = 5 * 0.3f;
-        agent.config.snapRadius = 5 * 0.15f;
+        agent.config.snapRadius = 5 * 0.2f;
         agent.config.maxBranchCount = 16;
         agent.config.maxStepCount = 20;
 

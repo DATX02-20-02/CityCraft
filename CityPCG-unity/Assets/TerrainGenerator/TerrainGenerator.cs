@@ -50,7 +50,7 @@ public class TerrainGenerator : MonoBehaviour {
         this.noiseGenerator.Offset = offset;
         var noise = this.noiseGenerator.Generate();
 
-        var terrainModel = new TerrainModel(width, depth, seaLevel, maxHeight, noise);
+        var terrainModel = new TerrainModel(width, depth, seaLevel, maxHeight, noise, xResolution, zResolution);
 
         GenerateVertices(terrainModel);
         GenerateTriangles();

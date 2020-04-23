@@ -13,13 +13,13 @@ public class StreetsAgentFactory : IAgentFactory {
                 Vector3 dir = c.node.pos - node.pos;
                 Vector3 perp = Vector3.Cross(dir, Vector3.up);
 
-                for (int i = 0; i < 1; i++) {
-                    int revert = i * 2 - 1;
+
+                for (int invert = -1; invert <= 1; invert += 2) {
                     if (Random.Range(0.0f, 1.0f) <= 2f) {
                         Agent ag = new Agent(
                             network,
                             node.pos,
-                            perp * revert,
+                            perp * invert,
                             new StreetAgentStrategy(),
                             10
                         );

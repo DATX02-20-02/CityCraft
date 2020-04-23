@@ -6,6 +6,13 @@ public class ParisAgentFactory : IAgentFactory {
     public int Create(RoadGenerator generator, RoadNetwork network, Vector3 origin, float radius, int priority = 0) {
         int amountOfRings = (int) Mathf.Max(1, Random.Range(Mathf.Min(2, radius / 20), radius / 20));
 
+        network.Population.AddAmplifier(
+            new CircularAmplifier(
+                new Vector2(origin.x / network.Terrain.width, origin.z / network.Terrain.depth), 1,
+                radius / ((network.Terrain.width + network.Terrain.depth) / 2), 1f
+            )
+        );
+
         float[] rings = new float[amountOfRings];
         for (int i = 0; i < amountOfRings; i++) {
             float spacing = radius / (float) amountOfRings;

@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Utils.PolygonSplitter;
+using Utils;
 
 // What? Generates the world, including terrain, roads, and cities.
 // Why? The many generators need a pipeline that handles the IO between generators.
@@ -16,16 +18,25 @@ public class WorldGenerator : MonoBehaviour {
     [SerializeField] private GameObject plotGeneratorPrefab = null;
     [SerializeField] private GameObject buildingGeneratorPrefab = null;
     [SerializeField] private GameObject parkGeneratorPrefab = null;
+    [SerializeField] private GameObject parkingGeneratorPrefab = null;
+
+    [Header("Building Generation Params")]
+    [SerializeField] private int buildIntervalSize = 0;
+    [SerializeField] private float buildIntervalDelay = 0;
+
+    [Header("Debug")]
     [SerializeField] private bool debug = false;
     [SerializeField] private int debugSeed = 0;
 
     private TerrainGenerator terrainGenerator;
     private NoiseGenerator populationGenerator;
     private RoadGenerator roadGenerator;
+    private RoadMeshGenerator roadMeshGenerator;
     private BlockGenerator blockGenerator;
     private PlotGenerator plotGenerator;
     private BuildingGenerator buildingGenerator;
     private ParkGenerator parkGenerator;
+    private ParkingGenerator parkingGenerator;
 
     // State properties
     public enum State {
@@ -75,6 +86,8 @@ public class WorldGenerator : MonoBehaviour {
                 }
 
                 this.blockGenerator.Reset();
+                this.roadMeshGenerator.Generate(this.roadGenerator.Network, terrain);
+
                 break;
 
             case State.Roads:
@@ -82,6 +95,11 @@ public class WorldGenerator : MonoBehaviour {
                 this.roadNetworkSnapshot = null;
 
                 this.roadGenerator.Reset();
+                this.roadMeshGenerator.Reset();
+                break;
+
+            case State.Buildings:
+                this.buildingGenerator.Reset();
                 break;
         }
     }
@@ -109,12 +127,16 @@ public class WorldGenerator : MonoBehaviour {
         terrain.seaLevel = newLevel;
     }
 
-    public void GenerateRoads(System.Action<RoadNetwork> callback) {
+    public void GenerateRoads() {
+        GenerateRoads((RoadNetwork network) => { });
+    }
+
+    public void GenerateRoads(Action<RoadNetwork> callback) {
         this.blockGenerator.Reset();
-        populationNoise = populationGenerator.Generate();
+        this.populationNoise = populationGenerator.Generate();
 
         roadGenerator.Generate(
-            terrain, populationNoise,
+            this.terrain, this.populationNoise,
             (RoadNetwork network) => {
                 this.roadNetwork = this.roadGenerator.Network = network;
                 callback(network);
@@ -122,11 +144,11 @@ public class WorldGenerator : MonoBehaviour {
         );
     }
 
-    public void GenerateRoads() {
-        GenerateRoads((RoadNetwork network) => { });
+    public void GenerateStreets() {
+        GenerateStreets((RoadNetwork network) => { });
     }
 
-    public void GenerateStreets() {
+    public void GenerateStreets(Action<RoadNetwork> callback) {
         if (roadNetwork == null) return;
 
         if (this.roadNetworkSnapshot != null) {
@@ -139,27 +161,39 @@ public class WorldGenerator : MonoBehaviour {
         roadGenerator.GenerateStreets(
             terrain, populationNoise, (roadNetwork) => {
                 GenerateBlocks();
+                callback(roadNetwork);
+
             }
         );
     }
 
     public void GenerateBuildings() {
+        this.buildingGenerator.Reset();
+        StartCoroutine(GenerateBuildings(this.blocks));
+    }
+
+    private IEnumerator GenerateBuildings(List<Block> blocks) {
         this.plots = new List<Plot>();
 
+        int plotCounter = 0;
         foreach (Block block in this.blocks) {
             // Split each block into plots
             List<Plot> plots = plotGenerator.Generate(block, terrain, populationNoise);
-
-            // Generate buildings in each plot.
-            foreach (Plot plot in plots) {
+            foreach (var plot in plots) {
                 this.plots.Add(plot);
 
-                if (plot.type == PlotType.Apartments || plot.type == PlotType.Skyscraper)
-                    buildingGenerator.Generate(plot);
+                if (plot.type == PlotType.Apartments || plot.type == PlotType.Skyscraper) {
+                    buildingGenerator.Generate(plot, this.terrain, this.populationNoise);
+                }
+                else if (plot.type == PlotType.Park) {
+                    parkGenerator.Generate(terrain, block, plot);
+                }
 
-                // else if (plot.type == PlotType.Park) {
-                // GENERATE PARK HERE
-                // }
+                plotCounter++;
+                if (buildIntervalSize <= plotCounter) {
+                    plotCounter = 0;
+                    yield return new WaitForSeconds(buildIntervalDelay);
+                }
             }
         }
     }
@@ -172,15 +206,17 @@ public class WorldGenerator : MonoBehaviour {
         terrainGenerator = Instantiate(terrainGeneratorPrefab, transform).GetComponent<TerrainGenerator>();
         populationGenerator = Instantiate(populationGeneratorPrefab, transform).GetComponent<NoiseGenerator>();
         roadGenerator = Instantiate(roadGeneratorPrefab, transform).GetComponent<RoadGenerator>();
+        roadMeshGenerator = roadGenerator.GetComponent<RoadMeshGenerator>();
         blockGenerator = Instantiate(blockGeneratorPrefab, transform).GetComponent<BlockGenerator>();
         plotGenerator = Instantiate(plotGeneratorPrefab, transform).GetComponent<PlotGenerator>();
         buildingGenerator = Instantiate(buildingGeneratorPrefab, transform).GetComponent<BuildingGenerator>();
         parkGenerator = Instantiate(parkGeneratorPrefab, transform).GetComponent<ParkGenerator>();
+        parkingGenerator = Instantiate(parkingGeneratorPrefab, transform).GetComponent<ParkingGenerator>();
     }
 
     private void Awake() {
         if (debug) {
-            Random.InitState(debugSeed);
+            UnityEngine.Random.InitState(debugSeed);
         }
     }
 
@@ -188,16 +224,35 @@ public class WorldGenerator : MonoBehaviour {
         InstantiateGenerators();
     }
 
+
     // Just for debug purposes so I don't have to step through
     // generation every single time
-    // private void AutoStart() {
-    //     GenerateTerrain();
-    //     GenerateRoads(
-    //         (RoadNetwork network) => {
-    //             GenerateStreets();
-    //         }
-    //     );
-    // }
+    private void AutoStart() {
+        if (this.blockGenerator == null || this.buildingGenerator == null) return;
+        this.roadGenerator.Reset();
+        this.roadMeshGenerator.Reset();
+        this.blockGenerator.Reset();
+        this.buildingGenerator.Reset();
+
+        GenerateTerrain();
+
+        Vector3 pos = terrain.GetMeshIntersection(300, 300).point;
+
+        this.roadGenerator.AddCityInput(new RoadGenerator.CityInput(pos, RoadGenerator.CityType.Manhattan, null, 50));
+
+        GenerateRoads(
+            (RoadNetwork network) => {
+                // GenerateStreets((RoadNetwork _) => {
+                //         // GenerateBuildings();
+                //     }
+                // );
+            }
+        );
+    }
+
+    void OnEnable() {
+        AutoStart();
+    }
 
     private void Update() {
         if (plotGenerator != null) {

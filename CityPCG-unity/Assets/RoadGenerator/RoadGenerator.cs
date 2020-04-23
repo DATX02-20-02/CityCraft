@@ -15,6 +15,8 @@ using VisualDebugging;
   How? Uses agent-based generation, where each agent places down nodes and edges between them.
 */
 public class RoadGenerator : MonoBehaviour {
+    [SerializeField] private RoadMeshGenerator meshGenerator = null;
+
     [Range(0, 1000)]
     [SerializeField] private int maxAgentQueueIterations = 1;
 
@@ -22,7 +24,13 @@ public class RoadGenerator : MonoBehaviour {
     [SerializeField] private float generationTickInterval = 0.2f;
     [SerializeField] private GameObject ghostObject = null;
 
+    [Header("Instantiate Parents")]
+    [SerializeField] private GameObject ghostParent = null;
+
+    [Header("Debug")]
     [SerializeField] private List<Vector3> debugPoints = new List<Vector3>();
+
+    [SerializeField] private bool debug = false;
 
     private GameObject ghostObjectInstance = null;
     private CityInput selected;
@@ -36,6 +44,8 @@ public class RoadGenerator : MonoBehaviour {
 
     private bool areAgentsWorking = false;
     private Action<RoadNetwork> callback;
+
+    private TerrainModel terrainModel;
 
     public RoadNetwork Network {
         set { this.network = value; }
@@ -95,15 +105,17 @@ public class RoadGenerator : MonoBehaviour {
     public void Reset() {
         this.network = null;
 
-        foreach (Transform child in transform) {
-            Destroy(child.gameObject);
-        }
+        if (ghostParent != null)
+            foreach (Transform child in ghostParent.transform) {
+                Destroy(child.gameObject);
+            }
 
         this.cityInputs = new List<CityInput>();
     }
 
     // Generates a complete road network.
     public void Generate(TerrainModel terrain, Noise population, Action<RoadNetwork> callback = null) {
+        this.terrainModel = terrain;
         this.callback = callback;
         prevQueueCount = 0;
         areAgentsWorking = false;
@@ -111,38 +123,38 @@ public class RoadGenerator : MonoBehaviour {
         network = new RoadNetwork(terrain, population, terrain.width, terrain.depth);
         queue = new PriorityQueue<Agent>();
 
-        ParisAgentFactory factory = new ParisAgentFactory();
+        ParisAgentFactory parisFactory = new ParisAgentFactory();
+        ManhattanAgentFactory manhattanFactory = new ManhattanAgentFactory();
 
         int priority = 0;
         foreach (CityInput cityInput in cityInputs) {
             switch (cityInput.type) {
                 case CityType.Paris:
-                    priority = factory.Create(this, network, cityInput.position, cityInput.radius, priority++);
+                    priority = parisFactory.Create(this, network, cityInput.position, cityInput.radius, priority++);
+                    population.AddAmplifier(
+                        new CircularAmplifier(
+                            new Vector2(cityInput.position.x / terrain.width, cityInput.position.z / terrain.depth),
+                            0, 0.3f, 1f
+                        )
+                    );
+                    priority++;
+                    break;
+
+                case CityType.Manhattan:
+                    priority = manhattanFactory.Create(this, network, cityInput.position, cityInput.radius, priority++);
                     priority++;
                     break;
             }
         }
+    }
 
-
-        // int max = 4;
-        // for (int i = 0; i < max; i++) {
-        //     float rad = (Mathf.PI * 2) / max;
-
-        //     Vector3 dir = new Vector3(Mathf.Cos(rad * i), 0, Mathf.Sin(rad * i));
-        // Vector3 dir = new Vector3(1, 0, 0);
-        // Agent agent = new Agent(
-        //     network,
-        //     new Vector3(128, 0, 128),
-        //     dir,
-        //     new HighwayAgentStrategy(),
-        //     1
-        // );
-        // agent.config.maxBranchCount = 5;
-        // this.AddAgent(agent);
-        // }
+    // Generates road meshes
+    public void GenerateMesh() {
+        meshGenerator.Generate(network, this.terrainModel);
     }
 
     public void GenerateStreets(TerrainModel terrain, Noise population, Action<RoadNetwork> callback) {
+        this.terrainModel = terrain;
         this.callback = callback;
 
         StreetsAgentFactory factory = new StreetsAgentFactory();
@@ -154,10 +166,21 @@ public class RoadGenerator : MonoBehaviour {
         this.queue.Enqueue(agent);
     }
 
+    public void AddCityInput(CityInput input) {
+        if (input.ghostObject == null)
+            input.ghostObject = Instantiate(ghostObject, ghostParent.transform);
+
+        input.ghostObject.transform.position = input.position;
+        input.ghostObject.transform.localScale = Vector3.one * (input.radius * 2 + 10);
+
+        cityInputs.Add(input);
+    }
+
     // Iterate through queue and let the agents work.
     IEnumerator DoAgentWork() {
         if (prevQueueCount != 0 && this.queue.Count == 0) {
             if (callback != null) {
+                meshGenerator.Generate(network, this.terrainModel);
                 this.callback(network);
             }
             prevQueueCount = 0;
@@ -231,12 +254,10 @@ public class RoadGenerator : MonoBehaviour {
     }
 
     private void OnGUI() {
-        if (network == null) return;
-        GUI.Label(new Rect(10, 10, 100, 20), "node count: " + network.Nodes.Count);
-        GUI.Label(new Rect(10, 40, 100, 20), "tree count: " + network.Tree.Count);
-    }
-
-    private void Start() {
+        if (debug && network != null) {
+            GUI.Label(new Rect(10, 10, 100, 20), "node count: " + network.Nodes.Count);
+            GUI.Label(new Rect(10, 40, 100, 20), "tree count: " + network.Tree.Count);
+        }
     }
 
     private void Update() {
@@ -244,18 +265,15 @@ public class RoadGenerator : MonoBehaviour {
             StartCoroutine("DoAgentWork");
         }
 
-        if (this.network != null)
+        if (debug && this.network != null) {
             this.network.DrawDebug();
-
-        foreach (Vector3 p in debugPoints) {
-            DrawUtil.DebugDrawCircle(p, 0.03f, new Color(1, 0.5f, 0));
         }
     }
 
     float radius = 70;
     public void UpdateWhenState(TerrainModel terrain) {
         if (ghostObject != null && ghostObjectInstance == null) {
-            ghostObjectInstance = Instantiate(ghostObject, transform);
+            ghostObjectInstance = Instantiate(ghostObject, ghostParent.transform);
         }
 
         if (ghostObjectInstance != null) {
@@ -312,7 +330,7 @@ public class RoadGenerator : MonoBehaviour {
 
                         if (Input.GetMouseButtonDown(0)) {
                             if (!EventSystem.current.IsPointerOverGameObject()) {
-                                cityInputs.Add(new CityInput(pos, CityType.Paris, ghostObjectInstance, radius));
+                                cityInputs.Add(new CityInput(pos, CityType.Manhattan, ghostObjectInstance, radius));
                                 ghostObjectInstance = null;
                             }
                         }

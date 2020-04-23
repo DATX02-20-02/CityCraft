@@ -6,7 +6,24 @@ public class BuildingGenerator : MonoBehaviour {
     [SerializeField] private GameObject skyscraper = null;
 
 
+    public void Reset() {
+        foreach (Transform child in transform) {
+            Destroy(child.gameObject);
+        }
+    }
+
     public GameObject Generate(Plot plot) {
+        return Generate(plot, 1.0f);
+    }
+
+    public GameObject Generate(Plot plot, TerrainModel terrain, Noise populationNoise) {
+        Vector2 center = VectorUtil.Vector3To2(plot.Center);
+        float population = populationNoise.GetValue(center.x / terrain.width, center.y / terrain.depth);
+        return Generate(plot, population);
+    }
+
+    public GameObject Generate(Plot plot, float population) {
+
         /* SkyscraperGenerator */
         if (plot.type == PlotType.Skyscraper) {
             var s = Instantiate(skyscraper, transform);
@@ -24,7 +41,7 @@ public class BuildingGenerator : MonoBehaviour {
 
             int plotLength = plot.vertices.Count;
             Vector3 up = Vector3.up;
-            float buildingHeight = Random.Range(0.5f, 1.5f);
+            float buildingHeight = Random.Range(0.4f, 1.1f) + Mathf.Pow(population, 2);
 
             Vector3[] meshVertices = new Vector3[plotLength * 4 + 4 + plotLength];
             int[] wallIndices = new int[(plotLength * 6 + 6)];
@@ -99,3 +116,4 @@ public class BuildingGenerator : MonoBehaviour {
         return null;
     }
 }
+

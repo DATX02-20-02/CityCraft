@@ -41,7 +41,7 @@ public class ParisAgentStrategy : AgentStrategy {
         agent.config.stepSize = 10;
 
         if (this.straight) {
-            agent.config.maxFailedNodes = (int) (radius / agent.config.stepSize);
+            agent.config.maxFailedNodes = (int)(radius / agent.config.stepSize);
         }
     }
 

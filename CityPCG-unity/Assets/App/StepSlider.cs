@@ -1,10 +1,9 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StepSlider : MonoBehaviour
-{
+public class StepSlider : MonoBehaviour {
     [SerializeField] private Image sliderStep = null;
     [SerializeField] private Image[] sliderSteps = null;
 
@@ -20,12 +19,11 @@ public class StepSlider : MonoBehaviour
     }
 
 
-    void Start()
-    {
+    void Start() {
         Slider slider = GetComponent<Slider>();
         Rect rect = slider.GetComponent<RectTransform>().rect;
 
-        sliderSteps = new Image[(int) slider.maxValue + 1];
+        sliderSteps = new Image[(int)slider.maxValue + 1];
         float width = rect.width - 20;
         for (int i = 0; i <= slider.maxValue; i++) {
             var img = Instantiate(sliderStep);

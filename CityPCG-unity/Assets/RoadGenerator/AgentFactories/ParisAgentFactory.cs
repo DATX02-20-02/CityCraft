@@ -4,7 +4,7 @@ using UnityEngine;
 public class ParisAgentFactory : IAgentFactory {
 
     public int Create(RoadGenerator generator, RoadNetwork network, Vector3 origin, float radius, int priority = 0) {
-        int amountOfRings = (int) Mathf.Max(1, Random.Range(Mathf.Min(2, radius / 20), radius / 20));
+        int amountOfRings = (int)Mathf.Max(1, Random.Range(Mathf.Min(2, radius / 20), radius / 20));
 
         network.Population.AddAmplifier(
             new CircularAmplifier(
@@ -15,7 +15,7 @@ public class ParisAgentFactory : IAgentFactory {
 
         float[] rings = new float[amountOfRings];
         for (int i = 0; i < amountOfRings; i++) {
-            float spacing = radius / (float) amountOfRings;
+            float spacing = radius / (float)amountOfRings;
             rings[i] = (i + 1) * spacing + Random.Range(-1f, 1f) * 0.1f * spacing;
         }
 

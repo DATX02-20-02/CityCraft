@@ -13,7 +13,7 @@ public class ManhattanAgentFactory : IAgentFactory {
             angle, width / network.Terrain.width, height / network.Terrain.depth);
         network.Population.AddAmplifier(new RectangularAmplifier(rect, 1));
 
-        int max = (int) Mathf.Max(3, Random.Range(height / 20, height / 16));
+        int max = (int)Mathf.Max(3, Random.Range(height / 20, height / 16));
         for (int i = 0; i < max; i++) {
             for (int invert = -1; invert <= 1; invert += 2) {
                 Vector3 dir = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * invert;
@@ -39,7 +39,7 @@ public class ManhattanAgentFactory : IAgentFactory {
             }
         }
 
-        max = (int) Mathf.Max(3, Random.Range(width / 16, width / 12));
+        max = (int)Mathf.Max(3, Random.Range(width / 16, width / 12));
         for (int i = 0; i < max; i++) {
             for (int invert = -1; invert <= 1; invert += 2) {
                 Vector3 dir = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * invert;

@@ -228,16 +228,15 @@ public class WorldGenerator : MonoBehaviour {
 
         int plotCounter = 0;
         foreach (Block block in this.blocks) {
+            var blockObject = new GameObject("Block");
+            blockObject.transform.parent = buildingGenerator.transform;
+
             // Split each block into plots
             List<Plot> plots = plotGenerator.Generate(block, terrain, populationNoise);
             foreach (var plot in plots) {
                 this.plots.Add(plot);
-
-                // if (plot.type == PlotType.Apartments || plot.type == PlotType.Skyscraper) {
-                //     buildingGenerator.Generate(plot, this.terrain, this.populationNoise);
-                // }
                 if (plot.type == PlotType.Manhattan) {
-                    buildingGenerator.Generate(plot, this.terrain, this.populationNoise, manhattanBuildings);
+                    buildingGenerator.Generate(plot, this.terrain, this.populationNoise, blockObject);
                 }
                 else if (plot.type == PlotType.Park) {
                     parkGenerator.Generate(terrain, plot);
@@ -249,6 +248,8 @@ public class WorldGenerator : MonoBehaviour {
                     yield return new WaitForSeconds(buildIntervalDelay);
                 }
             }
+
+            MeshCombiner.Combine(blockObject);
         }
 
         if (this.buildingsCallback != null)

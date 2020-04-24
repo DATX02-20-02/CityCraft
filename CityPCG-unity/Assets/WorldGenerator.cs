@@ -20,9 +20,6 @@ public class WorldGenerator : MonoBehaviour {
     [SerializeField] private GameObject parkGeneratorPrefab = null;
     [SerializeField] private GameObject parkingGeneratorPrefab = null;
 
-    [Header("UI Handlers")]
-    [SerializeField] private GameObject roadUIHandlerObject = null;
-
     [Header("Building Generation Params")]
     [SerializeField] private int buildIntervalSize = 0;
     [SerializeField] private float buildIntervalDelay = 0;
@@ -40,8 +37,6 @@ public class WorldGenerator : MonoBehaviour {
     private BuildingGenerator buildingGenerator;
     private ParkGenerator parkGenerator;
     private ParkingGenerator parkingGenerator;
-
-    private RoadUIHandler roadUIHandler;
 
     // State properties
     public enum State {
@@ -73,6 +68,14 @@ public class WorldGenerator : MonoBehaviour {
     private bool terrainGenerated = false;
     private List<Block> blocks;
     private List<Plot> plots = new List<Plot>();
+
+    public State CurrentState {
+        get { return currentState; }
+    }
+
+    public TerrainModel Terrain {
+        get { return terrain; }
+    }
 
     public State NextState() {
         State prevState = currentState;
@@ -113,7 +116,7 @@ public class WorldGenerator : MonoBehaviour {
         }
     }
 
-    public void PreviousState() {
+    public State PreviousState() {
         State prevState = currentState;
 
         if (stateMap.ContainsKey(currentStateIndex - 1)) {
@@ -121,15 +124,11 @@ public class WorldGenerator : MonoBehaviour {
         }
 
         if (currentState != prevState) OnStateChanged(prevState, true);
+
+        return currentState;
     }
 
     private void OnStateChanged(State prevState, bool previous = false) {
-        this.roadUIHandler.enabled = currentState == State.Roads;
-        this.roadUIHandler.SetTerrain(terrain);
-
-        if (previous && prevState == State.Roads) {
-            this.roadUIHandler.Reset();
-        }
     }
 
     public void GenerateTerrain() {
@@ -149,17 +148,17 @@ public class WorldGenerator : MonoBehaviour {
         terrain.seaLevel = newLevel;
     }
 
-    public void GenerateRoads() {
-        GenerateRoads((RoadNetwork network) => { });
+    public void GenerateRoads(List<CityInput> cityInputs) {
+        GenerateRoads(cityInputs, (RoadNetwork network) => { });
     }
 
-    public void GenerateRoads(Action<RoadNetwork> callback) {
+    public void GenerateRoads(List<CityInput> cityInputs, Action<RoadNetwork> callback) {
         this.blockGenerator.Reset();
         this.populationNoise = populationGenerator.Generate();
 
         roadGenerator.Generate(
             this.terrain, this.populationNoise,
-            this.roadUIHandler.CityInputs,
+            cityInputs,
             (RoadNetwork network) => {
                 this.roadNetwork = this.roadGenerator.Network = network;
                 callback(network);
@@ -236,14 +235,6 @@ public class WorldGenerator : MonoBehaviour {
         buildingGenerator = Instantiate(buildingGeneratorPrefab, transform).GetComponent<BuildingGenerator>();
         parkGenerator = Instantiate(parkGeneratorPrefab, transform).GetComponent<ParkGenerator>();
         parkingGenerator = Instantiate(parkingGeneratorPrefab, transform).GetComponent<ParkingGenerator>();
-
-        if (roadUIHandlerObject != null) {
-            roadUIHandler = roadUIHandlerObject.GetComponent<RoadUIHandler>();
-            roadUIHandler.enabled = false;
-        }
-        else {
-            throw new Exception("No road UI handler is connected!");
-        }
     }
 
     private void Awake() {

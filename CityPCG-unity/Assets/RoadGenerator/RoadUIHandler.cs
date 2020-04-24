@@ -54,7 +54,10 @@ class RoadUIHandler : MonoBehaviour {
     }
 
     public void OnDisable() {
-        selected = null;
+        if (selected != null) {
+            selected.SetSelected(false);
+            selected = null;
+        }
         DestroyGhosts();
     }
 

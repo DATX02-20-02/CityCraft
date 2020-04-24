@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -20,19 +21,30 @@ public class App : MonoBehaviour {
     [SerializeField] private GameObject[] menuPanels = null;
     [SerializeField] private bool debug = false;
 
+    [SerializeField] private RoadUIHandler roadUIHandler = null;
+
     private int currentMenuPanel = 0;
 
 
     public void Next() {
-        worldGenerator.NextState();
+        WorldGenerator.State prevState = worldGenerator.CurrentState;
+        WorldGenerator.State nextState = worldGenerator.NextState();
         NextMenu();
+
+        if (nextState != prevState) OnStateChanged(nextState, prevState);
     }
 
     public void Undo() {
+        WorldGenerator.State prevState = worldGenerator.CurrentState;
+
         worldGenerator.Undo();
-        worldGenerator.PreviousState();
+        WorldGenerator.State nextState = worldGenerator.PreviousState();
         PrevMenu();
+
+        if (nextState != prevState) OnStateChanged(nextState, prevState, true);
     }
+
+
 
     public void GenerateTerrain() {
         Log("Generating terrain...");
@@ -42,7 +54,7 @@ public class App : MonoBehaviour {
 
     public void GenerateRoads() {
         Log("Generating roads...");
-        worldGenerator.GenerateRoads();
+        worldGenerator.GenerateRoads(this.roadUIHandler.CityInputs);
         Log("Roads generated.");
     }
 
@@ -93,6 +105,14 @@ public class App : MonoBehaviour {
         worldGenerator.ModifyTerrainSea(a);
     }
 
+    private void OnStateChanged(WorldGenerator.State currentState, WorldGenerator.State prevState, bool previous = false) {
+        this.roadUIHandler.enabled = currentState == WorldGenerator.State.Roads;
+        this.roadUIHandler.SetTerrain(worldGenerator.Terrain);
+
+        if (previous && prevState == WorldGenerator.State.Roads) {
+            this.roadUIHandler.Reset();
+        }
+    }
 
     private void NextMenu() {
         menuPanels[currentMenuPanel].SetActive(false);
@@ -115,4 +135,10 @@ public class App : MonoBehaviour {
             Debug.Log(msg);
     }
 
+    private void Start() {
+        if (roadUIHandler == null)
+            throw new Exception("No road UI handler is connected!");
+
+        roadUIHandler.enabled = false;
+    }
 }

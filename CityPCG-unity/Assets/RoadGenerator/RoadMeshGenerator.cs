@@ -44,9 +44,9 @@ public class RoadMeshGenerator : MonoBehaviour {
             }
 
         if (intersectionParent != null)
-        foreach (Transform child in intersectionParent.transform) {
-            Destroy(child.gameObject);
-        }
+            foreach (Transform child in intersectionParent.transform) {
+                Destroy(child.gameObject);
+            }
     }
 
     public void Generate(RoadNetwork network, TerrainModel terrainModel) {

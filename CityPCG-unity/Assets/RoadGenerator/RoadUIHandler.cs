@@ -62,7 +62,7 @@ class RoadUIHandler : MonoBehaviour {
     }
 
     public void OnCityTypeChanged(Dropdown change) {
-        this.cityType = (CityType) change.value;
+        this.cityType = (CityType)change.value;
         if (selected != null)
             selected.type = this.cityType;
     }
@@ -126,7 +126,7 @@ class RoadUIHandler : MonoBehaviour {
                             dragOffset = pos - dragging.position;
 
                             if (cityTypeDropdown) {
-                                cityTypeDropdown.value = (int) selected.type;
+                                cityTypeDropdown.value = (int)selected.type;
                             }
                         }
                     }

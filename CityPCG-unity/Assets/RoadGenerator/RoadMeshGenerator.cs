@@ -38,15 +38,17 @@ public class RoadMeshGenerator : MonoBehaviour {
 
     public void Reset() {
         // Remove previously generated meshes
-        if (roadParent != null)
+        if (roadParent != null) {
             foreach (Transform child in roadParent.transform) {
                 Destroy(child.gameObject);
             }
+        }
 
-        if (intersectionParent != null)
+        if (intersectionParent != null) {
             foreach (Transform child in intersectionParent.transform) {
                 Destroy(child.gameObject);
             }
+        }
     }
 
     public void Generate(RoadNetwork network, TerrainModel terrainModel) {

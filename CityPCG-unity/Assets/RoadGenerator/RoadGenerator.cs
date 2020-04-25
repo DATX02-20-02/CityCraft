@@ -62,12 +62,6 @@ public class RoadGenerator : MonoBehaviour {
             switch (cityInput.type) {
                 case CityType.Paris:
                     priority = parisFactory.Create(this, network, cityInput.position, cityInput.radius, priority++);
-                    population.AddAmplifier(
-                        new CircularAmplifier(
-                            new Vector2(cityInput.position.x / terrain.width, cityInput.position.z / terrain.depth),
-                            0, 0.3f, 1f
-                        )
-                    );
                     priority++;
                     break;
 

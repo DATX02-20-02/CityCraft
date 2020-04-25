@@ -45,7 +45,7 @@ public class RoadGenerator : MonoBehaviour {
     }
 
     // Generates a complete road network.
-    public void Generate(TerrainModel terrain, Noise population, List<CityInput> cityInputs, Action<RoadNetwork> callback = null) {
+    public RoadNetwork Generate(TerrainModel terrain, Noise population, List<CityInput> cityInputs, Action<RoadNetwork> callback = null) {
         this.terrainModel = terrain;
         this.callback = callback;
         prevQueueCount = 0;
@@ -77,6 +77,8 @@ public class RoadGenerator : MonoBehaviour {
                     break;
             }
         }
+
+        return network;
     }
 
     // Generates road meshes

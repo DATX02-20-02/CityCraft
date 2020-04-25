@@ -34,7 +34,6 @@ public class Agent : IComparable {
 
     private bool terminated = false;
     private bool started = false;
-    private bool hasPlacedNode = false;
 
     private Node prevNode;
 
@@ -189,7 +188,6 @@ public class Agent : IComparable {
         if (this.prevNode == null) {
             Node newNode = this.network.AddNodeNearby(node, config.snapRadius);
             this.prevNode = newNode;
-            this.hasPlacedNode = true;
 
             return newNode;
         }

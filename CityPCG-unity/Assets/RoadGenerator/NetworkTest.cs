@@ -28,7 +28,7 @@ public class NetworkTest : MonoBehaviour {
 
         terrain = terrainGen.GenerateTerrain();
         population = noiseGen.Generate();
-        network = roadGen.Generate(terrain, population, new List<CityInput>() {}, (RoadNetwork network) => {});
+        network = roadGen.Generate(terrain, population, new List<CityInput>() { }, (RoadNetwork network) => { });
 
         agent = new Agent(network, new Vector3(10, 0, 10), new Vector3(0, 0, 0), null, 0);
 

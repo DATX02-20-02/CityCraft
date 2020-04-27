@@ -237,8 +237,8 @@ public class WorldGenerator : MonoBehaviour {
                 else if (plot.type == PlotType.Park) {
                     parkGenerator.Generate(terrain, plot);
                 }
-                else if(plot.type == PlotType.Parking) {
-                    parkingGenerator.Generate(terrain,plot);
+                else if (plot.type == PlotType.Parking) {
+                    parkingGenerator.Generate(terrain, plot);
                 }
 
                 plotCounter++;

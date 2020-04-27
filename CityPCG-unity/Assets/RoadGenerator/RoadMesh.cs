@@ -62,7 +62,12 @@ public class RoadMesh : MonoBehaviour {
         set => roadStart = value;
     }
 
-    public void GenerateRoadMesh() {
+    public float StepDistance {
+        get => stepDistance;
+        set => stepDistance = value;
+    }
+
+    public void GenerateRoadMesh(int levelOfDetail = 0) {
         if (this.projectOnTerrain == null) {
             this.projectOnTerrain = (float x, float z) => {
                 Vector3 vec = new Vector3(x, transform.position.y, z);
@@ -70,10 +75,10 @@ public class RoadMesh : MonoBehaviour {
             };
         }
 
-        GenerateRoadMesh(this.projectOnTerrain);
+        GenerateRoadMesh(this.projectOnTerrain, levelOfDetail);
     }
 
-    public void GenerateRoadMesh(ProjectOnTerrain projectOnTerrain) {
+    public void GenerateRoadMesh(ProjectOnTerrain projectOnTerrain, int levelOfDetail = 0) {
         this.projectOnTerrain = projectOnTerrain;
 
         if (Spline.ControlPointCount < 4) {

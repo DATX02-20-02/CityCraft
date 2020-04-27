@@ -193,69 +193,114 @@ public class RoadMeshGenerator : MonoBehaviour {
 
 
     private RoadMesh PlaceRoad(List<Node> path) {
-        RoadMesh roadMesh = Instantiate(roadMeshPrefab, roadParent.transform).GetComponent<RoadMesh>();
-        roadMesh.name = roadMeshPrefab.name + " " + (placedRoads.Count + 1);
-        roadMesh.transform.position = path[0].pos;
+        GameObject lodGroupObj = new GameObject("Road LOD Group " + (placedRoads.Count + 1));
+        lodGroupObj.transform.SetParent(roadParent.transform);
+        lodGroupObj.transform.position = path[0].pos;
+        LODGroup lodGroup = lodGroupObj.AddComponent<LODGroup>();
 
-        for (int i = 0; i < path.Count; i++) {
-            TerrainModel.TerrainHit hit = this.projectOnTerrain(path[i].pos.x, path[i].pos.z);
-            path[i].pos = hit.point + hit.normal * 0.01f;
-            roadMesh.Spline.AddPoint(path[i].pos);
-        }
+        LOD[] lods = new LOD[3];
 
-        // Try connect to intersections at position
-        RoadIntersectionMesh TryCreateIntersection(Node intersectionNode) {
-            if (intersectionNode.connections.Count > 2) {
-                RoadIntersectionMesh intersection;
-                if (!intersections.ContainsKey(intersectionNode)) {
-                    intersection = Instantiate(roadIntersectionMeshPrefab, intersectionParent.transform).GetComponent<RoadIntersectionMesh>();
-                    intersection.transform.localPosition = intersectionNode.pos;
-                    intersections[intersectionNode] = intersection;
-                }
-                else {
-                    intersection = intersections[intersectionNode];
-                }
+        RoadMesh[] meshes = new RoadMesh[lods.Length];
+        for (int lodLevel = 0; lodLevel < lods.Length; lodLevel++) {
+            GameObject roadObj = Instantiate(roadMeshPrefab, lodGroup.transform);
 
-                return intersection;
+            RoadMesh roadMesh = roadObj.GetComponent<RoadMesh>();
+            roadMesh.StepDistance = roadMesh.StepDistance * (lodLevel + 1);
+            roadMesh.name = roadMeshPrefab.name + " " + (placedRoads.Count + 1);
+            roadMesh.transform.position = path[0].pos;
+
+            for (int i = 0; i < path.Count; i++) {
+                TerrainModel.TerrainHit hit = this.projectOnTerrain(path[i].pos.x, path[i].pos.z);
+                path[i].pos = hit.point + hit.normal * 0.01f;
+                roadMesh.Spline.AddPoint(path[i].pos);
             }
 
-            return null;
-        }
+            if (lodLevel == 0) {
+                // Try connect to intersections at position
+                RoadIntersectionMesh TryCreateIntersection(Node intersectionNode) {
+                    if (intersectionNode.connections.Count > 2) {
+                        RoadIntersectionMesh intersection;
+                        if (!intersections.ContainsKey(intersectionNode)) {
+                            GameObject intersectionLODObj = new GameObject("Intersection LOD Group ");
+                            intersectionLODObj.transform.SetParent(intersectionParent.transform);
+                            intersectionLODObj.transform.localPosition = intersectionNode.pos;
+                            LODGroup intersectionLOD = intersectionLODObj.AddComponent<LODGroup>();
 
-        RoadIntersectionMesh startIntersection = TryCreateIntersection(path[0]);
-        if (startIntersection) {
-            roadMesh.RoadStart = startIntersection;
-            Vector3 angleOfAttack = (path[0].pos - path[1].pos).normalized;
-            startIntersection.AddConnection(roadMesh, angleOfAttack);
+                            GameObject intersectionObj = Instantiate(roadIntersectionMeshPrefab, intersectionLODObj.transform);
+                            intersection = intersectionObj.GetComponent<RoadIntersectionMesh>();
+                            intersections[intersectionNode] = intersection;
 
-            if (startIntersection.ConnectedRoads.Count == path[0].connections.Count) {
-                startIntersection.UpdateMesh(this.projectOnTerrain);
-                foreach (var roadConnection in startIntersection.ConnectedRoads) {
-                    roadConnection.road.GenerateRoadMesh(this.projectOnTerrain);
+                            intersectionLOD.SetLODs(
+                                new LOD[] {
+                                    new LOD(0.05f, intersectionObj.GetComponentsInChildren<Renderer>())
+                                }
+                            );
+                            intersectionLOD.RecalculateBounds();
+                        }
+                        else {
+                            intersection = intersections[intersectionNode];
+                        }
+
+                        return intersection;
+                    }
+
+                    return null;
                 }
-            }
-        }
 
-        RoadIntersectionMesh endIntersection = TryCreateIntersection(path[path.Count - 1]);
-        if (endIntersection) {
-            roadMesh.RoadEnd = endIntersection;
-            Vector3 angleOfAttack = (path[path.Count - 1].pos - path[path.Count - 2].pos).normalized;
-            endIntersection.AddConnection(roadMesh, angleOfAttack);
+                RoadIntersectionMesh startIntersection = TryCreateIntersection(path[0]);
+                if (startIntersection) {
+                    roadMesh.RoadStart = startIntersection;
+                    Vector3 angleOfAttack = (path[0].pos - path[1].pos).normalized;
+                    startIntersection.AddConnection(roadMesh, angleOfAttack);
 
-            if (endIntersection.ConnectedRoads.Count == path[path.Count - 1].connections.Count) {
-                endIntersection.UpdateMesh(this.projectOnTerrain);
-                foreach (var roadConnection in endIntersection.ConnectedRoads) {
-                    roadConnection.road.GenerateRoadMesh(this.projectOnTerrain);
+                    if (startIntersection.ConnectedRoads.Count == path[0].connections.Count) {
+                        startIntersection.UpdateMesh(this.projectOnTerrain);
+                        foreach (var roadConnection in startIntersection.ConnectedRoads) {
+                            roadConnection.road.GenerateRoadMesh(this.projectOnTerrain);
+                        }
+                    }
                 }
+
+                RoadIntersectionMesh endIntersection = TryCreateIntersection(path[path.Count - 1]);
+                if (endIntersection) {
+                    roadMesh.RoadEnd = endIntersection;
+                    Vector3 angleOfAttack = (path[path.Count - 1].pos - path[path.Count - 2].pos).normalized;
+                    endIntersection.AddConnection(roadMesh, angleOfAttack);
+
+                    if (endIntersection.ConnectedRoads.Count == path[path.Count - 1].connections.Count) {
+                        endIntersection.UpdateMesh(this.projectOnTerrain);
+                        foreach (var roadConnection in endIntersection.ConnectedRoads) {
+                            roadConnection.road.GenerateRoadMesh(this.projectOnTerrain);
+                        }
+                    }
+                }
+
+                placedRoads.Add(roadMesh);
+
+                if (startIntersection == null && endIntersection == null)
+                    roadMesh.GenerateRoadMesh(this.projectOnTerrain);
             }
+            else {
+                roadMesh.GenerateRoadMesh(this.projectOnTerrain);
+            }
+
+            Renderer[] renderers = roadObj.GetComponentsInChildren<Renderer>();
+
+            float lodValue = 1f;
+            switch (lodLevel) {
+                case 0: lodValue = 0.1f; break;
+                case 1: lodValue = 0.05f; break;
+                case 2: lodValue = 0.02f; break;
+            }
+
+            lods[lodLevel] = new LOD(lodValue, renderers);
+            meshes[lodLevel] = roadMesh;
         }
 
-        placedRoads.Add(roadMesh);
+        lodGroup.SetLODs(lods);
+        lodGroup.RecalculateBounds();
 
-        if (startIntersection == null && endIntersection == null)
-            roadMesh.GenerateRoadMesh(this.projectOnTerrain);
-
-        return roadMesh;
+        return meshes[0];
     }
 }
 

@@ -9,6 +9,10 @@ public struct TerrainModel {
     private int xResolution;
     private int zResolution;
 
+    public Noise Noise {
+        get { return noise; }
+    }
+
     public struct TerrainHit {
         public Vector3 point;
         public Vector3 normal;

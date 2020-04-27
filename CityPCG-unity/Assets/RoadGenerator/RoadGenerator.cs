@@ -5,8 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using RBush;
-using VisualDebugging;
 
 /*
   What? Generates a road network based on terrain and population.
@@ -22,6 +20,7 @@ public class RoadGenerator : MonoBehaviour {
     [Range(0, 0.4f)]
     [SerializeField] private float generationTickInterval = 0.2f;
 
+    [Header("Debug")]
     [SerializeField] private List<Vector3> debugPoints = new List<Vector3>();
 
     [SerializeField] private bool debug = false;
@@ -41,8 +40,12 @@ public class RoadGenerator : MonoBehaviour {
         get { return this.network; }
     }
 
+    public void Reset() {
+        this.network = null;
+    }
+
     // Generates a complete road network.
-    public void Generate(TerrainModel terrain, Noise population, Action<RoadNetwork> callback = null) {
+    public RoadNetwork Generate(TerrainModel terrain, Noise population, List<CityInput> cityInputs, Action<RoadNetwork> callback = null) {
         this.terrainModel = terrain;
         this.callback = callback;
         prevQueueCount = 0;
@@ -51,14 +54,25 @@ public class RoadGenerator : MonoBehaviour {
         network = new RoadNetwork(terrain, population, terrain.width, terrain.depth);
         queue = new PriorityQueue<Agent>();
 
-        IAgentFactory factory = new ParisAgentFactory();
+        ParisAgentFactory parisFactory = new ParisAgentFactory();
+        ManhattanAgentFactory manhattanFactory = new ManhattanAgentFactory();
 
-        factory.Create(this, network, new Vector3(300 - 150, 0, 300));
-        factory.Create(this, network, new Vector3(300 + 0, 0, 300));
+        int priority = 0;
+        foreach (CityInput cityInput in cityInputs) {
+            switch (cityInput.type) {
+                case CityType.Paris:
+                    priority = parisFactory.Create(this, network, cityInput.position, cityInput.radius, priority++);
+                    priority++;
+                    break;
 
-        population.AddAmplifier(new CircularAmplifier(new Vector2(0.3f, 0.3f), 0, 0.3f, 1f));
-        population.AddAmplifier(new CircularAmplifier(new Vector2(0.3f, 0.3f), 1, 0.05f, 1f));
-        population.AddAmplifier(new CircularAmplifier(new Vector2(0.3f - 0.15f, 0.3f), 1, 0.05f, 1f));
+                case CityType.Manhattan:
+                    priority = manhattanFactory.Create(this, network, cityInput.position, cityInput.radius, priority++);
+                    priority++;
+                    break;
+            }
+        }
+
+        return network;
     }
 
     // Generates road meshes
@@ -70,7 +84,7 @@ public class RoadGenerator : MonoBehaviour {
         this.terrainModel = terrain;
         this.callback = callback;
 
-        IAgentFactory factory = new StreetsAgentFactory();
+        StreetsAgentFactory factory = new StreetsAgentFactory();
         factory.Create(this, network, Vector3.zero);
     }
 

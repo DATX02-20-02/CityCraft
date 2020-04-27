@@ -207,6 +207,18 @@ public class RoadNetwork {
             finalNode = this.CreateNode(info.point, node1.type);
         }
 
+        Vector3 dir = (finalNode.pos - node1.pos).normalized;
+        Dictionary<Node, bool> neighbors = new Dictionary<Node, bool>();
+        foreach (NodeConnection con in node1.connections) {
+            neighbors[con.node] = true;
+
+            // TODO: Do not hardcode this
+            float angle = Vector3.Angle(con.node.pos - node1.pos, dir);
+            if (angle < 20) {
+                finalNode = con.node;
+            }
+        }
+
         // TODO: These two statements can be merged into one for loop
         bool didSnap = false;
         foreach (Node other in nearestNodes) {
@@ -218,21 +230,20 @@ public class RoadNetwork {
                 VectorUtil.Vector3To2(node2.pos)
             );
             if (dist <= snapRadius) {
-                if (Vector3.Distance(node1.pos, finalNode.pos) > Vector3.Distance(node1.pos, other.pos)) {
+                if (neighbors.ContainsKey(other) || Vector3.Distance(node1.pos, finalNode.pos) > Vector3.Distance(node1.pos, other.pos)) {
                     finalNode = other;
                     didSnap = true;
                     break;
                 }
             }
         }
+
         // If no nodes were found along the line, try finding one near the end node
         if (!didSnap) {
             Node closestNode = GetClosestNode(finalNode, nearestNodes);
             if (closestNode != null && Vector3.Distance(closestNode.pos, finalNode.pos) <= snapRadius) {
-                if (Vector3.Distance(node1.pos, finalNode.pos) > Vector3.Distance(node1.pos, closestNode.pos)) {
-                    finalNode = closestNode;
-                    didSnap = true;
-                }
+                finalNode = closestNode;
+                didSnap = true;
             }
         }
 
@@ -308,13 +319,14 @@ public class RoadNetwork {
         return new ConnectionResult(success, false, false, node2);
     }
 
-    public void DrawDebug() {
+    public void DrawDebug(bool drawNodes = false) {
         Dictionary<Node, bool> visited = new Dictionary<Node, bool>();
 
         int idx = 0;
         foreach (Node n in nodes) {
             visited[n] = true;
 
+            bool hasCloseNodes = false;
             foreach (NodeConnection c in n.connections) {
                 if (visited.ContainsKey(c.node)) continue;
 
@@ -325,7 +337,16 @@ public class RoadNetwork {
                     color = new Color(0, 0, 1);
 
                 Debug.DrawLine(n.pos, c.node.pos, color);
+
+                if (Vector3.Distance(c.node.pos, n.pos) < 0.1f)
+                    hasCloseNodes = true;
             }
+
+            if (hasCloseNodes)
+                DrawUtil.DebugDrawCircle(n.pos, 0.1f, Color.blue);
+
+            if (drawNodes)
+                DrawUtil.DebugDrawCircle(n.pos, 0.05f, Color.blue, 3);
 
             idx++;
         }

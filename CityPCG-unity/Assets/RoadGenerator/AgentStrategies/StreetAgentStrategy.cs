@@ -33,6 +33,11 @@ public class StreetAgentStrategy : AgentStrategy {
             agent.Data = data;
         }
 
+        agent.config.stepSize = 5 * 0.3f;
+        agent.config.snapRadius = 5 * 0.2f;
+        agent.config.maxBranchCount = 16;
+        agent.config.maxStepCount = 20;
+
         if (agent.PreviousNode == null) {
             Node node = agent.Network.AddNodeNearby(new Node(agent.Position), agent.config.snapRadius);
             agent.PreviousNode = node;

@@ -74,4 +74,8 @@ public class Node : ISpatialData {
     public Node Clone() {
         return new Node(pos, type);
     }
+
+    public override string ToString() {
+        return "Node (" + pos + ")";
+    }
 }

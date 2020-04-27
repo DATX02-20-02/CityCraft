@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 
 public abstract class AgentStrategy {
-    public bool started = false;
-
     public virtual void Start(Agent agent) { }
     public virtual List<Agent> Branch(Agent agent, Node node) {
         return new List<Agent>();

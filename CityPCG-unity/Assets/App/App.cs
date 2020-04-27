@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -15,6 +16,7 @@ public class App : MonoBehaviour {
 
     [SerializeField] private Slider sliderX = null;
     [SerializeField] private Slider sliderZ = null;
+    [SerializeField] private Slider sliderStep = null;
     [SerializeField] private WorldGenerator worldGenerator = null;
     [SerializeField] private GameObject[] menuPanels = null;
     [SerializeField] private Button btnBack = null;
@@ -22,14 +24,20 @@ public class App : MonoBehaviour {
     [SerializeField] private Button btnNext = null;
     [SerializeField] private bool debug = false;
 
+    [SerializeField] private RoadUIHandler roadUIHandler = null;
+
     private int currentMenuPanel = 0;
 
     public void Next() {
         btnNext.interactable = false;
         btnBack.interactable = true;
 
-        worldGenerator.NextState();
+        WorldGenerator.State prevState = worldGenerator.CurrentState;
+        WorldGenerator.State nextState = worldGenerator.NextState();
+
         NextMenu();
+
+        if (nextState != prevState) OnStateChanged(nextState, prevState);
     }
 
     public void Undo() {
@@ -41,13 +49,22 @@ public class App : MonoBehaviour {
     }
 
     public void Prev() {
-        worldGenerator.PreviousState();
+        WorldGenerator.State prevState = worldGenerator.CurrentState;
+
+        worldGenerator.Undo();
+        WorldGenerator.State nextState = worldGenerator.PreviousState();
         PrevMenu();
+
         if (currentMenuPanel == 0)
             btnBack.interactable = false;
+
         btnUndo.interactable = true;
         btnNext.interactable = true;
+
+        if (nextState != prevState) OnStateChanged(nextState, prevState, true);
     }
+
+
 
     public void GenerateTerrain() {
         Log("Generating terrain...");
@@ -60,7 +77,7 @@ public class App : MonoBehaviour {
     public void GenerateRoads() {
         Log("Generating roads...");
         SetBusy(true);
-        worldGenerator.GenerateRoads((RoadNetwork network) => {
+        worldGenerator.GenerateRoads(this.roadUIHandler.CityInputs, (RoadNetwork network) => {
             SetBusy(false);
         });
         Log("Roads generated.");
@@ -134,16 +151,29 @@ public class App : MonoBehaviour {
             btnNext.interactable = false;
     }
 
+    private void OnStateChanged(WorldGenerator.State currentState, WorldGenerator.State prevState, bool previous = false) {
+        this.roadUIHandler.enabled = currentState == WorldGenerator.State.Roads;
+        this.roadUIHandler.SetTerrain(worldGenerator.Terrain);
+
+        if (previous && prevState == WorldGenerator.State.Roads) {
+            this.roadUIHandler.Reset();
+        }
+    }
+
     private void NextMenu() {
         menuPanels[currentMenuPanel].SetActive(false);
         currentMenuPanel = Mathf.Min(menuPanels.Length - 1, currentMenuPanel + 1);
         menuPanels[currentMenuPanel].SetActive(true);
+
+        sliderStep.value = currentMenuPanel;
     }
 
     private void PrevMenu() {
         menuPanels[currentMenuPanel].SetActive(false);
         currentMenuPanel = Mathf.Max(0, currentMenuPanel - 1);
         menuPanels[currentMenuPanel].SetActive(true);
+
+        sliderStep.value = currentMenuPanel;
     }
 
     private void Log(object msg) {
@@ -151,4 +181,10 @@ public class App : MonoBehaviour {
             Debug.Log(msg);
     }
 
+    private void Start() {
+        if (roadUIHandler == null)
+            throw new Exception("No road UI handler is connected!");
+
+        roadUIHandler.enabled = false;
+    }
 }

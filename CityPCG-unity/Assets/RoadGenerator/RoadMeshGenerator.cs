@@ -38,11 +38,16 @@ public class RoadMeshGenerator : MonoBehaviour {
 
     public void Reset() {
         // Remove previously generated meshes
-        foreach (Transform child in roadParent.transform) {
-            Destroy(child.gameObject);
+        if (roadParent != null) {
+            foreach (Transform child in roadParent.transform) {
+                Destroy(child.gameObject);
+            }
         }
-        foreach (Transform child in intersectionParent.transform) {
-            Destroy(child.gameObject);
+
+        if (intersectionParent != null) {
+            foreach (Transform child in intersectionParent.transform) {
+                Destroy(child.gameObject);
+            }
         }
     }
 
@@ -77,7 +82,7 @@ public class RoadMeshGenerator : MonoBehaviour {
         while (notVisited.Count > 0) {
             Node startNode = null;
             foreach (Node n in notVisited) {
-                if (n.connections.Count > 2) {
+                if (n.connections.Count != 2) {
                     startNode = n;
                     break;
                 }
@@ -246,6 +251,10 @@ public class RoadMeshGenerator : MonoBehaviour {
         }
 
         placedRoads.Add(roadMesh);
+
+        if (startIntersection == null && endIntersection == null)
+            roadMesh.GenerateRoadMesh(this.projectOnTerrain);
+
         return roadMesh;
     }
 }

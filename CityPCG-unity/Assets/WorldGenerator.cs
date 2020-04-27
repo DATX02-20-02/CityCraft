@@ -10,7 +10,7 @@ using Utils;
 // Why? The many generators need a pipeline that handles the IO between generators.
 // How? Splits the workload into many subgenerators, and only manages their inputs/outputs.
 public class WorldGenerator : MonoBehaviour {
-
+    [Header("Generators")]
     [SerializeField] private GameObject terrainGeneratorPrefab = null;
     [SerializeField] private GameObject populationGeneratorPrefab = null;
     [SerializeField] private GameObject roadGeneratorPrefab = null;
@@ -69,10 +69,22 @@ public class WorldGenerator : MonoBehaviour {
     private List<Block> blocks;
     private List<Plot> plots = new List<Plot>();
 
+    public State CurrentState {
+        get { return currentState; }
+    }
+
+    public TerrainModel Terrain {
+        get { return terrain; }
+    }
+
     public State NextState() {
+        State prevState = currentState;
+
         if (stateMap.ContainsKey(currentStateIndex + 1)) {
             currentState = stateMap[++currentStateIndex];
         }
+
+        if (currentState != prevState) OnStateChanged(prevState);
 
         return currentState;
     }
@@ -93,6 +105,8 @@ public class WorldGenerator : MonoBehaviour {
             case State.Roads:
                 this.roadNetwork = this.roadGenerator.Network = null;
                 this.roadNetworkSnapshot = null;
+
+                this.roadGenerator.Reset();
                 this.roadMeshGenerator.Reset();
                 break;
 
@@ -102,10 +116,19 @@ public class WorldGenerator : MonoBehaviour {
         }
     }
 
-    public void PreviousState() {
+    public State PreviousState() {
+        State prevState = currentState;
+
         if (stateMap.ContainsKey(currentStateIndex - 1)) {
             currentState = stateMap[--currentStateIndex];
         }
+
+        if (currentState != prevState) OnStateChanged(prevState, true);
+
+        return currentState;
+    }
+
+    private void OnStateChanged(State prevState, bool previous = false) {
     }
 
     public void GenerateTerrain() {
@@ -121,19 +144,21 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     public void ModifyTerrainSea(float sl) {
-        terrainGenerator.SetSeaLevel(sl);
+        float newLevel = terrainGenerator.SetSeaLevel(sl);
+        terrain.seaLevel = newLevel;
     }
 
-    public void GenerateRoads() {
-        GenerateRoads((RoadNetwork network) => { });
+    public void GenerateRoads(List<CityInput> cityInputs) {
+        GenerateRoads(cityInputs, (RoadNetwork network) => { });
     }
 
-    public void GenerateRoads(Action<RoadNetwork> callback) {
+    public void GenerateRoads(List<CityInput> cityInputs, Action<RoadNetwork> callback) {
         this.blockGenerator.Reset();
         this.populationNoise = populationGenerator.Generate();
 
         roadGenerator.Generate(
             this.terrain, this.populationNoise,
+            cityInputs,
             (RoadNetwork network) => {
                 this.roadNetwork = this.roadGenerator.Network = network;
                 callback(network);
@@ -156,7 +181,8 @@ public class WorldGenerator : MonoBehaviour {
 
         this.blockGenerator.Reset();
         roadGenerator.GenerateStreets(
-            terrain, populationNoise, (roadNetwork) => {
+            terrain, populationNoise,
+            (roadNetwork) => {
                 GenerateBlocks();
                 callback(roadNetwork);
 
@@ -225,16 +251,24 @@ public class WorldGenerator : MonoBehaviour {
     // Just for debug purposes so I don't have to step through
     // generation every single time
     // private void AutoStart() {
+    //     if (this.blockGenerator == null || this.buildingGenerator == null) return;
+    //     this.roadGenerator.Reset();
+    //     this.roadMeshGenerator.Reset();
     //     this.blockGenerator.Reset();
     //     this.buildingGenerator.Reset();
 
     //     GenerateTerrain();
+
+    //     Vector3 pos = terrain.GetMeshIntersection(300, 300).point;
+
+    //     this.roadUIHandler.AddCityInput(new CityInput(pos, CityType.Manhattan, null, 50));
+
     //     GenerateRoads(
     //         (RoadNetwork network) => {
-    //             GenerateStreets((RoadNetwork _) => {
-    //                     GenerateBuildings();
-    //                 }
-    //             );
+    //             // GenerateStreets((RoadNetwork _) => {
+    //             //         // GenerateBuildings();
+    //             //     }
+    //             // );
     //         }
     //     );
     // }

@@ -38,69 +38,53 @@ public class ParisAgentStrategy : AgentStrategy {
             agent.Data = data;
         }
 
-        if (agent.PreviousNode == null) {
-            Vector3 pos = agent.Position;
+        agent.config.stepSize = 10;
 
-            if (!this.straight) pos = center + agent.Direction * radius;
-
-            Node node = agent.Network.AddNodeNearby(
-                agent.Network.CreateNode(
-                    VectorUtil.Vector3To2(pos), nodeType
-                ),
-                agent.config.snapRadius
-            );
-            agent.PreviousNode = node;
-        };
+        if (this.straight) {
+            agent.config.maxFailedNodes = (int)(radius / agent.config.stepSize);
+        }
     }
 
     public override void Work(Agent agent) {
         AgentData agentData = (AgentData)agent.Data;
         AgentConfiguration config = agent.config;
 
-        if (this.straight) {
-            agent.Angle += Random.Range(-1.0f, 1.0f) * 10.0f * Mathf.Deg2Rad;
+        Node prevNode = agent.PreviousNode;
 
-            Vector3 oldPos = agent.Position;
-            agent.Position += agent.Direction * config.stepSize;
+        if (this.straight) {
+            float distance = Vector3.Distance(agent.Position, center);
 
             Node n = agent.PlaceNode(agent.Position, this.nodeType, this.connectionType, out ConnectionResult info);
             if (n != null && info != null) {
-                Vector3 dir = n.pos - oldPos;
-                Vector3 newDir = Vector3.Lerp(dir, agent.Direction, 0.2f);
-                agent.Angle = Mathf.Atan2(newDir.z, newDir.x);
-
-                float distance = Vector3.Distance(agent.Position, center);
-                if ((distance > radius || agentData.stopAtRoad) && (!info.success)) {
-                    agent.Terminate();
-                }
-
-                if (distance > radius) {
+                if (distance > radius + 5) {
                     agent.SetStrategy(new HighwayAgentStrategy());
+                    agent.Priority = 100;
                 }
             }
-            else {
+            else if (n == null && prevNode != null)
                 agent.Terminate();
-            }
+
+            agent.Angle += Random.Range(-1.0f, 1.0f) * 10.0f * Mathf.Deg2Rad;
+            agent.Position += agent.Direction * config.stepSize;
         }
         else {
-            agent.Angle += this.angleIncrement;
-
-            float randRadius = agent.StepCount == 0 ? 0 : Random.Range(-1.0f, 1.0f) * 0.1f;
-            agent.Position = this.center + new Vector3(
-                Mathf.Cos(agent.Angle),
-                0,
-                Mathf.Sin(agent.Angle)
-            ) * (this.radius + randRadius);
-
             agent.PlaceNode(agent.Position, this.nodeType, this.connectionType, out ConnectionResult info);
-            if (info != null) {
-                if (info.didSnap || info.didIntersect) {
+
+            if (info != null && prevNode != null) {
+                if (info.didIntersect) {
+                    agent.Terminate();
+                }
+
+                if (info.didSnap && prevNode != info.prevNode) {
                     agent.Terminate();
                 }
             }
-            else {
-                agent.Terminate();
-            }
+
+            agent.Angle = agent.Angle + this.angleIncrement;
+
+            float randRadius = agent.StepCount == 0 || agent.StepCount == agent.config.maxStepCount - 1 ?
+                0 : Random.Range(-4.0f, 4.0f) * 0.1f;
+            agent.Position = this.center + agent.Direction * (this.radius + randRadius);
         }
     }
 

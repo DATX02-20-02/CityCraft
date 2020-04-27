@@ -493,15 +493,22 @@ namespace UnityGLTF {
             return id;
         }
 
+        private static bool ContainsValidRenderer(GameObject gameObject)
+        {
+            return (gameObject.GetComponent<MeshFilter>() != null && gameObject.GetComponent<MeshRenderer>() != null)
+                || (gameObject.GetComponent<SkinnedMeshRenderer>() != null);
+        }
+
         private void FilterPrimitives(Transform transform, out GameObject[] primitives, out GameObject[] nonPrimitives) {
             var childCount = transform.childCount;
             var prims = new List<GameObject>(childCount + 1);
             var nonPrims = new List<GameObject>(childCount);
 
             // add another primitive if the root object also has a mesh
-            if (transform.gameObject.GetComponent<MeshFilter>() != null
-                && transform.gameObject.GetComponent<MeshRenderer>() != null) {
-                prims.Add(transform.gameObject);
+            int LODId = LODExtendedUtility.GetLODid(transform.gameObject);
+            if (transform.gameObject.activeSelf && (LODId == -1 || LODId == 0)) {
+                if (ContainsValidRenderer(transform.gameObject))
+                    prims.Add(transform.gameObject);
             }
 
             for (var i = 0; i < childCount; i++) {
@@ -518,17 +525,16 @@ namespace UnityGLTF {
 
         private static bool IsPrimitive(GameObject gameObject) {
             /*
-			 * Primitives have the following properties:
-			 * - have no children
-			 * - have no non-default local transform properties
-			 * - have MeshFilter and MeshRenderer components
-			 */
+             * Primitives have the following properties:
+             * - have no children
+             * - have no non-default local transform properties
+             * - have MeshFilter and MeshRenderer components
+             */
             return gameObject.transform.childCount == 0
                 && gameObject.transform.localPosition == Vector3.zero
                 && gameObject.transform.localRotation == Quaternion.identity
                 && gameObject.transform.localScale == Vector3.one
-                && gameObject.GetComponent<MeshFilter>() != null
-                && gameObject.GetComponent<MeshRenderer>() != null;
+                && ContainsValidRenderer(gameObject);
         }
 
         private MeshId ExportMesh(string name, GameObject[] primitives) {

@@ -7,7 +7,7 @@ public class PathGenerator : MonoBehaviour {
     public RoadMesh road;
     private Vector2[] polygon;
 
-    public void GeneratePlotPath(TerrainModel terrain, Block block, Plot plot) {
+    public void GeneratePlotPath(TerrainModel terrain, Plot plot) {
         List<Vector2> polygonPlot = new List<Vector2>();
         List<Vector2> goalPoints2D = new List<Vector2>();
         List<Vector3> goalPoints3D = new List<Vector3>();
@@ -26,31 +26,39 @@ public class PathGenerator : MonoBehaviour {
         }
         if (plotArea.GetArea() > 20)
             numberOfPoints = 4;
-
-        goalPoints2D.Add(plotArea.points[Random.Range(0, plotArea.points.Count - 1)]);
-        goalPoints3D.Add(terrain.GetPosition(goalPoints2D[0]));
-
+        Vector2 cornerPoint = plotArea.points[Random.Range(0, plotArea.points.Count)];
+        goalPoints2D.Add(cornerPoint);
+        goalPoints3D.Add(terrain.GetMeshIntersection(goalPoints2D[0].x, goalPoints2D[0].y).point);
         for (int i = 0; i < numberOfPoints; i++) {
             Vector2 pointToAdd = getRandomPoint(plotArea, goalPoints2D);
             goalPoints2D.Add(pointToAdd);
-            goalPoints3D.Add(terrain.GetPosition(pointToAdd));
+        }
+        goalPoints2D = OrderByDistance(goalPoints2D);
+        foreach (Vector2 v in goalPoints2D) {
+            goalPoints3D.Add(terrain.GetMeshIntersection(v.x, v.y).point);
         }
         prev = goalPoints3D[0];
-        goalPoints3D.Add(prev);
+        bool samePoint = true;
+        Vector2 testPoint = new Vector2();
+        int decider = Random.Range(0, 2);
+        if (decider >= 1)
+            goalPoints3D.Add(prev);
+        else {
+            while (samePoint) {
+                testPoint = plotArea.points[Random.Range(0, plotArea.points.Count)];
+                if (testPoint != cornerPoint)
+                    samePoint = false;
+            }
+            goalPoints3D.Add(terrain.GetMeshIntersection(testPoint.x, testPoint.y).point);
+        }
+
         int pointsToVisit = goalPoints3D.Count;
         Vector3 tryVec = new Vector3();
         ParkPath p = new ParkPath(goalPoints3D);
         int currGoal = 1;
         p.nodes.Add(prev);
-        int maxTries = 10000;
-        int tries = 0;
         int visitedPoints = 1;
         while (visitedPoints < pointsToVisit) {
-            tries += 1;
-            if (tries == maxTries) {
-                break;
-            }
-
             if (stuck > 10) {
                 prev = p.goals[currGoal - 1];
                 p.goals.RemoveAt(currGoal);
@@ -58,12 +66,12 @@ public class PathGenerator : MonoBehaviour {
                 visitedPoints++;
                 stuck = 0;
             }
-
             float newX = prev.x + Random.Range(-0.1f, 0.1f);
             float newZ = prev.z + Random.Range(-0.1f, 0.1f);
-            float newY = terrain.GetPosition(newX, newZ).y;
+            float newY = terrain.GetMeshIntersection(newX, newZ).point.y;
             tryVec = new Vector3(newX, newY, newZ);
-
+            if (visitedPoints >= pointsToVisit)
+                break;
             if (index >= 2) {
                 Vector3 prevprev = p.nodes[index - 2];
                 Vector3 dir = (p.goals[currGoal] - prev).normalized;
@@ -82,9 +90,10 @@ public class PathGenerator : MonoBehaviour {
                     visitedPoints += 1;
                 }
 
-                else if ((tryVec - p.goals[currGoal]).magnitude < (prev - p.goals[currGoal]).magnitude && !p.nodes.Contains(tryVec)) {
+                else if ((tryVec - p.goals[currGoal]).magnitude < (prev - p.goals[currGoal]).magnitude) {
                     p.nodes.Add(tryVec);
                     index += 1;
+                    stuck = 0;
                 }
 
                 else if ((tryVec - p.goals[currGoal]).magnitude > (prev - p.goals[currGoal]).magnitude) {
@@ -93,6 +102,7 @@ public class PathGenerator : MonoBehaviour {
                 }
                 prev = tryVec;
             }
+            stuck += 1;
 
         }
 
@@ -102,6 +112,7 @@ public class PathGenerator : MonoBehaviour {
             for (int i = 0; i < p.nodes.Count; i += 2)
                 mesh.Spline.AddPoint(p.nodes[i]);
 
+            mesh.Spline.AddPoint(p.nodes[p.nodes.Count - 1]);
             mesh.GenerateRoadMesh((float x, float z) => {
                 return terrain.GetMeshIntersection(x, z);
             });
@@ -150,6 +161,29 @@ public class PathGenerator : MonoBehaviour {
         }
         while (!(p.Contains(vec) && isValidDistance(points, vec)));
         return vec;
+    }
+    private List<Vector2> OrderByDistance(List<Vector2> goals) {
+        int index = 0;
+        List<Vector2> result = new List<Vector2>();
+        int toAdd = 0;
+        int numberOfGoals = goals.Count;
+        result.Add(goals[0]);
+        goals.RemoveAt(0);
+        float minDist = int.MaxValue;
+        while (result.Count < numberOfGoals - 1) {
+            for (int i = 0; i < goals.Count; i++) {
+                if ((result[index] - goals[i]).magnitude < minDist) {
+                    toAdd = i;
+                    minDist = (result[index] - goals[i]).magnitude;
+                }
+            }
+            result.Add(goals[toAdd]);
+            goals.RemoveAt(toAdd);
+            minDist = int.MaxValue;
+            index++;
+        }
+        result.Add(goals[0]);
+        return result;
     }
 
 }

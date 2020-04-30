@@ -26,25 +26,31 @@ public class CameraMovement : MonoBehaviour {
 
     private void Update() {
 
+        float speed = moveSpeed;
+        if (Input.GetKey(KeyCode.LeftShift))
+            speed *= 5.0f; // Weeeee!
+        if (Input.GetKey(KeyCode.LeftControl))
+            speed /= 5.0f; // ughhhh...
+
         cappedDeltaTime = Mathf.Min(Time.deltaTime, 0.1f);
 
         if (Input.GetKey("w")) {
-            transform.position += transform.forward * moveSpeed * cappedDeltaTime;
+            transform.position += transform.forward * speed * cappedDeltaTime;
         }
         if (Input.GetKey("a")) {
-            transform.position -= transform.right * moveSpeed * cappedDeltaTime;
+            transform.position -= transform.right * speed * cappedDeltaTime;
         }
         if (Input.GetKey("s")) {
-            transform.position -= transform.forward * moveSpeed * cappedDeltaTime;
+            transform.position -= transform.forward * speed * cappedDeltaTime;
         }
         if (Input.GetKey("d")) {
-            transform.position += transform.right * moveSpeed * cappedDeltaTime;
+            transform.position += transform.right * speed * cappedDeltaTime;
         }
         if (Input.GetKey("q")) {
-            transform.position -= transform.up * moveSpeed * cappedDeltaTime;
+            transform.position -= transform.up * speed * cappedDeltaTime;
         }
         if (Input.GetKey("e") || Input.GetKey(KeyCode.Space)) {
-            transform.position += transform.up * moveSpeed * cappedDeltaTime;
+            transform.position += transform.up * speed * cappedDeltaTime;
         }
 
         // Lock cursor for 3D camera movement

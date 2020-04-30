@@ -13,6 +13,11 @@ public class ParkGenerator : MonoBehaviour {
     private TerrainModel terrain;
 
 
+    public void Reset() {
+        foreach (Transform child in transform)
+            Destroy(child.gameObject);
+    }
+
     // Coordinates calls the Triangulator function in order to divide polygons into triangles
     public void Generate(TerrainModel terrain, Block block, Plot plot) {
         this.terrain = terrain;

@@ -69,6 +69,8 @@ public class WorldGenerator : MonoBehaviour {
     private List<Block> blocks;
     private List<Plot> plots = new List<Plot>();
 
+    private Action buildingsCallback;
+
     public State CurrentState {
         get { return currentState; }
     }
@@ -91,29 +93,53 @@ public class WorldGenerator : MonoBehaviour {
 
     public void Undo() {
         switch (currentState) {
-            case State.Streets:
-                if (this.roadNetworkSnapshot != null) {
-                    this.roadNetwork = this.roadGenerator.Network = this.roadNetworkSnapshot;
-                    this.roadNetworkSnapshot = null;
-                }
-
-                this.blockGenerator.Reset();
-                this.roadMeshGenerator.Generate(this.roadGenerator.Network, terrain);
-
+            case State.Terrain:
+                ResetBuildings();
+                ResetRoads();
+                ResetTerrain();
                 break;
 
             case State.Roads:
-                this.roadNetwork = this.roadGenerator.Network = null;
-                this.roadNetworkSnapshot = null;
+                ResetBuildings();
+                ResetRoads();
+                break;
 
-                this.roadGenerator.Reset();
-                this.roadMeshGenerator.Reset();
+            case State.Streets:
+                ResetBuildings();
+                ResetStreets();
                 break;
 
             case State.Buildings:
-                this.buildingGenerator.Reset();
+                ResetBuildings();
                 break;
         }
+    }
+
+    private void ResetTerrain() {
+        this.terrainGenerator.Reset();
+    }
+
+    private void ResetRoads() {
+        this.roadNetwork = this.roadGenerator.Network = null;
+        this.roadNetworkSnapshot = null;
+
+        this.roadGenerator.Reset();
+        this.roadMeshGenerator.Reset();
+    }
+
+    private void ResetStreets() {
+        if (this.roadNetworkSnapshot != null) {
+            this.roadNetwork = this.roadGenerator.Network = this.roadNetworkSnapshot;
+            this.roadNetworkSnapshot = null;
+        }
+
+        this.blockGenerator.Reset();
+        this.roadMeshGenerator.Generate(this.roadGenerator.Network, terrain, null);
+    }
+
+    private void ResetBuildings() {
+        this.buildingGenerator.Reset();
+        this.parkGenerator.Reset();
     }
 
     public State PreviousState() {
@@ -190,7 +216,9 @@ public class WorldGenerator : MonoBehaviour {
         );
     }
 
-    public void GenerateBuildings() {
+    public void GenerateBuildings(Action callback) {
+        this.buildingsCallback = callback;
+
         this.buildingGenerator.Reset();
         StartCoroutine(GenerateBuildings(this.blocks));
     }
@@ -219,6 +247,9 @@ public class WorldGenerator : MonoBehaviour {
                 }
             }
         }
+
+        if (this.buildingsCallback != null)
+            this.buildingsCallback();
     }
 
     private void GenerateBlocks() {

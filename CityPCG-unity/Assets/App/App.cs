@@ -19,14 +19,22 @@ public class App : MonoBehaviour {
     [SerializeField] private Slider sliderStep = null;
     [SerializeField] private WorldGenerator worldGenerator = null;
     [SerializeField] private GameObject[] menuPanels = null;
+    [SerializeField] private Button btnBack = null;
+    [SerializeField] private Button btnUndo = null;
+    [SerializeField] private Button btnNext = null;
     [SerializeField] private bool debug = false;
 
     [SerializeField] private RoadUIHandler roadUIHandler = null;
 
     private int currentMenuPanel = 0;
-
+    private int reachedMenuPanel = 0;
 
     public void Next() {
+        bool reachedFurther = currentMenuPanel + 1 < reachedMenuPanel;
+        btnUndo.interactable = reachedFurther;
+        btnNext.interactable = reachedFurther && currentMenuPanel + 1 < menuPanels.Length - 1;
+        btnBack.interactable = true;
+
         WorldGenerator.State prevState = worldGenerator.CurrentState;
         WorldGenerator.State nextState = worldGenerator.NextState();
         NextMenu();
@@ -35,11 +43,23 @@ public class App : MonoBehaviour {
     }
 
     public void Undo() {
-        WorldGenerator.State prevState = worldGenerator.CurrentState;
+        btnUndo.interactable = false;
+        btnNext.interactable = false;
 
         worldGenerator.Undo();
+        reachedMenuPanel = currentMenuPanel;
+    }
+
+    public void Prev() {
+        WorldGenerator.State prevState = worldGenerator.CurrentState;
         WorldGenerator.State nextState = worldGenerator.PreviousState();
         PrevMenu();
+
+        if (currentMenuPanel == 0)
+            btnBack.interactable = false;
+
+        btnUndo.interactable = true;
+        btnNext.interactable = true;
 
         if (nextState != prevState) OnStateChanged(nextState, prevState, true);
     }
@@ -48,25 +68,40 @@ public class App : MonoBehaviour {
 
     public void GenerateTerrain() {
         Log("Generating terrain...");
+        SetBusy(true);
         worldGenerator.GenerateTerrain();
+        reachedMenuPanel = 1;
+        SetBusy(false);
         Log("Terrain generated.");
     }
 
     public void GenerateRoads() {
         Log("Generating roads...");
-        worldGenerator.GenerateRoads(this.roadUIHandler.CityInputs);
+        SetBusy(true);
+        worldGenerator.GenerateRoads(this.roadUIHandler.CityInputs, (RoadNetwork network) => {
+            reachedMenuPanel = 2;
+            SetBusy(false);
+        });
         Log("Roads generated.");
     }
 
     public void GenerateStreets() {
         Log("Generating streets...");
-        worldGenerator.GenerateStreets();
+        SetBusy(true);
+        worldGenerator.GenerateStreets((RoadNetwork network) => {
+            reachedMenuPanel = 3;
+            SetBusy(false);
+        });
         Log("Streets generated.");
     }
 
     public void GenerateBuildings() {
         Log("Generating buildings...");
-        worldGenerator.GenerateBuildings();
+        SetBusy(true);
+        worldGenerator.GenerateBuildings(() => {
+            reachedMenuPanel = 4;
+            SetBusy(false);
+        });
         Log("Buildings generated.");
     }
 
@@ -98,11 +133,27 @@ public class App : MonoBehaviour {
     public void ModifyTerrainOffsetX(float v) {
         worldGenerator.SetOffsetSpeedX(v);
     }
+
     public void ModifyTerrainOffsetZ(float v) {
         worldGenerator.SetOffsetSpeedZ(v);
     }
+
     public void ModifyTerrainSea(float a) {
         worldGenerator.ModifyTerrainSea(a);
+    }
+
+    private void SetBusy(bool isBusy) {
+        var selectables = GetComponentsInChildren<Selectable>();
+        foreach (var s in selectables)
+            s.interactable = !isBusy;
+
+        // There is no "back" at the first panel.
+        if (currentMenuPanel == 0)
+            btnBack.interactable = false;
+
+        // There is no "next" at the last panel.
+        if (currentMenuPanel == menuPanels.Length - 1)
+            btnNext.interactable = false;
     }
 
     private void OnStateChanged(WorldGenerator.State currentState, WorldGenerator.State prevState, bool previous = false) {

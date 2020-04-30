@@ -64,6 +64,10 @@ public class TerrainGenerator : MonoBehaviour {
         return terrainModel;
     }
 
+    public void Reset() {
+        this.mesh.Clear();
+    }
+
     public float SetSeaLevel(float sl) {
         seaLevel = sl * maxHeight;
         return seaLevel;

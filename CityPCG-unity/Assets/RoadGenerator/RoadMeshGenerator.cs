@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -35,6 +36,7 @@ public class RoadMeshGenerator : MonoBehaviour {
 
     private TerrainModel terrainModel;
     private ProjectOnTerrain projectOnTerrain;
+    private Action<List<RoadMesh>> callback;
 
     public void Reset() {
         // Remove previously generated meshes
@@ -51,11 +53,12 @@ public class RoadMeshGenerator : MonoBehaviour {
         }
     }
 
-    public void Generate(RoadNetwork network, TerrainModel terrainModel) {
+    public void Generate(RoadNetwork network, TerrainModel terrainModel, Action<List<RoadMesh>> callback) {
         if (network == null) {
             Debug.LogWarning("Failed to generate road meshes! Given network does not exist.");
             return;
         }
+        this.callback = callback;
         this.network = network;
         this.terrainModel = terrainModel;
 
@@ -180,15 +183,18 @@ public class RoadMeshGenerator : MonoBehaviour {
             }
         }
 
-        foreach (RoadMesh road in this.placedRoads) {
+        if (!debug) {
             // In the application we don't want each road to keep its scripts.
-            if (!debug) {
+            foreach (RoadMesh road in this.placedRoads) {
                 Destroy(road);
                 Destroy(road.GetComponent<BezierSpline>());
             }
         }
 
         isTraversing = false;
+
+        if (this.callback != null)
+            this.callback(placedRoads);
     }
 
 

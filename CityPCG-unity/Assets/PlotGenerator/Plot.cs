@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using Utils;
 
@@ -16,7 +17,10 @@ public class Plot {
     public PlotType type;
 
     public Plot(List<Vector3> vertices, PlotType type) {
-        this.vertices = vertices;
+        var sanitizedVertices = vertices.Distinct().ToList(); // Remove evil duplicate vertices
+        sanitizedVertices.Add(vertices[0]); // Re-add first vertex to form loop
+
+        this.vertices = sanitizedVertices;
         this.type = type;
     }
 

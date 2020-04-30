@@ -19,9 +19,9 @@ public class ParkGenerator : MonoBehaviour {
     }
 
     // Coordinates calls the Triangulator function in order to divide polygons into triangles
-    public void Generate(TerrainModel terrain, Block block, Plot plot) {
+    public void Generate(TerrainModel terrain, Plot plot) {
         this.terrain = terrain;
-        GeneratePaths(terrain, block, plot);
+        GeneratePaths(terrain, plot);
         Vector3[] area = plot.vertices.ToArray();
         int objectsToPlace = Mathf.RoundToInt(PolygonUtil.PolygonArea(plot.vertices) * objectFrequency);
         Triangulator triangulator = new Triangulator(area);
@@ -89,7 +89,7 @@ public class ParkGenerator : MonoBehaviour {
             }
         }
         Collider[] pathCollisions = Physics.OverlapSphere(obj.transform.position, pathRadius);
-        if (pathCollisions.Length > 0)
+        if (pathCollisions.Length > 1)
             Destroy(obj);
 
 
@@ -113,11 +113,11 @@ public class ParkGenerator : MonoBehaviour {
         return result;
     }
 
-    public void GeneratePaths(TerrainModel terrain, Block block, Plot plot) {
+    public void GeneratePaths(TerrainModel terrain, Plot plot) {
         GameObject path = new GameObject("Path Generator");
         path.transform.parent = this.transform;
         var pg = path.AddComponent<PathGenerator>();
         pg.road = road;
-        pg.GeneratePlotPath(terrain, block, plot);
+        pg.GeneratePlotPath(terrain, plot);
     }
 }

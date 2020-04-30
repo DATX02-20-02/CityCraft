@@ -235,7 +235,7 @@ public class WorldGenerator : MonoBehaviour {
                     buildingGenerator.Generate(plot, this.terrain, this.populationNoise);
                 }
                 else if (plot.type == PlotType.Park) {
-                    parkGenerator.Generate(terrain, block, plot);
+                    parkGenerator.Generate(terrain, plot);
                 }
 
                 plotCounter++;

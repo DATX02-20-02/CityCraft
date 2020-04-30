@@ -8,6 +8,7 @@ using UnityEngine.UI;
 class RoadUIHandler : MonoBehaviour {
     [Header("UI Elements")]
     [SerializeField] private Dropdown cityTypeDropdown = null;
+    [SerializeField] private Button generateButton = null;
 
     [Header("Instantiate prefabs")]
     [SerializeField] private GameObject ghostObject = null;
@@ -81,6 +82,8 @@ class RoadUIHandler : MonoBehaviour {
     }
 
     public void Update() {
+        generateButton.interactable = cityInputs.Count > 0;
+
         if (ghostObject != null && ghostObjectInstance == null) {
             ghostObjectInstance = Instantiate(ghostObject, ghostParent.transform);
         }

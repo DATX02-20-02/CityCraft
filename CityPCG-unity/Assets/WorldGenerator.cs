@@ -94,33 +94,52 @@ public class WorldGenerator : MonoBehaviour {
     public void Undo() {
         switch (currentState) {
             case State.Terrain:
-                this.terrainGenerator.Reset();
+                ResetBuildings();
+                ResetRoads();
+                ResetTerrain();
                 break;
 
             case State.Roads:
-                this.roadNetwork = this.roadGenerator.Network = null;
-                this.roadNetworkSnapshot = null;
-
-                this.roadGenerator.Reset();
-                this.roadMeshGenerator.Reset();
+                ResetBuildings();
+                ResetRoads();
                 break;
 
             case State.Streets:
-                if (this.roadNetworkSnapshot != null) {
-                    this.roadNetwork = this.roadGenerator.Network = this.roadNetworkSnapshot;
-                    this.roadNetworkSnapshot = null;
-                }
-
-                this.blockGenerator.Reset();
-                this.roadMeshGenerator.Generate(this.roadGenerator.Network, terrain, null);
-
+                ResetBuildings();
+                ResetStreets();
                 break;
 
             case State.Buildings:
-                this.buildingGenerator.Reset();
-                this.parkGenerator.Reset();
+                ResetBuildings();
                 break;
         }
+    }
+
+    private void ResetTerrain() {
+        this.terrainGenerator.Reset();
+    }
+
+    private void ResetRoads() {
+        this.roadNetwork = this.roadGenerator.Network = null;
+        this.roadNetworkSnapshot = null;
+
+        this.roadGenerator.Reset();
+        this.roadMeshGenerator.Reset();
+    }
+
+    private void ResetStreets() {
+        if (this.roadNetworkSnapshot != null) {
+            this.roadNetwork = this.roadGenerator.Network = this.roadNetworkSnapshot;
+            this.roadNetworkSnapshot = null;
+        }
+
+        this.blockGenerator.Reset();
+        this.roadMeshGenerator.Generate(this.roadGenerator.Network, terrain, null);
+    }
+
+    private void ResetBuildings() {
+        this.buildingGenerator.Reset();
+        this.parkGenerator.Reset();
     }
 
     public State PreviousState() {

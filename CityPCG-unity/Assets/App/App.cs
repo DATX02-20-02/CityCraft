@@ -27,14 +27,16 @@ public class App : MonoBehaviour {
     [SerializeField] private RoadUIHandler roadUIHandler = null;
 
     private int currentMenuPanel = 0;
+    private int reachedMenuPanel = 0;
 
     public void Next() {
-        btnNext.interactable = false;
+        bool reachedFurther = currentMenuPanel+1 < reachedMenuPanel;
+        btnUndo.interactable = reachedFurther;
+        btnNext.interactable = reachedFurther && currentMenuPanel+1 < menuPanels.Length-1;
         btnBack.interactable = true;
 
         WorldGenerator.State prevState = worldGenerator.CurrentState;
         WorldGenerator.State nextState = worldGenerator.NextState();
-
         NextMenu();
 
         if (nextState != prevState) OnStateChanged(nextState, prevState);
@@ -42,16 +44,14 @@ public class App : MonoBehaviour {
 
     public void Undo() {
         btnUndo.interactable = false;
-        if (currentMenuPanel == 0)
-            btnNext.interactable = false;
+        btnNext.interactable = false;
 
         worldGenerator.Undo();
+        reachedMenuPanel = currentMenuPanel;
     }
 
     public void Prev() {
         WorldGenerator.State prevState = worldGenerator.CurrentState;
-
-        worldGenerator.Undo();
         WorldGenerator.State nextState = worldGenerator.PreviousState();
         PrevMenu();
 
@@ -70,6 +70,7 @@ public class App : MonoBehaviour {
         Log("Generating terrain...");
         SetBusy(true);
         worldGenerator.GenerateTerrain();
+        reachedMenuPanel = 1;
         SetBusy(false);
         Log("Terrain generated.");
     }
@@ -78,6 +79,7 @@ public class App : MonoBehaviour {
         Log("Generating roads...");
         SetBusy(true);
         worldGenerator.GenerateRoads(this.roadUIHandler.CityInputs, (RoadNetwork network) => {
+            reachedMenuPanel = 2;
             SetBusy(false);
         });
         Log("Roads generated.");
@@ -87,6 +89,7 @@ public class App : MonoBehaviour {
         Log("Generating streets...");
         SetBusy(true);
         worldGenerator.GenerateStreets((RoadNetwork network) => {
+            reachedMenuPanel = 3;
             SetBusy(false);
         });
         Log("Streets generated.");
@@ -96,6 +99,7 @@ public class App : MonoBehaviour {
         Log("Generating buildings...");
         SetBusy(true);
         worldGenerator.GenerateBuildings(() => {
+            reachedMenuPanel = 4;
             SetBusy(false);
         });
         Log("Buildings generated.");
@@ -143,6 +147,7 @@ public class App : MonoBehaviour {
         foreach (var s in selectables)
             s.interactable = !isBusy;
 
+        // There is no "back" at the first panel.
         if (currentMenuPanel == 0)
             btnBack.interactable = false;
 

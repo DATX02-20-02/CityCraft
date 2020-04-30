@@ -43,7 +43,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3be9453b46e63b3dbabb473d26677ca5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectFrequency: 0.507
+  objectFrequency: 0.55
   trees:
   - {fileID: 114418, guid: be878d9ea17907f4a8068678a5ce7908, type: 3}
   - {fileID: 114418, guid: 8b2d47fdc2e25ac4f9721480a68bbefa, type: 3}

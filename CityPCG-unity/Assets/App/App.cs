@@ -30,9 +30,9 @@ public class App : MonoBehaviour {
     private int reachedMenuPanel = 0;
 
     public void Next() {
-        bool reachedFurther = currentMenuPanel+1 < reachedMenuPanel;
+        bool reachedFurther = currentMenuPanel + 1 < reachedMenuPanel;
         btnUndo.interactable = reachedFurther;
-        btnNext.interactable = reachedFurther && currentMenuPanel+1 < menuPanels.Length-1;
+        btnNext.interactable = reachedFurther && currentMenuPanel + 1 < menuPanels.Length - 1;
         btnBack.interactable = true;
 
         WorldGenerator.State prevState = worldGenerator.CurrentState;

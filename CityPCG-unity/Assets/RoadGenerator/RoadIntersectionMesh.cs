@@ -103,6 +103,15 @@ public class RoadIntersectionMesh : MonoBehaviour {
             MeshFilter cornerMesh = go.AddComponent<MeshFilter>();
             cornerMesh.sharedMesh = cornerMeshes[i];
         }
+
+        LODGroup lodGroup = GetComponent<LODGroup>();
+
+        lodGroup.SetLODs(
+            new LOD[] {
+                new LOD(0.02f, GetComponentsInChildren<Renderer>())
+            }
+        );
+        lodGroup.RecalculateBounds();
     }
 
     private bool IsStart(RoadMesh r) {

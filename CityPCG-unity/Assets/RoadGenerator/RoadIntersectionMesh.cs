@@ -19,6 +19,8 @@ public class RoadIntersectionMesh : MonoBehaviour {
     [SerializeField] private bool debugView = false;
 
     [Header("Generate Mesh For")]
+    [Range(0.0f, 0.1f)]
+    [SerializeField] private float lodTransitionWidth = 0.02f;
     [SerializeField] private MeshFilter intersectionMesh = null;
     [SerializeField] private GameObject cornersParent = null;
 
@@ -108,7 +110,7 @@ public class RoadIntersectionMesh : MonoBehaviour {
 
         lodGroup.SetLODs(
             new LOD[] {
-                new LOD(0.02f, GetComponentsInChildren<Renderer>())
+                new LOD(lodTransitionWidth, GetComponentsInChildren<Renderer>())
             }
         );
         lodGroup.RecalculateBounds();

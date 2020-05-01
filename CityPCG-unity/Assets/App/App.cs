@@ -14,17 +14,25 @@ using UnityEngine.UI;
 */
 public class App : MonoBehaviour {
 
-    [SerializeField] private Slider sliderX = null;
-    [SerializeField] private Slider sliderZ = null;
-    [SerializeField] private Slider sliderStep = null;
+    [Header("General")]
     [SerializeField] private WorldGenerator worldGenerator = null;
     [SerializeField] private GameObject[] menuPanels = null;
+    [SerializeField] private Slider sliderStep = null;
     [SerializeField] private Button btnBack = null;
     [SerializeField] private Button btnUndo = null;
     [SerializeField] private Button btnNext = null;
     [SerializeField] private bool debug = false;
 
     [SerializeField] private RoadUIHandler roadUIHandler = null;
+
+    [Header("Terrain Settings")]
+    [SerializeField] private Slider sliderSeaLevel = null;
+    [SerializeField] private Slider sliderX = null;
+    [SerializeField] private Slider sliderZ = null;
+    [SerializeField] private Slider sliderWidth = null;
+    [SerializeField] private Slider sliderDepth = null;
+
+    private Vector2 terrainOffset;
 
     private int currentMenuPanel = 0;
     private int reachedMenuPanel = 0;
@@ -69,7 +77,7 @@ public class App : MonoBehaviour {
     public void GenerateTerrain() {
         Log("Generating terrain...");
         SetBusy(true);
-        worldGenerator.GenerateTerrain();
+        worldGenerator.GenerateTerrain(terrainOffset, (int)sliderWidth.value, (int)sliderDepth.value, true);
         reachedMenuPanel = 1;
         SetBusy(false);
         Log("Terrain generated.");
@@ -106,40 +114,50 @@ public class App : MonoBehaviour {
     }
 
     public void ExportModelToGLTF() {
-        // Choose folder dialog
-        var path = StandaloneFileBrowser.OpenFolderPanel("Choose Export Destination Folder", "", false)[0];
+        try {
+            // Choose folder dialog
+            var path = StandaloneFileBrowser.OpenFolderPanel("Choose Export Destination Folder", "", false)[0];
 
-        // Export
-        var exporter = new GLTFSceneExporter(new[] { worldGenerator.transform }, (t) => t.name);
-        exporter.SaveGLTFandBin(path, "World");
-        Log("Model exported to: " + path);
+            // Export
+            var exporter = new GLTFSceneExporter(new[] { worldGenerator.transform }, (t) => t.name);
+            exporter.SaveGLTFandBin(path, "World");
+            Log("Model exported to: " + path);
+        }
+        catch {
+            Debug.LogError("Export failed for some reason.");
+            return;
+        }
     }
 
     public void ExportModelToGLB() {
-        // Choose folder dialog
-        var path = StandaloneFileBrowser.OpenFolderPanel("Choose Export Destination Folder", "", false)[0];
+        try {
+            // Choose folder dialog
+            var path = StandaloneFileBrowser.OpenFolderPanel("Choose Export Destination Folder", "", false)[0];
 
-        // Export
-        var exporter = new GLTFSceneExporter(new[] { worldGenerator.transform }, (t) => t.name);
-        exporter.SaveGLB(path, "World");
-        Log("Model exported to: " + path);
+            // Export
+            var exporter = new GLTFSceneExporter(new[] { worldGenerator.transform }, (t) => t.name);
+            exporter.SaveGLB(path, "World");
+            Log("Model exported to: " + path);
+        }
+        catch {
+            Debug.LogError("Export failed for some reason.");
+            return;
+        }
     }
 
     public void EndDragOffset() {
-        sliderX.value = 0;
-        sliderZ.value = 0;
-    }
-
-    public void ModifyTerrainOffsetX(float v) {
-        worldGenerator.SetOffsetSpeedX(v);
-    }
-
-    public void ModifyTerrainOffsetZ(float v) {
-        worldGenerator.SetOffsetSpeedZ(v);
+        this.terrainOffset = new Vector2(sliderX.value, sliderZ.value);
+        if (reachedMenuPanel > 0)
+            worldGenerator.GenerateTerrain(terrainOffset, (int)sliderWidth.value, (int)sliderDepth.value);
     }
 
     public void ModifyTerrainSea(float a) {
         worldGenerator.ModifyTerrainSea(a);
+    }
+
+    public void ModifyTerrainSize() {
+        if (reachedMenuPanel > 0)
+            worldGenerator.GenerateTerrain(terrainOffset, (int)sliderWidth.value, (int)sliderDepth.value);
     }
 
     private void SetBusy(bool isBusy) {
@@ -189,6 +207,8 @@ public class App : MonoBehaviour {
     private void Start() {
         if (roadUIHandler == null)
             throw new Exception("No road UI handler is connected!");
+
+        ModifyTerrainSea(sliderSeaLevel.value);
 
         roadUIHandler.enabled = false;
     }

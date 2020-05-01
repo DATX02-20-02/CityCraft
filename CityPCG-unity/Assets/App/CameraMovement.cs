@@ -32,7 +32,7 @@ public class CameraMovement : MonoBehaviour {
         if (Input.GetKey(KeyCode.LeftControl))
             speed /= 5.0f; // ughhhh...
 
-        cappedDeltaTime = Mathf.Min(Time.deltaTime, 0.1f);
+        cappedDeltaTime = Mathf.Max(Time.deltaTime, 0.1f);
 
         if (Input.GetKey("w")) {
             transform.position += transform.forward * speed * cappedDeltaTime;

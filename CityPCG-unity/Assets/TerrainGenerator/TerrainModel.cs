@@ -29,7 +29,7 @@ public struct TerrainModel {
     }
 
     public float GetHeight(float x, float z) {
-        return maxHeight * noise.GetValue(x / width, z / depth);
+        return maxHeight * noise.GetValue(x / 1000, z / 1000);
     }
 
     public Vector3 GetPosition(float x, float y) {

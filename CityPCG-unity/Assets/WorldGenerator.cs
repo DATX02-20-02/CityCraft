@@ -63,9 +63,7 @@ public class WorldGenerator : MonoBehaviour {
     private RoadNetwork roadNetwork;
     private RoadNetwork roadNetworkSnapshot;
     private TerrainModel terrain;
-    private float offsetSpeedX = 0;
-    private float offsetSpeedZ = 0;
-    private bool terrainGenerated = false;
+    private Vector2 terrainBaseOffset;
     private List<Block> blocks;
     private List<Plot> plots = new List<Plot>();
 
@@ -157,16 +155,16 @@ public class WorldGenerator : MonoBehaviour {
     private void OnStateChanged(State prevState, bool previous = false) {
     }
 
-    public void GenerateTerrain() {
-        terrainGenerated = true;
-        terrain = terrainGenerator.GenerateTerrain();
-    }
+    public void GenerateTerrain(Vector2 localOffset, int width, int depth, bool newBaseOffset = false) {
+        this.terrainGenerator.SetWidth(width);
+        this.terrainGenerator.SetDepth(depth);
 
-    public void SetOffsetSpeedX(float x) {
-        if (terrainGenerated) offsetSpeedX = x;
-    }
-    public void SetOffsetSpeedZ(float z) {
-        if (terrainGenerated) offsetSpeedZ = z * (-1);
+        if (newBaseOffset)
+            this.terrainBaseOffset = new Vector2(
+                                                 UnityEngine.Random.Range(-10000f, 10000f),
+                                                 UnityEngine.Random.Range(-10000f, 10000f)
+                                                 );
+        terrain = terrainGenerator.GenerateTerrain(this.terrainBaseOffset + localOffset);
     }
 
     public void ModifyTerrainSea(float sl) {
@@ -272,12 +270,8 @@ public class WorldGenerator : MonoBehaviour {
         if (debug) {
             UnityEngine.Random.InitState(debugSeed);
         }
-    }
-
-    private void Start() {
         InstantiateGenerators();
     }
-
 
     // Just for debug purposes so I don't have to step through
     // generation every single time
@@ -313,12 +307,6 @@ public class WorldGenerator : MonoBehaviour {
             foreach (Plot plot in this.plots) {
                 plotGenerator.DrawPlot(plot);
             }
-        }
-
-        if (offsetSpeedX != 0 || offsetSpeedZ != 0) {
-            Vector2 speedamp = new Vector2(offsetSpeedX * Time.deltaTime, offsetSpeedZ * Time.deltaTime);
-            Vector2 speed = terrainGenerator.NoiseOffset + speedamp;
-            terrain = terrainGenerator.GenerateTerrain(speed);
         }
     }
 }

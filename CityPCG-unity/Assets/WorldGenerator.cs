@@ -270,12 +270,8 @@ public class WorldGenerator : MonoBehaviour {
         if (debug) {
             UnityEngine.Random.InitState(debugSeed);
         }
-    }
-
-    private void Start() {
         InstantiateGenerators();
     }
-
 
     // Just for debug purposes so I don't have to step through
     // generation every single time

@@ -17,6 +17,7 @@ public class App : MonoBehaviour {
     [Header("General")]
     [SerializeField] private WorldGenerator worldGenerator = null;
     [SerializeField] private GameObject[] menuPanels = null;
+    [SerializeField] private Slider sliderStep = null;
     [SerializeField] private Button btnBack = null;
     [SerializeField] private Button btnUndo = null;
     [SerializeField] private Button btnNext = null;
@@ -25,9 +26,9 @@ public class App : MonoBehaviour {
     [SerializeField] private RoadUIHandler roadUIHandler = null;
 
     [Header("Terrain Settings")]
+    [SerializeField] private Slider sliderSeaLevel = null;
     [SerializeField] private Slider sliderX = null;
     [SerializeField] private Slider sliderZ = null;
-    [SerializeField] private Slider sliderStep = null;
     [SerializeField] private Slider sliderWidth = null;
     [SerializeField] private Slider sliderDepth = null;
 
@@ -206,6 +207,8 @@ public class App : MonoBehaviour {
     private void Start() {
         if (roadUIHandler == null)
             throw new Exception("No road UI handler is connected!");
+
+        ModifyTerrainSea(sliderSeaLevel.value);
 
         roadUIHandler.enabled = false;
     }

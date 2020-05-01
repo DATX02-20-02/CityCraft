@@ -704,6 +704,11 @@ PrefabInstance:
       propertyPath: worldGenerator
       value: 
       objectReference: {fileID: 9354996}
+    - target: {fileID: 69592967819174802, guid: e68ae49e932553a0d9bebe34e1e15001,
+        type: 3}
+      propertyPath: sliderSeaLevel
+      value: 
+      objectReference: {fileID: 69592967819174800}
     - target: {fileID: 105518849297190562, guid: e68ae49e932553a0d9bebe34e1e15001,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -814,6 +819,11 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3461295257700454981, guid: e68ae49e932553a0d9bebe34e1e15001,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3687041034174961753, guid: e68ae49e932553a0d9bebe34e1e15001,
         type: 3}
       propertyPath: m_SizeDelta.x
@@ -834,6 +844,16 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6054605572633443259, guid: e68ae49e932553a0d9bebe34e1e15001,
+        type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6054605572633443259, guid: e68ae49e932553a0d9bebe34e1e15001,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7139457230016161417, guid: e68ae49e932553a0d9bebe34e1e15001,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -844,5 +864,22 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7861406797117357397, guid: e68ae49e932553a0d9bebe34e1e15001,
+        type: 3}
+      propertyPath: m_Value
+      value: 0.35
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e68ae49e932553a0d9bebe34e1e15001, type: 3}
+--- !u!114 &69592967819174800 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7861406797117357397, guid: e68ae49e932553a0d9bebe34e1e15001,
+    type: 3}
+  m_PrefabInstance: {fileID: 69592967819174799}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

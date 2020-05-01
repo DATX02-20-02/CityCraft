@@ -159,10 +159,10 @@ MonoBehaviour:
   m_FillRect: {fileID: 1673761374}
   m_HandleRect: {fileID: 1841206743}
   m_Direction: 0
-  m_MinValue: -1
-  m_MaxValue: 1
+  m_MinValue: 500
+  m_MaxValue: 1500
   m_WholeNumbers: 0
-  m_Value: 0
+  m_Value: 1000
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -229,7 +229,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 10}
-  m_SizeDelta: {x: 50, y: 20}
+  m_SizeDelta: {x: 80, y: 20}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!222 &120308232
 CanvasRenderer:
@@ -264,7 +264,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 1
     m_MaxSize: 40
-    m_Alignment: 4
+    m_Alignment: 5
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -624,7 +624,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 10}
-  m_SizeDelta: {x: 50, y: 20}
+  m_SizeDelta: {x: 80, y: 20}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &811564182
 CanvasRenderer:
@@ -659,7 +659,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 1
     m_MaxSize: 40
-    m_Alignment: 4
+    m_Alignment: 3
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -737,7 +737,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 10}
-  m_SizeDelta: {x: 50, y: 20}
+  m_SizeDelta: {x: 80, y: 20}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!222 &1052484018
 CanvasRenderer:
@@ -772,7 +772,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 1
     m_MaxSize: 40
-    m_Alignment: 4
+    m_Alignment: 5
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -942,7 +942,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -210, y: -10}
+  m_AnchoredPosition: {x: -210, y: -5}
   m_SizeDelta: {x: 80, y: 46}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1235550273
@@ -1591,7 +1591,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 10}
-  m_SizeDelta: {x: 50, y: 20}
+  m_SizeDelta: {x: 80, y: 20}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &1960916609
 CanvasRenderer:
@@ -1626,7 +1626,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 1
     m_MaxSize: 40
-    m_Alignment: 4
+    m_Alignment: 3
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -1719,10 +1719,10 @@ MonoBehaviour:
   m_FillRect: {fileID: 54220019}
   m_HandleRect: {fileID: 1603904194}
   m_Direction: 0
-  m_MinValue: -1
-  m_MaxValue: 1
+  m_MinValue: 500
+  m_MaxValue: 1500
   m_WholeNumbers: 0
-  m_Value: 0
+  m_Value: 1000
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1788,7 +1788,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -210, y: -10}
+  m_AnchoredPosition: {x: -210, y: -5}
   m_SizeDelta: {x: 80, y: 46}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2060313335
@@ -1981,14 +1981,15 @@ MonoBehaviour:
   - {fileID: 204310510622217831}
   - {fileID: 7935792697671729975}
   - {fileID: 2708884250429030109}
+  sliderStep: {fileID: 7847168608135384800}
   btnBack: {fileID: 5924701912549578374}
   btnUndo: {fileID: 1068973266}
   btnNext: {fileID: 1878692205765842604}
   debug: 0
   roadUIHandler: {fileID: 9033266197664220702}
+  sliderSeaLevel: {fileID: 7861406797117357397}
   sliderX: {fileID: 2628772144936170299}
   sliderZ: {fileID: 4690588422780115106}
-  sliderStep: {fileID: 7847168608135384800}
   sliderWidth: {fileID: 90179733}
   sliderDepth: {fileID: 2054400107}
 --- !u!1 &204310510622217831
@@ -3413,7 +3414,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0
+  m_Value: 0.385
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:

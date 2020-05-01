@@ -346,9 +346,20 @@ public class BlockGenerator : MonoBehaviour {
                     if (area <= minBlockArea)
                         this.insetBlocks.Add(new Block(newBlock.vertices, BlockType.Empty));
                     else if (area >= minParkArea)
-                        this.insetBlocks.Add(new Block(newBlock.vertices, BlockType.Park));
-                    else
-                        this.insetBlocks.Add(new Block(newBlock.vertices, BlockType.Building));
+                        this.insetBlocks.Add(new Block(newBlock.vertices, BlockType.Parks));
+                    else {
+                        float rng = UnityEngine.Random.value;
+                        BlockType t = BlockType.Skyscrapers;
+                        if (rng < 0.2f)
+                            t = BlockType.Apartments;
+                        else if (rng < 0.4f)
+                            t = BlockType.Downtown;
+                        else if (rng < 0.6f)
+                            t = BlockType.Suburbs;
+                        else if (rng < 0.8f)
+                            t = BlockType.Industrial;
+                        this.insetBlocks.Add(new Block(newBlock.vertices, t));
+                    }
                 }
             }
         }
@@ -376,17 +387,29 @@ public class BlockGenerator : MonoBehaviour {
             Debug.DrawLine(p1, p2, new Color(1, 0, 1));
         }
 
+        Color c = Color.black;
+        Debug.Log(block.type);
         switch (block.type) {
-            case BlockType.Empty:
-                DrawUtil.DebugDrawCircle(avg, 0.1f, Color.green, 3);
+            case BlockType.Industrial:
+                c = Color.white;
                 break;
-            case BlockType.Park:
-                DrawUtil.DebugDrawCircle(avg, 0.1f, Color.yellow, 4);
+            case BlockType.Suburbs:
+                c = Color.blue;
                 break;
-            case BlockType.Building:
-                DrawUtil.DebugDrawCircle(avg, 0.1f, Color.blue, 5);
+            case BlockType.Downtown:
+                c = Color.magenta;
+                break;
+            case BlockType.Skyscrapers:
+                c = Color.cyan;
+                break;
+            case BlockType.Apartments:
+                c = Color.yellow;
+                break;
+            case BlockType.Parks:
+                c = Color.red;
                 break;
         }
+        DrawUtil.DebugDrawCircle(avg, 0.1f, c, 4);
     }
 
     private void Update() {

@@ -62,4 +62,4 @@ MonoBehaviour:
   buildIntervalSize: 200
   buildIntervalDelay: 0
   debug: 0
-  debugSeed: 0
+  debugSeed: 123

@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum BlockType {
-    Building,
-    Parking,
-    Park,
+    Industrial,
+    Suburbs,
+    Downtown,
+    Skyscrapers,
+    Apartments,
+    Parks,
     Empty
 }
 

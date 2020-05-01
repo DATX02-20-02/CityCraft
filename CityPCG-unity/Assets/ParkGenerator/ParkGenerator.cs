@@ -45,19 +45,19 @@ public class ParkGenerator : MonoBehaviour {
         float random = Random.Range(0f, 10f);
         float scale = 1;
         if (random >= 5f) {
-            scale = Random.Range(0.02f, 0.04f);
+            scale = Random.Range(0.03f, 0.04f);
             GameObject tree = trees[(int)Random.Range(0, trees.Length) % trees.Length];
             tree.layer = LayerMask.NameToLayer("Tree");
             InitMesh(tree, pos, scale);
         }
         else {
             if (Random.Range(0, 1.0f) < 0.2f) {
-                scale = Random.Range(0.0004f, 0.0008f);
+                scale = Random.Range(0.002f, 0.004f);
                 rock.layer = LayerMask.NameToLayer("Misc");
                 InitMesh(rock, pos, scale, UnityEngine.Random.rotation);
             }
             else {
-                scale = Random.Range(0.01f, 0.02f);
+                scale = Random.Range(0.04f, 0.06f);
                 GameObject bush = bushes[(int)Random.Range(0, bushes.Length) % bushes.Length];
                 bush.layer = LayerMask.NameToLayer("Misc");
                 InitMesh(bush, pos, scale);
@@ -76,13 +76,13 @@ public class ParkGenerator : MonoBehaviour {
         float treeRadius = 0.06f;
         float miscRadius = 0.001f;
         float pathRadius = 0.02f;
-        if (obj.layer == 8) {
+        if (obj.layer == 9) {
             Collider[] miscCollisions = Physics.OverlapSphere(obj.transform.position, miscRadius, 1 << obj.layer);
             if (miscCollisions.Length > 1) {
                 Destroy(obj);
             }
         }
-        if (obj.layer == 9) {
+        if (obj.layer == 8) {
             Collider[] treeCollisions = Physics.OverlapSphere(obj.transform.position, treeRadius, 1 << obj.layer);
             if (treeCollisions.Length > 1) {
                 Destroy(obj);

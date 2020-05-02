@@ -43,7 +43,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfc52229aec5a401c9bfc71de47d33c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inset: 0.15
+  inset: 0.25
   scale: 100000
   debugPolygon:
   - {x: 0, y: 0}

@@ -13,10 +13,15 @@ public class ParkGenerator : MonoBehaviour {
     private TerrainModel terrain;
 
 
+    public void Reset() {
+        foreach (Transform child in transform)
+            Destroy(child.gameObject);
+    }
+
     // Coordinates calls the Triangulator function in order to divide polygons into triangles
-    public void Generate(TerrainModel terrain, Block block, Plot plot) {
+    public void Generate(TerrainModel terrain, Plot plot) {
         this.terrain = terrain;
-        GeneratePaths(terrain, block, plot);
+        GeneratePaths(terrain, plot);
         Vector3[] area = plot.vertices.ToArray();
         int objectsToPlace = Mathf.RoundToInt(PolygonUtil.PolygonArea(plot.vertices) * objectFrequency);
         Triangulator triangulator = new Triangulator(area);
@@ -40,19 +45,19 @@ public class ParkGenerator : MonoBehaviour {
         float random = Random.Range(0f, 10f);
         float scale = 1;
         if (random >= 5f) {
-            scale = Random.Range(0.02f, 0.04f);
+            scale = Random.Range(0.03f, 0.04f);
             GameObject tree = trees[(int)Random.Range(0, trees.Length) % trees.Length];
             tree.layer = LayerMask.NameToLayer("Tree");
             InitMesh(tree, pos, scale);
         }
         else {
             if (Random.Range(0, 1.0f) < 0.2f) {
-                scale = Random.Range(0.0004f, 0.0008f);
+                scale = Random.Range(0.002f, 0.004f);
                 rock.layer = LayerMask.NameToLayer("Misc");
                 InitMesh(rock, pos, scale, UnityEngine.Random.rotation);
             }
             else {
-                scale = Random.Range(0.01f, 0.02f);
+                scale = Random.Range(0.04f, 0.06f);
                 GameObject bush = bushes[(int)Random.Range(0, bushes.Length) % bushes.Length];
                 bush.layer = LayerMask.NameToLayer("Misc");
                 InitMesh(bush, pos, scale);
@@ -71,20 +76,20 @@ public class ParkGenerator : MonoBehaviour {
         float treeRadius = 0.06f;
         float miscRadius = 0.001f;
         float pathRadius = 0.02f;
-        if (obj.layer == 8) {
+        if (obj.layer == 9) {
             Collider[] miscCollisions = Physics.OverlapSphere(obj.transform.position, miscRadius, 1 << obj.layer);
             if (miscCollisions.Length > 1) {
                 Destroy(obj);
             }
         }
-        if (obj.layer == 9) {
+        if (obj.layer == 8) {
             Collider[] treeCollisions = Physics.OverlapSphere(obj.transform.position, treeRadius, 1 << obj.layer);
             if (treeCollisions.Length > 1) {
                 Destroy(obj);
             }
         }
         Collider[] pathCollisions = Physics.OverlapSphere(obj.transform.position, pathRadius);
-        if (pathCollisions.Length > 0)
+        if (pathCollisions.Length > 1)
             Destroy(obj);
 
 
@@ -108,11 +113,11 @@ public class ParkGenerator : MonoBehaviour {
         return result;
     }
 
-    public void GeneratePaths(TerrainModel terrain, Block block, Plot plot) {
+    public void GeneratePaths(TerrainModel terrain, Plot plot) {
         GameObject path = new GameObject("Path Generator");
         path.transform.parent = this.transform;
         var pg = path.AddComponent<PathGenerator>();
         pg.road = road;
-        pg.GeneratePlotPath(terrain, block, plot);
+        pg.GeneratePlotPath(terrain, plot);
     }
 }

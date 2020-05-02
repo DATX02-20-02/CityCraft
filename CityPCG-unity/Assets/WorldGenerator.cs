@@ -63,11 +63,11 @@ public class WorldGenerator : MonoBehaviour {
     private RoadNetwork roadNetwork;
     private RoadNetwork roadNetworkSnapshot;
     private TerrainModel terrain;
-    private float offsetSpeedX = 0;
-    private float offsetSpeedZ = 0;
-    private bool terrainGenerated = false;
+    private Vector2 terrainBaseOffset;
     private List<Block> blocks;
     private List<Plot> plots = new List<Plot>();
+
+    private Action buildingsCallback;
 
     public State CurrentState {
         get { return currentState; }
@@ -91,29 +91,53 @@ public class WorldGenerator : MonoBehaviour {
 
     public void Undo() {
         switch (currentState) {
-            case State.Streets:
-                if (this.roadNetworkSnapshot != null) {
-                    this.roadNetwork = this.roadGenerator.Network = this.roadNetworkSnapshot;
-                    this.roadNetworkSnapshot = null;
-                }
-
-                this.blockGenerator.Reset();
-                this.roadMeshGenerator.Generate(this.roadGenerator.Network, terrain);
-
+            case State.Terrain:
+                ResetBuildings();
+                ResetRoads();
+                ResetTerrain();
                 break;
 
             case State.Roads:
-                this.roadNetwork = this.roadGenerator.Network = null;
-                this.roadNetworkSnapshot = null;
+                ResetBuildings();
+                ResetRoads();
+                break;
 
-                this.roadGenerator.Reset();
-                this.roadMeshGenerator.Reset();
+            case State.Streets:
+                ResetBuildings();
+                ResetStreets();
                 break;
 
             case State.Buildings:
-                this.buildingGenerator.Reset();
+                ResetBuildings();
                 break;
         }
+    }
+
+    private void ResetTerrain() {
+        this.terrainGenerator.Reset();
+    }
+
+    private void ResetRoads() {
+        this.roadNetwork = this.roadGenerator.Network = null;
+        this.roadNetworkSnapshot = null;
+
+        this.roadGenerator.Reset();
+        this.roadMeshGenerator.Reset();
+    }
+
+    private void ResetStreets() {
+        if (this.roadNetworkSnapshot != null) {
+            this.roadNetwork = this.roadGenerator.Network = this.roadNetworkSnapshot;
+            this.roadNetworkSnapshot = null;
+        }
+
+        this.blockGenerator.Reset();
+        this.roadMeshGenerator.Generate(this.roadGenerator.Network, terrain, null);
+    }
+
+    private void ResetBuildings() {
+        this.buildingGenerator.Reset();
+        this.parkGenerator.Reset();
     }
 
     public State PreviousState() {
@@ -131,16 +155,16 @@ public class WorldGenerator : MonoBehaviour {
     private void OnStateChanged(State prevState, bool previous = false) {
     }
 
-    public void GenerateTerrain() {
-        terrainGenerated = true;
-        terrain = terrainGenerator.GenerateTerrain();
-    }
+    public void GenerateTerrain(Vector2 localOffset, int width, int depth, bool newBaseOffset = false) {
+        this.terrainGenerator.SetWidth(width);
+        this.terrainGenerator.SetDepth(depth);
 
-    public void SetOffsetSpeedX(float x) {
-        if (terrainGenerated) offsetSpeedX = x;
-    }
-    public void SetOffsetSpeedZ(float z) {
-        if (terrainGenerated) offsetSpeedZ = z * (-1);
+        if (newBaseOffset)
+            this.terrainBaseOffset = new Vector2(
+                                                 UnityEngine.Random.Range(-10000f, 10000f),
+                                                 UnityEngine.Random.Range(-10000f, 10000f)
+                                                 );
+        terrain = terrainGenerator.GenerateTerrain(this.terrainBaseOffset + localOffset);
     }
 
     public void ModifyTerrainSea(float sl) {
@@ -190,7 +214,9 @@ public class WorldGenerator : MonoBehaviour {
         );
     }
 
-    public void GenerateBuildings() {
+    public void GenerateBuildings(Action callback) {
+        this.buildingsCallback = callback;
+
         this.buildingGenerator.Reset();
         StartCoroutine(GenerateBuildings(this.blocks));
     }
@@ -209,7 +235,7 @@ public class WorldGenerator : MonoBehaviour {
                     buildingGenerator.Generate(plot, this.terrain, this.populationNoise);
                 }
                 else if (plot.type == PlotType.Park) {
-                    parkGenerator.Generate(terrain, block, plot);
+                    parkGenerator.Generate(terrain, plot);
                 }
 
                 plotCounter++;
@@ -219,6 +245,9 @@ public class WorldGenerator : MonoBehaviour {
                 }
             }
         }
+
+        if (this.buildingsCallback != null)
+            this.buildingsCallback();
     }
 
     private void GenerateBlocks() {
@@ -241,12 +270,8 @@ public class WorldGenerator : MonoBehaviour {
         if (debug) {
             UnityEngine.Random.InitState(debugSeed);
         }
-    }
-
-    private void Start() {
         InstantiateGenerators();
     }
-
 
     // Just for debug purposes so I don't have to step through
     // generation every single time
@@ -282,12 +307,6 @@ public class WorldGenerator : MonoBehaviour {
             foreach (Plot plot in this.plots) {
                 plotGenerator.DrawPlot(plot);
             }
-        }
-
-        if (offsetSpeedX != 0 || offsetSpeedZ != 0) {
-            Vector2 speedamp = new Vector2(offsetSpeedX * Time.deltaTime, offsetSpeedZ * Time.deltaTime);
-            Vector2 speed = terrainGenerator.NoiseOffset + speedamp;
-            terrain = terrainGenerator.GenerateTerrain(speed);
         }
     }
 }

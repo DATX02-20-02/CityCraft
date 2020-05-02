@@ -58,7 +58,7 @@ public class ManhattanAgentFactory : IAgentFactory {
                 ag.config.stepSize = 5f;
                 ag.config.snapRadius = 1f;
 
-                float stepCount = height / ag.config.stepSize / 2f;
+                float stepCount = height / ag.config.stepSize;
                 ag.config.maxStepCount = (int)Random.Range(stepCount, stepCount * 1.2f);
 
                 generator.AddAgent(ag);

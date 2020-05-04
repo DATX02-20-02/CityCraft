@@ -72,7 +72,7 @@ public class SkyscraperGenerator : MonoBehaviour {
     private void Build() {
         // Roof
         roof.transform.position = transform.position + new Vector3(0, worldSize.y, 0);
-        roof.transform.localScale = worldSize / 10.0f; // Planes are 10x10 units
+        roof.transform.localScale = new Vector3(worldSize.x, worldSize.z, 1);
 
         // North and south walls.
         BuildWall(northWall, sizeX, worldSize.x);

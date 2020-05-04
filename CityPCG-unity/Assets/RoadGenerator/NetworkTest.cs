@@ -9,6 +9,9 @@ public class NetworkTest : MonoBehaviour {
     [SerializeField] private TerrainGenerator terrainGen = null;
     [SerializeField] private NoiseGenerator noiseGen = null;
     [SerializeField] private RoadGenerator roadGen = null;
+    [SerializeField] private BlockGenerator blockGen = null;
+    [SerializeField] private PlotGenerator plotGen = null;
+    [SerializeField] private PlotContentGenerator plotContentGen = null;
 
     private TerrainModel terrain;
     private Noise population;
@@ -16,11 +19,24 @@ public class NetworkTest : MonoBehaviour {
     private Agent agent;
     private Node prevNode;
 
+    [SerializeField] private List<Block> blocks;
+    [SerializeField] private List<Plot> plots = new List<Plot>();
+
     void Start() {
     }
 
     void OnEnable() {
         StartCoroutine("Initialize");
+    }
+
+    void Generate() {
+        blockGen.Reset();
+        plotGen.Reset();
+        plotContentGen.Reset();
+
+        blocks = blockGen.Generate(network);
+        plots = plotGen.Generate(blocks, terrain, population);
+        plotContentGen.Generate(plots, terrain, population, () => { });
     }
 
     public IEnumerator Initialize() {
@@ -50,6 +66,8 @@ public class NetworkTest : MonoBehaviour {
 
             if (Input.GetMouseButtonDown(0)) {
                 prevNode = agent.PlaceNode(pos, Node.NodeType.Main, ConnectionType.Main);
+
+                Generate();
             }
 
             if (prevNode != null) {

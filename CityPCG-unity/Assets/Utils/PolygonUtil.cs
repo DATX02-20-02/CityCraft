@@ -124,18 +124,14 @@ namespace Utils {
                 }
             }
 
-
             // To calculate random center we have to triangulate first, unfortunately
-            Vector3[] poly3D = new Vector3[polygon.Count];
-            for (int i = 0; i < polygon.Count; i++) {
-                poly3D[i] = VectorUtil.Vector2To3(polygon[i]);
-            }
+            Vector3[] poly3D = polygon.Select(VectorUtil.Vector2To3).ToArray();
 
             Triangulator triangulator = new Triangulator(poly3D);
             int[] triangulated = triangulator.Triangulate();
 
             for (int c = 0; c < centerIterations; c++) {
-                int randIndex = Random.Range(0, triangulated.Length / 3) * 3;
+                int randIndex = Random.Range(0, triangulated.Length / 3) * 3 % triangulated.Length;
 
                 float r1 = Random.Range(0.3f, 0.7f);
                 float r2 = Random.Range(0.3f, 0.7f);
@@ -203,6 +199,7 @@ namespace Utils {
 
             return best;
         }
+
         public static Rectangle ApproximateTwo(
                                                     List<Vector2> polygon,
                                                       float ratio,

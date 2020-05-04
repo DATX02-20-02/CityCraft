@@ -11,32 +11,18 @@ using Utils;
 // How? Splits the workload into many subgenerators, and only manages their inputs/outputs.
 public class WorldGenerator : MonoBehaviour {
     [Header("Generators")]
-    [SerializeField] private GameObject terrainGeneratorPrefab = null;
-    [SerializeField] private GameObject populationGeneratorPrefab = null;
-    [SerializeField] private GameObject roadGeneratorPrefab = null;
-    [SerializeField] private GameObject blockGeneratorPrefab = null;
-    [SerializeField] private GameObject plotGeneratorPrefab = null;
-    [SerializeField] private GameObject buildingGeneratorPrefab = null;
-    [SerializeField] private GameObject parkGeneratorPrefab = null;
-    [SerializeField] private GameObject parkingGeneratorPrefab = null;
-
-    [Header("Building Generation Params")]
-    [SerializeField] private int buildIntervalSize = 0;
-    [SerializeField] private float buildIntervalDelay = 0;
+    [SerializeField] private TerrainGenerator terrainGenerator = null;
+    [SerializeField] private NoiseGenerator populationGenerator = null;
+    [SerializeField] private RoadGenerator roadGenerator = null;
+    [SerializeField] private BlockGenerator blockGenerator = null;
+    [SerializeField] private PlotGenerator plotGenerator = null;
+    [SerializeField] private PlotContentGenerator plotContentGenerator = null;
 
     [Header("Debug")]
     [SerializeField] private bool debug = false;
     [SerializeField] private int debugSeed = 0;
 
-    private TerrainGenerator terrainGenerator;
-    private NoiseGenerator populationGenerator;
-    private RoadGenerator roadGenerator;
     private RoadMeshGenerator roadMeshGenerator;
-    private BlockGenerator blockGenerator;
-    private PlotGenerator plotGenerator;
-    private BuildingGenerator buildingGenerator;
-    private ParkGenerator parkGenerator;
-    private ParkingGenerator parkingGenerator;
 
     // State properties
     public enum State {
@@ -136,8 +122,7 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     private void ResetBuildings() {
-        this.buildingGenerator.Reset();
-        this.parkGenerator.Reset();
+        this.plotContentGenerator.Reset();
     }
 
     public State PreviousState() {
@@ -214,71 +199,21 @@ public class WorldGenerator : MonoBehaviour {
         );
     }
 
-    public void GenerateBuildings(Action callback) {
-        this.buildingsCallback = callback;
-
-        this.buildingGenerator.Reset();
-        StartCoroutine(GenerateBuildings(this.blocks));
-    }
-
-    private IEnumerator GenerateBuildings(List<Block> blocks) {
-        this.plots = new List<Plot>();
-        var manhattanBuildings = new GameObject("ManhattanBuildings");
-        manhattanBuildings.transform.parent = buildingGenerator.transform;
-
-        int plotCounter = 0;
-        foreach (Block block in this.blocks) {
-            var blockObject = new GameObject("Block");
-            blockObject.transform.parent = buildingGenerator.transform;
-
-            // Split each block into plots
-            List<Plot> plots = plotGenerator.Generate(block, terrain, populationNoise);
-            foreach (var plot in plots) {
-                this.plots.Add(plot);
-                if (plot.type == PlotType.Manhattan || plot.type == PlotType.Skyscraper) {
-                    buildingGenerator.Generate(plot, this.terrain, this.populationNoise, blockObject);
-                }
-                else if (plot.type == PlotType.Park) {
-                    parkGenerator.Generate(terrain, plot);
-                }
-                else if (plot.type == PlotType.Parking) {
-                    parkingGenerator.Generate(terrain, plot);
-                }
-
-                plotCounter++;
-                if (buildIntervalSize <= plotCounter) {
-                    plotCounter = 0;
-                    Resources.UnloadUnusedAssets();
-                    yield return new WaitForSeconds(buildIntervalDelay);
-                }
-            }
-        }
-
-        if (this.buildingsCallback != null)
-            this.buildingsCallback();
-    }
-
     private void GenerateBlocks() {
         this.blocks = blockGenerator.Generate(roadNetwork, populationNoise);
     }
 
-    private void InstantiateGenerators() {
-        terrainGenerator = Instantiate(terrainGeneratorPrefab, transform).GetComponent<TerrainGenerator>();
-        populationGenerator = Instantiate(populationGeneratorPrefab, transform).GetComponent<NoiseGenerator>();
-        roadGenerator = Instantiate(roadGeneratorPrefab, transform).GetComponent<RoadGenerator>();
-        roadMeshGenerator = roadGenerator.GetComponent<RoadMeshGenerator>();
-        blockGenerator = Instantiate(blockGeneratorPrefab, transform).GetComponent<BlockGenerator>();
-        plotGenerator = Instantiate(plotGeneratorPrefab, transform).GetComponent<PlotGenerator>();
-        buildingGenerator = Instantiate(buildingGeneratorPrefab, transform).GetComponent<BuildingGenerator>();
-        parkGenerator = Instantiate(parkGeneratorPrefab, transform).GetComponent<ParkGenerator>();
-        parkingGenerator = Instantiate(parkingGeneratorPrefab, transform).GetComponent<ParkingGenerator>();
+    public void GeneratePlotContent(Action callback) {
+        this.buildingsCallback = callback;
+
+        this.plots = plotGenerator.Generate(this.blocks, terrain, populationNoise);
+        this.plotContentGenerator.Generate(this.plots, terrain, populationNoise, callback);
     }
 
     private void Awake() {
         if (debug) {
             UnityEngine.Random.InitState(debugSeed);
         }
-        InstantiateGenerators();
     }
 
     // Just for debug purposes so I don't have to step through
@@ -299,7 +234,7 @@ public class WorldGenerator : MonoBehaviour {
     //     GenerateRoads(
     //         (RoadNetwork network) => {
     //             // GenerateStreets((RoadNetwork _) => {
-    //             //         // GenerateBuildings();
+    //             //         // GeneratePlotContent();
     //             //     }
     //             // );
     //         }
@@ -310,11 +245,6 @@ public class WorldGenerator : MonoBehaviour {
     //     AutoStart();
     // }
 
-    private void Update() {
-        if (plotGenerator != null) {
-            foreach (Plot plot in this.plots) {
-                plotGenerator.DrawPlot(plot);
-            }
-        }
+    void Update() {
     }
 }

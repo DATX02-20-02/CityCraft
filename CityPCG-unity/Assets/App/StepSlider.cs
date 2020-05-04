@@ -12,9 +12,11 @@ public class StepSlider : MonoBehaviour {
 
     public void OnChange(float v) {
         Slider slider = GetComponent<Slider>();
+
         for (int i = (int)v + 1; i <= slider.maxValue; i++) {
             sliderSteps[i].color = normalColor;
         }
+
         sliderSteps[(int)v].color = activeColor;
     }
 

@@ -14,6 +14,7 @@ public class WorldGenerator : MonoBehaviour {
     [SerializeField] private TerrainGenerator terrainGenerator = null;
     [SerializeField] private NoiseGenerator populationGenerator = null;
     [SerializeField] private RoadGenerator roadGenerator = null;
+    [SerializeField] private RoadMeshGenerator roadMeshGenerator = null;
     [SerializeField] private BlockGenerator blockGenerator = null;
     [SerializeField] private PlotGenerator plotGenerator = null;
     [SerializeField] private PlotContentGenerator plotContentGenerator = null;
@@ -21,8 +22,6 @@ public class WorldGenerator : MonoBehaviour {
     [Header("Debug")]
     [SerializeField] private bool debug = false;
     [SerializeField] private int debugSeed = 0;
-
-    private RoadMeshGenerator roadMeshGenerator;
 
     // State properties
     public enum State {

@@ -48,8 +48,13 @@ public class SkyscraperGenerator : MonoBehaviour {
 
         transform.position = center;
 
+        // Reduce height if the base deviates too much from the norm.
+        float pivotBase = 0.5f;
+        float basePenality = Mathf.Pow(4.0f * Mathf.Abs(pivotBase - rect.width * rect.height), 1.8f);
+        float maxHeight = 4.5f;
+
         this.worldSize.x = rect.width;
-        this.worldSize.y = 4f / (1f + Mathf.Pow(rect.width * rect.height, 1.5f));
+        this.worldSize.y = Mathf.Max(maxHeight / (1f + basePenality), 2.5f);
         this.worldSize.z = rect.height;
 
         this.sizeX = (int)(2 * this.worldSize.x + 1);
@@ -66,7 +71,7 @@ public class SkyscraperGenerator : MonoBehaviour {
     }
 
     private Rectangle ApproximateLargestRectangle(List<Vector2> polygon) {
-        return Utils.PolygonUtil.ApproximateLargestRectangle(polygon, Random.Range(1.0f, 3.0f), 0.1f, 8, 14, 10);
+        return Utils.PolygonUtil.ApproximateLargestRectangle(polygon, Random.Range(1.0f, 2.0f), 0.05f, 20, 20, 20);
     }
 
     private void Build() {

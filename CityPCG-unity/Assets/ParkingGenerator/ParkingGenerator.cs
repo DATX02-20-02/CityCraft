@@ -8,19 +8,16 @@ public class ParkingGenerator : MonoBehaviour {
     [SerializeField] private GameObject square = null;
     public void Generate(TerrainModel terrain, Plot plot) {
         List<Vector2> polygon = new List<Vector2>();
-        Vector3 center = Vector3.zero;
-        foreach (var v in plot.vertices) {
-            center += v;
-            polygon.Add(VectorUtil.Vector3To2(v));
-        }
-        center /= plot.vertices.Count;
-        var c = terrain.GetMeshIntersection(center.x, center.z);
-        var rect = ApproximateTwo(polygon);
+
+        var c = terrain.GetMeshIntersection(rect.Center.x, rect.Center.y);
+
         Quaternion rot = Quaternion.Euler(0, -rect.angle * Mathf.Rad2Deg, 0);
         GameObject g = Instantiate(square, c.point + c.normal * 0.03f, Quaternion.FromToRotation(square.transform.up, c.normal) * rot, this.transform);
         g.transform.localScale = new Vector3(rect.width * 0.2f, g.transform.localScale.y, rect.height * 0.2f);
+
         float offset = 0.1f;
         float border = 0.2f;
+
         Vector2 rectRightDir = (rect.botRight - rect.botLeft).normalized;
         Vector2 rectUpDir = (rect.topLeft - rect.botLeft).normalized;
         Vector2 origin = rect.botLeft;
@@ -29,6 +26,7 @@ public class ParkingGenerator : MonoBehaviour {
             origin = (rect.botLeft + rect.topLeft) / 2;
             border = 0;
         }
+
         while (offset <= rect.width - border) {
             Vector2 localV1 = rectRightDir * (offset + border) + rectUpDir * (rect.height * 2 - border); // top left
             Vector2 localV2 = rectRightDir * (rect.width * 2 - offset - border) + rectUpDir * (rect.height * 2 - border); // top right

@@ -6,12 +6,10 @@ using System.Linq;
 using System;
 
 namespace UnityGLTF {
-    public class LODExtendedUtility
-    {
+    public class LODExtendedUtility {
 
         //Return the LODGroup component with a renderer pointing to a specific GameObject. If the GameObject is not part of a LODGroup, returns null
-        static public LODGroup GetParentLODGroupComponent(GameObject GO)
-        {
+        static public LODGroup GetParentLODGroupComponent(GameObject GO) {
             LODGroup LODGroupParent = GO.GetComponentInParent<LODGroup>();
             if (LODGroupParent == null)
                 return null;
@@ -26,16 +24,14 @@ namespace UnityGLTF {
 
 
         //Return the GameObject of the LODGroup component with a renderer pointing to a specific GameObject. If the GameObject is not part of a LODGroup, returns null.
-        static public GameObject GetParentLODGroupGameObject(GameObject GO)
-        {
+        static public GameObject GetParentLODGroupGameObject(GameObject GO) {
             var LODGroup = GetParentLODGroupComponent(GO);
 
             return LODGroup == null ? null : LODGroup.gameObject;
         }
 
         //Get the LOD # of a selected GameObject. If the GameObject is not part of any LODGroup returns -1.
-        static public int GetLODid(GameObject GO)
-        {
+        static public int GetLODid(GameObject GO) {
             LODGroup LODGroupParent = GO.GetComponentInParent<LODGroup>();
             if (LODGroupParent == null)
                 return -1;
@@ -47,19 +43,16 @@ namespace UnityGLTF {
 
 
         //returns the currently visible LOD level of a specific LODGroup, from a specific camera. If no camera is define, uses the Camera.current.
-        public static int GetVisibleLOD(LODGroup lodGroup, Camera camera = null)
-        {
+        public static int GetVisibleLOD(LODGroup lodGroup, Camera camera = null) {
             var lods = lodGroup.GetLODs();
             var relativeHeight = GetRelativeHeight(lodGroup, camera ?? Camera.current);
 
 
             int lodIndex = GetMaxLOD(lodGroup);
-            for (var i = 0; i < lods.Length; i++)
-            {
+            for (var i = 0; i < lods.Length; i++) {
                 var lod = lods[i];
 
-                if (relativeHeight >= lod.screenRelativeTransitionHeight)
-                {
+                if (relativeHeight >= lod.screenRelativeTransitionHeight) {
                     lodIndex = i;
                     break;
                 }
@@ -70,20 +63,17 @@ namespace UnityGLTF {
         }
 
         //returns the currently visible LOD level of a specific LODGroup, from a the SceneView Camera.
-        public static int GetVisibleLODSceneView(LODGroup lodGroup)
-        {
+        public static int GetVisibleLODSceneView(LODGroup lodGroup) {
             Camera camera = SceneView.lastActiveSceneView.camera;
             return GetVisibleLOD(lodGroup, camera);
         }
 
-        static float GetRelativeHeight(LODGroup lodGroup, Camera camera)
-        {
+        static float GetRelativeHeight(LODGroup lodGroup, Camera camera) {
             var distance = (lodGroup.transform.TransformPoint(lodGroup.localReferencePoint) - camera.transform.position).magnitude;
             return DistanceToRelativeHeight(camera, (distance / QualitySettings.lodBias), GetWorldSpaceSize(lodGroup));
         }
 
-        static float DistanceToRelativeHeight(Camera camera, float distance, float size)
-        {
+        static float DistanceToRelativeHeight(Camera camera, float distance, float size) {
             if (camera.orthographic)
                 return size * 0.5F / camera.orthographicSize;
 
@@ -91,16 +81,13 @@ namespace UnityGLTF {
             var relativeHeight = size * 0.5F / (distance * halfAngle);
             return relativeHeight;
         }
-        public static int GetMaxLOD(LODGroup lodGroup)
-        {
+        public static int GetMaxLOD(LODGroup lodGroup) {
             return lodGroup.lodCount - 1;
         }
-        public static float GetWorldSpaceSize(LODGroup lodGroup)
-        {
+        public static float GetWorldSpaceSize(LODGroup lodGroup) {
             return GetWorldSpaceScale(lodGroup.transform) * lodGroup.size;
         }
-        static float GetWorldSpaceScale(Transform t)
-        {
+        static float GetWorldSpaceScale(Transform t) {
             var scale = t.lossyScale;
             float largestAxis = Mathf.Abs(scale.x);
             largestAxis = Mathf.Max(largestAxis, Mathf.Abs(scale.y));

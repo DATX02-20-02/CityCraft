@@ -73,10 +73,12 @@ namespace Utils.PolygonSplitter.Implementation {
                 lineSegments.Add(new LineSegment(start, end));
                 start = end;
             }
+
             return lineSegments;
         }
 
         // Distance to point (p) from line segment (end points a b)
+        // NOTE: This treats the line as an infinite line.
         private static float DistanceLineSegmentPoint(Vector2 p, LineSegment line) {
             if (line.start == line.end) {
                 return Vector2.Distance(line.start, p);
@@ -89,9 +91,12 @@ namespace Utils.PolygonSplitter.Implementation {
         }
 
         public static bool IsPointOnLineSegment(Vector2 p, LineSegment line) {
-            return DistanceLineSegmentPoint(p, line) < 0.001;
+            float straight = Vector2.Distance(line.start, line.end);
+            float detour = Vector2.Distance(line.start, p) + Vector2.Distance(p, line.end);
+            return Mathf.Approximately(straight, detour);
         }
 
+        // NOTE: This returns only one of the two slices. Use Difference() to get the other one.
         public static Polygon SlicePolygon(Polygon polygonToSlice, Vector2 startPoint, Vector2 endPoint) {
             var vertices = new List<Vector2>();
 
@@ -249,6 +254,39 @@ namespace Utils.PolygonSplitter.Implementation {
 
         private static float Det(float a, float b, float c, float d) {
             return a * d - b * c;
+        }
+
+        public static bool IsIntersectingPolygon(LineSegment line, Polygon polygon) {
+            List<LineSegment> edges = GetLineSegments(polygon);
+
+            foreach (LineSegment edge in edges) {
+                if ((LineLineIntersection(line, edge) && (!AreLinesConnected(line, edge))) || LinesCoincide(line, edge)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool AreLinesConnected(LineSegment l1, LineSegment l2) {
+            bool case1 = IsPointOnLineSegment(l1.start, l2);
+            bool case2 = IsPointOnLineSegment(l1.end, l2);
+            bool case3 = IsPointOnLineSegment(l2.start, l1);
+            bool case4 = IsPointOnLineSegment(l2.end, l1);
+            return (case1 || case2 || case3 || case4);
+        }
+
+        public static bool LinesCoincide(LineSegment l1, LineSegment l2) {
+            bool case1 = IsPointOnLineSegment(l1.start, l2) && IsPointOnLineSegment(l1.end, l2);
+            bool case2 = IsPointOnLineSegment(l2.start, l1) && IsPointOnLineSegment(l2.end, l1);
+            return (case1 || case2);
+        }
+
+        public static bool IsLineInsidePolygon(LineSegment l, Polygon p) {
+            float t = 0.01f; // tolerance
+            Vector2 almost_start = (1f-t) * l.start + t * l.end;
+            Vector2 almost_end = t * l.start + (1f-t) * l.end;
+            bool b = p.Contains(almost_start) && p.Contains(almost_end);
+            return b;
         }
     }
 }

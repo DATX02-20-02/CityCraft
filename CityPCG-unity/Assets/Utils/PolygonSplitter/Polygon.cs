@@ -45,6 +45,7 @@ namespace Utils.PolygonSplitter {
             var p1Segments = GetLineSegments(this);
             var p2Segments = GetLineSegments(polygon);
 
+            // NOTE: This is problematic, because it doesn't allow the polygons to have any coinciding edges.
             foreach (var ls1 in p1Segments) {
                 foreach (var ls2 in p2Segments) {
                     if (LineLineIntersection(ls1, ls2)) {

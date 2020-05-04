@@ -36,16 +36,18 @@ namespace Utils.PolygonSplitter {
 
                 // generate unique edge pairs (e.g. 2 pairs for any rectangle)
                 for (var j = i + 2; j < segments.Count; j++) {
-                    var segmentsCovered = j - i + 1;            // number of segments covered by a LineRing starting with edgeA and ending with edgeB (including)
+                    var segmentsCovered = j - i;            // number of segments covered by a LineRing starting with edgeA and ending with edgeB (including)
                     if (segments.Count == segmentsCovered) {
                         break;
                     }
+
 
                     var edgeA = segments[i];
                     var edgeB = segments[j];
                     var edgePair = new EdgePair(edgeA, edgeB);
                     var subPolygons = edgePair.GetSubPolygons();
                     var cutForCurrentEdgePair = subPolygons.GetCuts(polygon, singlePartArea);
+
                     possibleCuts.AddRange(cutForCurrentEdgePair);
                 }
             }
@@ -55,20 +57,21 @@ namespace Utils.PolygonSplitter {
                 return polygon;
             }
 
-            var shortestCut = possibleCuts[0];
+            var bestCut = possibleCuts[0];
             for (var i = 1; i < possibleCuts.Count; i++) {
-                if (possibleCuts[i].length < shortestCut.length && possibleCuts[i].cutAway != null && polygon.Contains(possibleCuts[i].cutAway)) {
-                    shortestCut = possibleCuts[i];
+                if (possibleCuts[i].length < bestCut.length && possibleCuts[i].cutAway != null) {
+                    bestCut = possibleCuts[i];
                 }
             }
 
             //TODO Neither should this ever happen
-            if (shortestCut.cutAway == null) {
+            if (bestCut.cutAway == null) {
+                Debug.LogWarning("Best cut was null.");
                 return polygon;
             }
 
-            resultList.Add(shortestCut.cutAway);
-            return polygon.Difference(shortestCut.cutAway);
+            resultList.Add(bestCut.cutAway);
+            return polygon.Difference(bestCut.cutAway);
         }
 
     }

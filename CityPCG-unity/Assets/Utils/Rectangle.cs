@@ -10,6 +10,10 @@ public struct Rectangle {
     public float width;
     public float height;
 
+    public Vector2 Center {
+        get => (topLeft + topRight + botLeft + botRight) / 4.0;
+    }
+
     public static Rectangle Create(float x, float y, float angle, float width, float height) {
         Rectangle rect = new Rectangle();
         float cos = Mathf.Cos(angle);

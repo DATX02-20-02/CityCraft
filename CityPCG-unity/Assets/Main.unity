@@ -151,11 +151,6 @@ PrefabInstance:
         type: 3}
     - target: {fileID: -7889922274085798087, guid: 680a13e90fac6189e88d40ffc9bdf239,
         type: 3}
-      propertyPath: roadUIHandlerObject
-      value: 
-      objectReference: {fileID: 1591180030}
-    - target: {fileID: -7889922274085798087, guid: 680a13e90fac6189e88d40ffc9bdf239,
-        type: 3}
       propertyPath: terrainGenerator
       value: 
       objectReference: {fileID: 351685846}
@@ -184,6 +179,11 @@ PrefabInstance:
       propertyPath: plotContentGenerator
       value: 
       objectReference: {fileID: 1665118362}
+    - target: {fileID: -7889922274085798087, guid: 680a13e90fac6189e88d40ffc9bdf239,
+        type: 3}
+      propertyPath: roadMeshGenerator
+      value: 
+      objectReference: {fileID: 543274115}
     - target: {fileID: 2663700008211637056, guid: 680a13e90fac6189e88d40ffc9bdf239,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -238,6 +238,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4264638739396000544, guid: 680a13e90fac6189e88d40ffc9bdf239,
+        type: 3}
+      propertyPath: seaLevel
+      value: 35
       objectReference: {fileID: 0}
     - target: {fileID: 5156807774796926740, guid: 680a13e90fac6189e88d40ffc9bdf239,
         type: 3}
@@ -374,6 +379,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &543274115 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2778192467479151875, guid: 680a13e90fac6189e88d40ffc9bdf239,
+    type: 3}
+  m_PrefabInstance: {fileID: 9354995}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00b2ec2d92d22e585a5b4621c072558c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &914579837 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8472664044290575606, guid: 680a13e90fac6189e88d40ffc9bdf239,

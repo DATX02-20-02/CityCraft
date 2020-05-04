@@ -11,12 +11,15 @@ public class PlotGenerator : MonoBehaviour {
 
     [SerializeField] private AnimationCurve skyscraperGradient = null;
     [SerializeField] private bool debug = false;
-    [SerializeField] private int parts = 3;
 
 
     public List<Plot> Generate(Block block, TerrainModel terrain, Noise populationNoise) {
+        float blockArea = PolygonUtil.PolygonArea(block.vertices);
+        int parts = (int) Mathf.Max(Random.Range(0.5f, 1.0f) * blockArea, 1);
+
         var plots = Split(CreatePolygon(block.Vertices2D()), parts)
-            .Where(polygon => polygon != null).ToList()
+            .Where(polygon => polygon != null)
+            .ToList()
             .ConvertAll(
                 polygon => {
                     List<Vector3> points = polygon.points.Select(v => terrain.GetMeshIntersection(v.x, v.y).point).ToList();

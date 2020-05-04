@@ -27,6 +27,7 @@ namespace Utils.PolygonSplitter.Implementation {
             this.edgeB = edgeB;
 
             // build triangles if corresponding projected points are valid
+
             var leftTriangle = projected0.valid ? CreateTriangle(edgeA.end, projected0.vertex, edgeB.start) : null;
             leftTriangleProjectedVertex = leftTriangle != null ? projected0 : null;
             leftTriangleArea = leftTriangle?.GetArea() ?? 0;
@@ -59,7 +60,7 @@ namespace Utils.PolygonSplitter.Implementation {
             var segments = GetLineSegments(polygon);
             var indexOfEdgeA = segments.IndexOf(edgeA);
             var indexOfEdgeB = segments.IndexOf(edgeB);
-            var segmentsCovered = indexOfEdgeB - indexOfEdgeA + 1;            // number of segments covered by a LineRing starting with edgeA and ending with edgeB (including)
+            var segmentsCovered = indexOfEdgeB - indexOfEdgeA;            // number of segments covered by a LineRing starting with edgeA and ending with edgeB (including)
 
             // Polygon's exterior ring is equal to [edgeA + segmentsBetweenEdgePair + edgeB + segmentsOutsideEdgePair]
             var segmentCountBetweenEdgePair = segmentsCovered - 2;
@@ -71,22 +72,10 @@ namespace Utils.PolygonSplitter.Implementation {
             if (segmentCountBetweenEdgePair > 1) {
                 // calculate extra area bounded by segmentsBetweenEdgePair
                 polygonOutside1 = GetSubPolygon(polygon, edgeA.end, edgeB.start);
-
-                // TODO: determine if this is always correct
-                // short circuit for when the area between edgePoints contains some which is not part of
-                if (!polygon.Contains(polygonOutside1)) {
-                    return new List<Cut>();
-                }
             }
             if (segmentCountOutsideEdgePair > 1) {
                 // calculate extra area bounded by segmentsOutsideEdgePair
                 polygonOutside2 = GetSubPolygon(polygon, edgeB.end, edgeA.start);
-
-                // TODO: determine if this is always correct
-                // short circuit for when the area between edgePoints contains some which is not part of
-                if (!polygon.Contains(polygonOutside2)) {
-                    return new List<Cut>();
-                }
             }
             var areaOutside1 = polygonOutside1?.GetArea() ?? 0;
             var areaOutside2 = polygonOutside2?.GetArea() ?? 0;
@@ -134,7 +123,7 @@ namespace Utils.PolygonSplitter.Implementation {
                     lineOfCut = IsPointOnLineSegment(pointOfCut, edgeA) ? new LineSegment(pointOfCut, edgeB.end) : new LineSegment(edgeA.start, pointOfCut);
                 }
 
-                if (lineOfCut != null) {// && !IsIntersectingPolygon(lineOfCut, polygon)) {
+                if (lineOfCut != null && !IsIntersectingPolygon(lineOfCut, polygon) && IsLineInsidePolygon(lineOfCut, polygon)) {
                     // only consider cuts that do not intersect the exterior ring of the polygon
                     var cutAwayPolygon = SlicePolygon(polygon, lineOfCut.start, lineOfCut.end);
                     cuts.Add(new Cut(lineOfCut.GetLength(), cutAwayPolygon));
@@ -184,7 +173,7 @@ namespace Utils.PolygonSplitter.Implementation {
                     lineOfCut = IsPointOnLineSegment(pointOfCut, edgeA) ? new LineSegment(edgeB.start, pointOfCut) : new LineSegment(pointOfCut, edgeA.end);
                 }
 
-                if (lineOfCut != null) {// && !IsIntersectingPolygon(lineOfCut, polygon)) {
+                if (lineOfCut != null && !IsIntersectingPolygon(lineOfCut, polygon) && IsLineInsidePolygon(lineOfCut, polygon)) {
                     // only consider cuts that do not intersect the exterior ring of the polygon
                     var cutAwayPolygon = SlicePolygon(polygon, lineOfCut.start, lineOfCut.end);
                     if (cutAwayPolygon == null || cutAwayPolygon.points.Count > 3) {

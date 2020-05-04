@@ -16,7 +16,7 @@ namespace Utils.PolygonSplitter.Implementation {
         private ProjectedVertex() {
             valid = false;
             edge = null;
-            vertex = Vector3.zero;
+            vertex = Vector2.zero;
         }
 
         public ProjectedVertex(Vector2 vertex, LineSegment edge) {

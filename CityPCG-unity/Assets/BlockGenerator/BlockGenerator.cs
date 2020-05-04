@@ -94,7 +94,9 @@ public class BlockGenerator : MonoBehaviour {
                 if (vertices.Count > 0) {
                     float area = PolygonUtil.PolygonArea(vertices);
                     if (area <= maxBlockArea) {
-                        blocks.Add(new Block(vertices, BlockType.Empty));
+                        Block block = new Block(vertices, BlockType.Empty);
+
+                        blocks.Add(block);
                     }
                 }
             }
@@ -111,6 +113,8 @@ public class BlockGenerator : MonoBehaviour {
         // A bad loop occurs when return to the same node through the same edge.
         bool badloop = false;
 
+        float accumulatedAngle = 0;
+
         // Simulate turtle until we make a loop, or find another turtle's path.
         while (!traversed.Contains(Tuple.Create(curNode.pos, nextEdge.node.pos))) {
 
@@ -122,8 +126,10 @@ public class BlockGenerator : MonoBehaviour {
 
             // Calculate relative angles from current heading direction to other edges
             var options = curNode.connections.Select(c => c.node.pos - curNode.pos).ToList();
-            var rightmostIndex = RightmostDirection(curDir, options);
+            (int rightmostIndex, float rightmostAngle) = RightmostDirection(curDir, options);
             nextEdge = curNode.connections[rightmostIndex];
+
+            accumulatedAngle += rightmostAngle;
 
             // Track if we return through the same edge
             if (node.pos == nextEdge.node.pos && startEdge.node.pos == curNode.pos) {
@@ -133,11 +139,13 @@ public class BlockGenerator : MonoBehaviour {
 
         }
 
+        if (accumulatedAngle < 0) badloop = true;
+
         return badloop ? new List<Vector3>() : vertices;
     }
 
     // Index of the direction option closest to the right of the reference.
-    private int RightmostDirection(Vector3 reference, List<Vector3> options) {
+    private (int, float) RightmostDirection(Vector3 reference, List<Vector3> options) {
         int rightmostIndex = 0;
         float rightmostAngle = -180.0f;
 
@@ -150,7 +158,7 @@ public class BlockGenerator : MonoBehaviour {
             }
         }
 
-        return rightmostIndex;
+        return (rightmostIndex, rightmostAngle);
     }
 
     // This operation can return multiple blocks because the inset could

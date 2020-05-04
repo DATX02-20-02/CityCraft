@@ -37,4 +37,13 @@ public class DrawUtil {
         DebugDrawRectangle((float)bounds.MinX, (float)bounds.MinY, (float)(bounds.MaxX - bounds.MinX), (float)(bounds.MaxY - bounds.MinY), color);
     }
 
+
+    public static void DebugDrawPlot(Plot p, Color color) {
+        for (int i = 0; i < p.vertices.Count; i++) {
+            Vector3 cur = p.vertices[i];
+            Vector3 next = p.vertices[(i + 1) % p.vertices.Count];
+
+            Debug.DrawLine(cur, next, color);
+        }
+    }
 }

@@ -8,13 +8,26 @@ using static Utils.PolygonSplitter.PolygonSplitter;
 using static Utils.PolygonSplitter.Implementation.PolygonUtils;
 
 public class PlotGenerator : MonoBehaviour {
-
     [SerializeField] private AnimationCurve skyscraperGradient = null;
     [SerializeField] private bool debug = false;
     [SerializeField] private int parts = 3;
 
     [SerializeField] private float parkingProbability = 0.1f;
 
+    private List<Plot> plots = new List<Plot>();
+
+    public void Reset() {
+        plots = new List<Plot>();
+    }
+
+    public List<Plot> Generate(List<Block> blocks, TerrainModel terrain, Noise populationNoise) {
+        Reset();
+
+        foreach (Block block in blocks)
+            plots.AddRange(Generate(block, terrain, populationNoise));
+
+        return plots;
+    }
 
     public List<Plot> Generate(Block block, TerrainModel terrain, Noise populationNoise) {
         var plots = Split(CreatePolygon(block.Vertices2D()), parts)
@@ -78,6 +91,14 @@ public class PlotGenerator : MonoBehaviour {
                 var next = p.vertices[(i + 1) % p.vertices.Count] + position;
 
                 Debug.DrawLine(cur, next, Color.yellow);
+            }
+        }
+    }
+
+    void Update() {
+        if (this.debug) {
+            foreach (Plot plot in plots) {
+                DrawPlot(plot);
             }
         }
     }

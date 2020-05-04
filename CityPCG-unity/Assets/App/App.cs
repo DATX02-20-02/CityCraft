@@ -103,10 +103,10 @@ public class App : MonoBehaviour {
         Log("Streets generated.");
     }
 
-    public void GenerateBuildings() {
+    public void GenerateCities() {
         Log("Generating buildings...");
         SetBusy(true);
-        worldGenerator.GenerateBuildings(() => {
+        worldGenerator.GeneratePlotContent(() => {
             reachedMenuPanel = 4;
             SetBusy(false);
         });

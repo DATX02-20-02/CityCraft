@@ -505,13 +505,19 @@ namespace UnityGLTF {
 
             // add another primitive if the root object also has a mesh
             int LODId = LODExtendedUtility.GetLODid(transform.gameObject);
-            if (transform.gameObject.activeSelf && (LODId == -1 || LODId == 0)) {
+            if (transform.gameObject.activeSelf && (LODId == -1 || LODId == 0))
                 if (ContainsValidRenderer(transform.gameObject))
                     prims.Add(transform.gameObject);
-            }
+
+            bool isLodGroup = transform.gameObject.GetComponent<LODGroup>() != null;
 
             for (var i = 0; i < childCount; i++) {
                 var go = transform.GetChild(i).gameObject;
+
+                // Ignore other LOD levels than LOD 0
+                if (isLodGroup && !go.name.Contains("LOD 0"))
+                    continue;
+
                 if (IsPrimitive(go))
                     prims.Add(go);
                 else

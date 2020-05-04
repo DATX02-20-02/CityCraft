@@ -56,6 +56,7 @@ public class BlockGenerator : MonoBehaviour {
     private RoadNetwork roadNetwork;
     private List<Block> blocks;
     private List<Block> insetBlocks;
+    private Noise populationNoise;
 
     public void Reset() {
         this.blocks = new List<Block>();
@@ -63,10 +64,11 @@ public class BlockGenerator : MonoBehaviour {
     }
 
     // Entrypoint to the generator.
-    public List<Block> Generate(RoadNetwork roadNetwork) {
+    public List<Block> Generate(RoadNetwork roadNetwork, Noise populationNoise) {
         this.Reset();
 
         this.roadNetwork = roadNetwork;
+        this.populationNoise = populationNoise;
 
         ExtractPolygons();
         InsetBlocks();
@@ -350,14 +352,14 @@ public class BlockGenerator : MonoBehaviour {
                     else {
                         float rng = UnityEngine.Random.value;
                         BlockType t = BlockType.Skyscrapers;
-                        if (rng < 0.2f)
+                        if (rng < 0.15f)
                             t = BlockType.Apartments;
-                        else if (rng < 0.4f)
+                        else if (rng < 0.25f)
                             t = BlockType.Downtown;
-                        else if (rng < 0.6f)
-                            t = BlockType.Suburbs;
-                        else if (rng < 0.8f)
+                        else if (rng < 0.75f)
                             t = BlockType.Industrial;
+                        else if (rng < 0.9f)
+                            t = BlockType.Suburbs;
                         this.insetBlocks.Add(new Block(newBlock.vertices, t));
                     }
                 }

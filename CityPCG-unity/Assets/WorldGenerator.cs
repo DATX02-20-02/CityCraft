@@ -251,7 +251,7 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     private void GenerateBlocks() {
-        this.blocks = blockGenerator.Generate(roadNetwork);
+        this.blocks = blockGenerator.Generate(roadNetwork, populationNoise);
     }
 
     private void InstantiateGenerators() {

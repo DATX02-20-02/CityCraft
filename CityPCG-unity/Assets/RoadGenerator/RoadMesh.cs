@@ -73,10 +73,10 @@ public class RoadMesh : MonoBehaviour {
         set => roadStart = value;
     }
 
-    private float bajs;
-    public float StepDistance {
-        get => bajs;
-        set => bajs = value;
+    private float stepDist;
+    public float stepDistance {
+        get => stepDist;
+        set => stepDist = value;
     }
 
     public void GenerateRoadMesh(int levelOfDetail = 0) {

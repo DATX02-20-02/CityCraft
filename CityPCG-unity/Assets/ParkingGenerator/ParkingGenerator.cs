@@ -9,6 +9,7 @@ public class ParkingGenerator : MonoBehaviour {
     public void Generate(TerrainModel terrain, Plot plot) {
         List<Vector2> polygon = new List<Vector2>();
 
+        var rect = ApproximateLargestRectangle(polygon);
         var c = terrain.GetMeshIntersection(rect.Center.x, rect.Center.y);
 
         Quaternion rot = Quaternion.Euler(0, -rect.angle * Mathf.Rad2Deg, 0);

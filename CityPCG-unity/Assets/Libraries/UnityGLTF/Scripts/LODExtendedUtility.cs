@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 using System.Linq;
 using System;
 
@@ -60,12 +59,6 @@ namespace UnityGLTF {
 
 
             return lodIndex;
-        }
-
-        //returns the currently visible LOD level of a specific LODGroup, from a the SceneView Camera.
-        public static int GetVisibleLODSceneView(LODGroup lodGroup) {
-            Camera camera = SceneView.lastActiveSceneView.camera;
-            return GetVisibleLOD(lodGroup, camera);
         }
 
         static float GetRelativeHeight(LODGroup lodGroup, Camera camera) {

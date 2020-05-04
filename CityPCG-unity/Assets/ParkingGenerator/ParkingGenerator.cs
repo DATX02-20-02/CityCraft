@@ -15,7 +15,7 @@ public class ParkingGenerator : MonoBehaviour {
         }
         center /= plot.vertices.Count;
         var c = terrain.GetMeshIntersection(center.x, center.z);
-        var rect = ApproximateLargestRectangle(polygon);
+        var rect = ApproximateTwo(polygon);
         Quaternion rot = Quaternion.Euler(0, -rect.angle * Mathf.Rad2Deg, 0);
         GameObject g = Instantiate(square, c.point + c.normal * 0.03f, Quaternion.FromToRotation(square.transform.up, c.normal) * rot, this.transform);
         g.transform.localScale = new Vector3(rect.width * 0.2f, g.transform.localScale.y, rect.height * 0.2f);
@@ -76,6 +76,9 @@ public class ParkingGenerator : MonoBehaviour {
     }
     private Rectangle ApproximateLargestRectangle(List<Vector2> polygon) {
         return Utils.PolygonUtil.ApproximateLargestRectangle(polygon, Random.Range(1.0f, 3.0f), 0.1f, 6, 10);
+    }
+        private Rectangle ApproximateTwo(List<Vector2> polygon) {
+        return Utils.PolygonUtil.ApproximateTwo(polygon, Random.Range(1.0f, 3.0f), 0.1f, 6, 10);
     }
 
 }

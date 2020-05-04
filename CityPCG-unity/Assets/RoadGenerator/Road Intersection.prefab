@@ -157,6 +157,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sidewalkMaterial: {fileID: 2100000, guid: 5beb9447b7512704698dd59682fbd958, type: 2}
   debugView: 0
+  lodTransitionWidth: 0.02
   intersectionMesh: {fileID: 1240450160534176758}
   cornersParent: {fileID: 788838821168792192}
 --- !u!205 &1472827715359471264
@@ -173,7 +174,7 @@ LODGroup:
   m_AnimateCrossFading: 0
   m_LastLODIsBillboard: 0
   m_LODs:
-  - screenRelativeHeight: 0.021416899
+  - screenRelativeHeight: 0.00520544
     fadeTransitionWidth: 0
     renderers: []
   m_Enabled: 1

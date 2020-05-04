@@ -493,8 +493,7 @@ namespace UnityGLTF {
             return id;
         }
 
-        private static bool ContainsValidRenderer(GameObject gameObject)
-        {
+        private static bool ContainsValidRenderer(GameObject gameObject) {
             return (gameObject.GetComponent<MeshFilter>() != null && gameObject.GetComponent<MeshRenderer>() != null)
                 || (gameObject.GetComponent<SkinnedMeshRenderer>() != null);
         }

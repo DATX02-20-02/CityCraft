@@ -167,6 +167,148 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &775807238
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 1156766845}
+    m_Modifications:
+    - target: {fileID: 3803538401388743391, guid: f6194860a1ee1a5cb83135cd2f5f103a,
+        type: 3}
+      propertyPath: m_Name
+      value: Terrain Generator
+      objectReference: {fileID: 0}
+    - target: {fileID: 7024093109867382770, guid: f6194860a1ee1a5cb83135cd2f5f103a,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7024093109867382770, guid: f6194860a1ee1a5cb83135cd2f5f103a,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7024093109867382770, guid: f6194860a1ee1a5cb83135cd2f5f103a,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7024093109867382770, guid: f6194860a1ee1a5cb83135cd2f5f103a,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7024093109867382770, guid: f6194860a1ee1a5cb83135cd2f5f103a,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7024093109867382770, guid: f6194860a1ee1a5cb83135cd2f5f103a,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7024093109867382770, guid: f6194860a1ee1a5cb83135cd2f5f103a,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7024093109867382770, guid: f6194860a1ee1a5cb83135cd2f5f103a,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7024093109867382770, guid: f6194860a1ee1a5cb83135cd2f5f103a,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7024093109867382770, guid: f6194860a1ee1a5cb83135cd2f5f103a,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7024093109867382770, guid: f6194860a1ee1a5cb83135cd2f5f103a,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f6194860a1ee1a5cb83135cd2f5f103a, type: 3}
+--- !u!114 &834854707 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8089825655492616084, guid: f6194860a1ee1a5cb83135cd2f5f103a,
+    type: 3}
+  m_PrefabInstance: {fileID: 775807238}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ebb4332aed027a3783beea35ae588f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &834854708 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7024093109867382770, guid: f6194860a1ee1a5cb83135cd2f5f103a,
+    type: 3}
+  m_PrefabInstance: {fileID: 775807238}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1156766843
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1156766845}
+  - component: {fileID: 1156766844}
+  m_Layer: 0
+  m_Name: Parking Generator Test
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1156766844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1156766843}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea9b61da73983554eb832427f11d64e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  plot:
+    vertices:
+    - {x: 1, y: 58.91172, z: 1}
+    - {x: 8.23, y: 59.13854, z: 2.61}
+    - {x: 9.04, y: 58.59714, z: 7.84}
+    - {x: 1.86, y: 58.49479, z: 7.84}
+    - {x: 1.09, y: 58.91172, z: 1}
+    type: 3
+  parkingGenerator: {fileID: 256549797}
+  terrainGen: {fileID: 834854707}
+  generate: 1
+--- !u!4 &1156766845
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1156766843}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 834854708}
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1347204175
 GameObject:
   m_ObjectHideFlags: 0

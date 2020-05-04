@@ -1,20 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Utils;
 
 public class ParkingGenerator : MonoBehaviour {
     [SerializeField] private GameObject whiteLine = null;
     [SerializeField] private GameObject square = null;
-    public void Generate(TerrainModel terrain, Plot plot) {
-        List<Vector2> polygon = new List<Vector2>();
+
+    public void Reset() {
+        foreach (Transform child in transform) {
+            Destroy(child.gameObject);
+        }
+    }
+
+    public Rectangle Generate(TerrainModel terrain, Plot plot) {
+        List<Vector2> polygon = plot.vertices.Select(VectorUtil.Vector3To2).ToList();
 
         var rect = ApproximateLargestRectangle(polygon);
         var c = terrain.GetMeshIntersection(rect.Center.x, rect.Center.y);
 
         Quaternion rot = Quaternion.Euler(0, -rect.angle * Mathf.Rad2Deg, 0);
         GameObject g = Instantiate(square, c.point + c.normal * 0.03f, Quaternion.FromToRotation(square.transform.up, c.normal) * rot, this.transform);
-        g.transform.localScale = new Vector3(rect.width * 0.2f, g.transform.localScale.y, rect.height * 0.2f);
+        g.transform.localScale = new Vector3(rect.width / 2 * 0.2f, g.transform.localScale.y, rect.height / 2 * 0.2f);
 
         float offset = 0.1f;
         float border = 0.2f;
@@ -23,16 +31,16 @@ public class ParkingGenerator : MonoBehaviour {
         Vector2 rectUpDir = (rect.topLeft - rect.botLeft).normalized;
         Vector2 origin = rect.botLeft;
 
-        if (rect.height < 0.4f) {
+        if (rect.height / 2 < 0.4f) {
             origin = (rect.botLeft + rect.topLeft) / 2;
             border = 0;
         }
 
-        while (offset <= rect.width - border) {
-            Vector2 localV1 = rectRightDir * (offset + border) + rectUpDir * (rect.height * 2 - border); // top left
-            Vector2 localV2 = rectRightDir * (rect.width * 2 - offset - border) + rectUpDir * (rect.height * 2 - border); // top right
+        while (offset <= rect.width / 2 - border) {
+            Vector2 localV1 = rectRightDir * (offset + border) + rectUpDir * (rect.height - border); // top left
+            Vector2 localV2 = rectRightDir * (rect.width - offset - border) + rectUpDir * (rect.height - border); // top right
             Vector2 localV3 = rectRightDir * (offset + border) + rectUpDir * border;                 // bottom left
-            Vector2 localV4 = rectRightDir * (rect.width * 2 - offset - border) + rectUpDir * border;                 // bottom right
+            Vector2 localV4 = rectRightDir * (rect.width - offset - border) + rectUpDir * border;                 // bottom right
 
             var v1 = terrain.GetMeshIntersection(origin.x + localV1.x, origin.y + localV1.y);
             var v2 = terrain.GetMeshIntersection(origin.x + localV2.x, origin.y + localV2.y);
@@ -47,7 +55,7 @@ public class ParkingGenerator : MonoBehaviour {
             lowLeftObj.transform.Rotate(0, -90, 0);
             lowLeftObj.transform.localScale = new Vector3(lowLeftObj.transform.localScale.x, lowLeftObj.transform.localScale.y, lowLeftObj.transform.localScale.z / 4);
 
-            if (rect.height >= 0.4f) {
+            if (rect.height / 2 >= 0.4f) {
 
                 GameObject topLeftObj = Instantiate(whiteLine, v1.point + v1.normal * 0.05f, Quaternion.FromToRotation(whiteLine.transform.up, v1.normal) * rot, this.transform);
                 topLeftObj.transform.Rotate(0, -90, 0);
@@ -72,9 +80,11 @@ public class ParkingGenerator : MonoBehaviour {
             |---|---|
             bl--bm---br
         */
+        return rect;
     }
-    private Rectangle ApproximateLargestRectangle(List<Vector2> polygon) {
-        return Utils.PolygonUtil.ApproximateLargestRectangle(polygon, Random.Range(1.0f, 3.0f), 0.1f, 6, 10);
+
+    public Rectangle ApproximateLargestRectangle(List<Vector2> polygon) {
+        return Utils.PolygonUtil.ApproximateLargestRectangle(polygon, Random.Range(1.0f, 3.0f), 0.1f, 6, 10, 10);
     }
         private Rectangle ApproximateTwo(List<Vector2> polygon) {
         return Utils.PolygonUtil.ApproximateTwo(polygon, Random.Range(1.0f, 3.0f), 0.1f, 6, 10);

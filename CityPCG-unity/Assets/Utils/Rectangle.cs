@@ -11,7 +11,7 @@ public struct Rectangle {
     public float height;
 
     public Vector2 Center {
-        get => (topLeft + topRight + botLeft + botRight) / 4.0;
+        get => (topLeft + topRight + botLeft + botRight) / 4.0f;
     }
 
     public static Rectangle Create(float x, float y, float angle, float width, float height) {

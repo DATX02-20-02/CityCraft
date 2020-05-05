@@ -347,7 +347,6 @@ public class BlockGenerator : MonoBehaviour {
 
     private List<Block> InsetBlocks() {
         // Go through all blocks and perform the inset algorithm on each
-        int decider = 0;
         foreach (Block block in this.blocks) {
             List<Block> newBlocks = InsetBlock(block, this.inset);
 

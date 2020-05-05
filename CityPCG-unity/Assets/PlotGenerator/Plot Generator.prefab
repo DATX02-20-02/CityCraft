@@ -85,5 +85,5 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  debug: 0
+  debug: 1
   parts: 2

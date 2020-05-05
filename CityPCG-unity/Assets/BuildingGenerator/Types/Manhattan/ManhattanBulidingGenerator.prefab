@@ -56,6 +56,12 @@ MonoBehaviour:
   - floorType: 1
     segmentGenerator: {fileID: 1794139229004270411, guid: a90b0c45764b3d74482b0602b9051713,
       type: 3}
+  - floorType: 2
+    segmentGenerator: {fileID: 1794139229004270411, guid: d7b8858154784004adda80ca27bd9d25,
+      type: 3}
+  - floorType: 3
+    segmentGenerator: {fileID: 1794139229004270411, guid: b9ca2a69c68c4e57b8c384b1c9ea9b9c,
+      type: 3}
   segmentToData:
   - segmentType: 0
     data:

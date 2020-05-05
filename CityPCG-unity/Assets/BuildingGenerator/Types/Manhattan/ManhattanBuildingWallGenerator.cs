@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
+using static UnityEngine.Vector3;
 using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
@@ -37,6 +38,14 @@ public class ManhattanBuildingWallGenerator {
                     var normalGenerator = floorToSegmentGenerator[ManhattanFloorType.Normal];
                     segments.Add(normalGenerator.Generate(new ManhattanSegmentsGeneratorData(Vector2.Distance(start, end))));
                     break;
+                case ManhattanFloorType.EveryOther:
+                    var everyOtherGenerator = floorToSegmentGenerator[ManhattanFloorType.EveryOther];
+                    segments.Add(everyOtherGenerator.Generate(new ManhattanSegmentsGeneratorData(Vector2.Distance(start, end))));
+                    break;
+                case ManhattanFloorType.RepeatWindow:
+                    var repeatWindowGenerator = floorToSegmentGenerator[ManhattanFloorType.RepeatWindow];
+                    segments.Add(repeatWindowGenerator.Generate(new ManhattanSegmentsGeneratorData(Vector2.Distance(start, end))));
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -45,7 +54,7 @@ public class ManhattanBuildingWallGenerator {
         var start3 = new Vector3(start.x, 0, start.y);
         var end3 = new Vector3(end.x, 0, end.y);
         var dir3 = start3 - end3;
-        var face = Vector3.Cross(dir3, Vector3.up).normalized;
+        var face = Cross(dir3, up).normalized;
 
         var ttmSegments = new List<TemporaryTransformedMesh>();
 
@@ -66,10 +75,14 @@ public class ManhattanBuildingWallGenerator {
                 var segmentData = segmentToData[wallSegmentType];
                 var segmentPosition = new Vector3(x + (segmentData.width * scl) / 2, 0, 0) + floorPosition;
                 x += segmentData.width * scl;
-                var segmentRotation = Quaternion.LookRotation(Vector3.up);
+                var segmentRotation = Quaternion.LookRotation(up);
                 var segmentLocalScale = new Vector3((segmentData.width / 10) * scl, 1, wallSegmentHeightMeter / 10);
 
-                var transform = Matrix4x4.Translate(end3) * Matrix4x4.Rotate(Quaternion.LookRotation(face)) *
+                var lookRotation = Quaternion.LookRotation(face);
+                var lookRotationMat =
+                    Equals(lookRotation, zero) ? Matrix4x4.identity : Matrix4x4.Rotate(lookRotation);
+
+                var transform = Matrix4x4.Translate(end3) * lookRotationMat *
                                 Matrix4x4.Rotate(segmentRotation) * Matrix4x4.Translate(segmentPosition) *
                                 Matrix4x4.Scale(segmentLocalScale);
 

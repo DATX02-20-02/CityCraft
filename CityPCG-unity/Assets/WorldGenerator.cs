@@ -233,7 +233,8 @@ public class WorldGenerator : MonoBehaviour {
 
             // Split each block into plots
             List<Plot> plots = plotGenerator.Generate(block, terrain, populationNoise);
-            foreach (var plot in plots) {
+            yield return new WaitForSeconds(buildIntervalDelay);
+            /*foreach (var plot in plots) {
                 this.plots.Add(plot);
                 if (plot.type == PlotType.Manhattan) {
                     buildingGenerator.Generate(plot, this.terrain, this.populationNoise, blockObject);
@@ -250,6 +251,7 @@ public class WorldGenerator : MonoBehaviour {
             }
 
             MeshCombiner.Combine(blockObject);
+        */
         }
 
         if (this.buildingsCallback != null)

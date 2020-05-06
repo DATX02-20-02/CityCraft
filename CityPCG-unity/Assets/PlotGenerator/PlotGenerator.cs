@@ -15,7 +15,7 @@ public class PlotGenerator : MonoBehaviour {
 
     public List<Plot> Generate(Block block, TerrainModel terrain, Noise populationNoise) {
         float blockArea = PolygonUtil.PolygonArea(block.vertices);
-        int parts = (int) Mathf.Max(Random.Range(0.5f, 1.0f) * blockArea, 1);
+        int parts = (int)Mathf.Max(Random.Range(0.5f, 1.0f) * blockArea, 1);
 
         var plots = Split(CreatePolygon(block.Vertices2D()), parts)
             .Where(polygon => polygon != null)

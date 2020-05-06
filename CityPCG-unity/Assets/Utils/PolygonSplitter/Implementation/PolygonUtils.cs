@@ -283,9 +283,9 @@ namespace Utils.PolygonSplitter.Implementation {
 
         public static bool IsLineInsidePolygon(LineSegment l, Polygon p) {
             float t = 0.01f; // tolerance
-            Vector2 almost_start = (1f-t) * l.start + t * l.end;
-            Vector2 almost_end = t * l.start + (1f-t) * l.end;
-            bool b = p.Contains(almost_start) && p.Contains(almost_end);
+            Vector2 almostStart = (1f - t) * l.start + t * l.end;
+            Vector2 almostEnd = t * l.start + (1f - t) * l.end;
+            bool b = p.Contains(almostStart) && p.Contains(almostEnd);
             return b;
         }
     }

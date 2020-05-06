@@ -9,7 +9,8 @@ public class Node : ISpatialData {
     public enum NodeType {
         Main,
         Highway,
-        Street
+        Street,
+        ParkPath
     }
 
     public Vector3 pos;

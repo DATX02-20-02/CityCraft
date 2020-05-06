@@ -2,7 +2,8 @@ public enum ConnectionType {
     None,
     Main,
     Highway,
-    Street
+    Street,
+    ParkPath
 };
 
 public class NodeConnection {

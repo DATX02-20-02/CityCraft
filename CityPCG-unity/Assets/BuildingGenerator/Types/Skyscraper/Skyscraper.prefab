@@ -169,7 +169,7 @@ GameObject:
   - component: {fileID: 929978230862651425}
   - component: {fileID: 2005011104}
   m_Layer: 0
-  m_Name: Skyscraper Generator
+  m_Name: Skyscraper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

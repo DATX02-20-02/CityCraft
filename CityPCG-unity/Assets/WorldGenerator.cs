@@ -235,7 +235,7 @@ public class WorldGenerator : MonoBehaviour {
             List<Plot> plots = plotGenerator.Generate(block, terrain, populationNoise);
             foreach (var plot in plots) {
                 this.plots.Add(plot);
-                if (plot.type == PlotType.Manhattan) {
+                if (plot.type == PlotType.Manhattan || plot.type == PlotType.Skyscraper) {
                     buildingGenerator.Generate(plot, this.terrain, this.populationNoise, blockObject);
                 }
                 else if (plot.type == PlotType.Park) {

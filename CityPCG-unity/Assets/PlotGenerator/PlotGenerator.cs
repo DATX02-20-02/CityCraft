@@ -53,7 +53,7 @@ public class PlotGenerator : MonoBehaviour {
                 return PlotType.Manhattan;
 
             case BlockType.Skyscrapers:
-                return PlotType.Manhattan;
+                return PlotType.Skyscraper;
 
             case BlockType.Apartments:
                 return PlotType.Manhattan;

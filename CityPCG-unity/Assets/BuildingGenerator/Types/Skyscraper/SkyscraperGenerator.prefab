@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &4532669883070966013
+--- !u!1 &2387288971744128634
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,22 +8,22 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4532669883070966012}
-  - component: {fileID: 4532669883070966015}
+  - component: {fileID: 1113343640519434157}
+  - component: {fileID: 4991717674203592171}
   m_Layer: 0
-  m_Name: Building Generator
+  m_Name: SkyscraperGenerator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4532669883070966012
+--- !u!4 &1113343640519434157
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4532669883070966013}
+  m_GameObject: {fileID: 2387288971744128634}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -31,22 +31,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4532669883070966015
+--- !u!114 &4991717674203592171
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4532669883070966013}
+  m_GameObject: {fileID: 2387288971744128634}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2360f3ba3a30c5801af157b621e60584, type: 3}
+  m_Script: {fileID: 11500000, guid: fbb18dcd91184894b76f3a809fbf716a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buildingGenerators:
-  - buildingType: 0
-    buildingGenerator: {fileID: 2962226509299918036, guid: b6a5634686cd04d4894f580cb00d0029,
-      type: 3}
-  - buildingType: 4
-    buildingGenerator: {fileID: 2387288971744128634, guid: f374f82d1386d2b42b9d61ea9a190aa4,
-      type: 3}
+  skyscraperPrefab: {fileID: 929978230862651424, guid: 6ff08ce8b4598a24683d27cf52a51e1f,
+    type: 3}

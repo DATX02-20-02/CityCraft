@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class SkyscraperGenerator : MonoBehaviour {
+public class Skyscraper : MonoBehaviour {
 
     [System.Serializable]
     private struct MaterialConfig {
@@ -41,6 +41,9 @@ public class SkyscraperGenerator : MonoBehaviour {
         }
 
         var rect = ApproximateLargestRectangle(polygon);
+
+        Debug.Log(rect);
+
         if (debug)
             DrawUtil.DebugDrawRectangle(rect, Color.yellow);
         Vector2 center2D = (rect.topLeft + rect.topRight + rect.botLeft + rect.botRight) / 4;
@@ -56,6 +59,8 @@ public class SkyscraperGenerator : MonoBehaviour {
         this.worldSize.x = rect.width;
         this.worldSize.y = Mathf.Max(maxHeight / (1f + basePenality), 2.5f);
         this.worldSize.z = rect.height;
+
+        Debug.Log(this.worldSize.x + "; " + this.worldSize.y + "; " + this.worldSize.z);
 
         this.sizeX = (int)(2 * this.worldSize.x + 1);
         this.sizeY = (int)(3 * this.worldSize.y + 1);
@@ -172,6 +177,8 @@ public class SkyscraperGenerator : MonoBehaviour {
         mesh.triangles = triangles;
         mesh.uv = uvs;
         mesh.RecalculateNormals();
+
+        Debug.Log(vertices.Length);
     }
 
     private void Awake() {

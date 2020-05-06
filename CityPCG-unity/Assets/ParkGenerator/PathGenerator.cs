@@ -6,11 +6,17 @@ using Utils.PolygonSplitter;
 public class PathGenerator : MonoBehaviour {
     public RoadMesh road;
     private Vector2[] polygon;
-
+    private RoadNetwork network;
+    [SerializeField] private RoadMeshGenerator meshGenerator = null;
+    
+    public void Reset() {
+        meshGenerator.Reset();
+    }
     public void GeneratePlotPath(TerrainModel terrain, Plot plot) {
         List<Vector2> polygonPlot = new List<Vector2>();
         List<Vector2> goalPoints2D = new List<Vector2>();
         List<Vector3> goalPoints3D = new List<Vector3>();
+        
         int stuck = 0;
         Vector3 prev = new Vector3();
         int index = 0;
@@ -26,32 +32,36 @@ public class PathGenerator : MonoBehaviour {
         }
         if (plotArea.GetArea() > 20)
             numberOfPoints = 4;
+        
         Vector2 cornerPoint = plotArea.points[Random.Range(0, plotArea.points.Count)];
         goalPoints2D.Add(cornerPoint);
         goalPoints3D.Add(terrain.GetMeshIntersection(goalPoints2D[0].x, goalPoints2D[0].y).point);
+        
         for (int i = 0; i < numberOfPoints; i++) {
             Vector2 pointToAdd = getRandomPoint(plotArea, goalPoints2D);
             goalPoints2D.Add(pointToAdd);
         }
-        goalPoints2D = OrderByDistance(goalPoints2D);
-        foreach (Vector2 v in goalPoints2D) {
-            goalPoints3D.Add(terrain.GetMeshIntersection(v.x, v.y).point);
-        }
-        prev = goalPoints3D[0];
+        Vector2 prev2D = goalPoints2D[0];
         bool samePoint = true;
         Vector2 testPoint = new Vector2();
         int decider = Random.Range(0, 2);
-        if (decider >= 1)
-            goalPoints3D.Add(prev);
+        if (decider >= 1) {
+            goalPoints2D = OrderByDistance(goalPoints2D);
+            goalPoints2D.Add(prev2D);
+        }
         else {
             while (samePoint) {
-                testPoint = plotArea.points[Random.Range(0, plotArea.points.Count)];
+                testPoint = polygonPlot[Random.Range(0, polygonPlot.Count)];
                 if (testPoint != cornerPoint)
                     samePoint = false;
             }
-            goalPoints3D.Add(terrain.GetMeshIntersection(testPoint.x, testPoint.y).point);
+            goalPoints2D.Add(testPoint);
+            goalPoints2D = OrderByDistance(goalPoints2D);
         }
-
+        foreach(Vector2 v in goalPoints2D) {
+            goalPoints3D.Add(terrain.GetMeshIntersection(v.x,v.y).point);
+        }
+        prev = goalPoints3D[0];
         int pointsToVisit = goalPoints3D.Count;
         Vector3 tryVec = new Vector3();
         ParkPath p = new ParkPath(goalPoints3D);
@@ -77,7 +87,7 @@ public class PathGenerator : MonoBehaviour {
                 Vector3 dir = (p.goals[currGoal] - prev).normalized;
                 float oldAng = Vector3.Angle(tryVec, prev);
                 Vector3 newDir = Quaternion.Euler(0, oldAng - Random.Range(-30f, 30f), 0) * dir;
-                tryVec = prev + newDir * Random.Range(0.1f, 0.3f);
+                tryVec = prev + newDir * 1f;
 
             }
 
@@ -106,24 +116,13 @@ public class PathGenerator : MonoBehaviour {
 
         }
 
-        this.transform.position = p.nodes[0];
-        var mesh = Instantiate(road, p.nodes[0], Quaternion.identity, this.transform).GetComponent<RoadMesh>();
         if (p.goals.Count >= numberOfPoints) {
-            for (int i = 0; i < p.nodes.Count; i += 2)
-                mesh.Spline.AddPoint(p.nodes[i]);
-
-            mesh.Spline.AddPoint(p.nodes[p.nodes.Count - 1]);
-            mesh.GenerateRoadMesh((float x, float z) => {
-                return terrain.GetMeshIntersection(x, z);
-            });
-            var filter = mesh.RoadMeshFilter;
-            var collider = mesh.GetComponent<MeshCollider>();
-            collider.sharedMesh = filter.sharedMesh;
+            AddPathExits(terrain,p.nodes,plot);
+            meshGenerator.Generate(network,terrain,(List<RoadMesh> roads) => { });
         }
     }
-
     private bool CloseEnough(Vector3 start, Vector3 end) {
-        return (end - start).magnitude < 0.1f;
+        return (end - start).magnitude < 0.5f;
     }
 
     private bool isValidDistance(List<Vector2> points, Vector2 point) {
@@ -186,4 +185,55 @@ public class PathGenerator : MonoBehaviour {
         return result;
     }
 
+    private void AddPathExits(TerrainModel terrain, List<Vector3> points, Plot plot) {
+        Node prevNode; 
+
+        List<Node> nodes = new List<Node>();
+        network = new RoadNetwork(terrain,null,terrain.width,terrain.depth);
+        Agent Alexander = new Agent(network,Vector3.zero,Vector3.zero,null);
+        Alexander.config.snapRadius = 0.2f;
+        foreach(Vector3 point in points) {  
+            prevNode = Alexander.PlaceNode(point,Node.NodeType.ParkPath,ConnectionType.ParkPath);
+            nodes.Add(prevNode);
+        }
+
+        for(int i = 1; i < nodes.Count-1; i += nodes.Count/4) {
+            Vector2 origin = VectorUtil.Vector3To2(nodes[i].pos);
+            Vector3 orgDir = (nodes[i-1].pos-nodes[i+1].pos).normalized;
+            Vector3 newDir = -Vector3.Cross(orgDir,Vector3.up);
+            if (Vector3.Dot(newDir, nodes[i-1].pos - nodes[i].pos) > 0) 
+                newDir *= -1;
+
+            float minDist = int.MaxValue;
+            bool found = false;
+            Vector2 best = new Vector2();
+            for(int j = 0; j < plot.vertices.Count; j++) {
+                Vector2 proj = VectorUtil.GetProjectedPointOnLine(
+                    origin,
+                    VectorUtil.Vector3To2(plot.vertices[j]),
+                    VectorUtil.Vector3To2(plot.vertices[(j+1) % plot.vertices.Count])
+                );
+                if (proj != Vector2.negativeInfinity) {
+                    float d = Vector2.Distance(proj, origin);
+                    if ( d < minDist && d > 0.2f && d < 2) {
+                        minDist = d;
+                        found = true;
+                        best = proj;
+                    }
+                }
+            }
+            if (found) {
+                Alexander.PreviousNode = nodes[i];
+                Alexander.PlaceNode(VectorUtil.Vector2To3(best),Node.NodeType.ParkPath,ConnectionType.ParkPath);
+            }
+        }
+    }
+    void OnDestroy() {
+        Reset();
+    }
+    void Update() {
+        if(network != null)
+            network.DrawDebug(true);
+    }
 }
+

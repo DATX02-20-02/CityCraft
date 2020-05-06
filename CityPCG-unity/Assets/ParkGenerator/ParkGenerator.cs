@@ -10,18 +10,22 @@ public class ParkGenerator : MonoBehaviour {
     [SerializeField] private GameObject rock = null;
     [SerializeField] private GameObject[] bushes = null;
     [SerializeField] private RoadMesh road = null;
+    [SerializeField] private GameObject objectParent = null;
+    [SerializeField] private GameObject pathGeneratorPrefab = null;
     private TerrainModel terrain;
 
 
     public void Reset() {
-        foreach (Transform child in transform)
+        foreach (Transform child in objectParent.transform)
             Destroy(child.gameObject);
     }
 
     // Coordinates calls the Triangulator function in order to divide polygons into triangles
     public void Generate(TerrainModel terrain, Plot plot) {
         this.terrain = terrain;
-        GeneratePaths(terrain, plot);
+        GameObject pathGeneratorObj = Instantiate(pathGeneratorPrefab,this.transform);
+        PathGenerator pathGenerator = pathGeneratorObj.GetComponent<PathGenerator>();
+        pathGenerator.GeneratePlotPath(terrain, plot);
         Vector3[] area = plot.vertices.ToArray();
         int objectsToPlace = Mathf.RoundToInt(PolygonUtil.PolygonArea(plot.vertices) * objectFrequency);
         Triangulator triangulator = new Triangulator(area);
@@ -67,7 +71,7 @@ public class ParkGenerator : MonoBehaviour {
 
     // InitMesh is called for spawning Game objects, assigning them a scale, position, and rotation.
     void InitMesh(GameObject g, Vector3 pos, float scale, Quaternion rotation) {
-        GameObject obj = Instantiate(g, transform);
+        GameObject obj = Instantiate(g, objectParent.transform);
         obj.AddComponent<MeshCollider>();
         Mesh mesh = obj.GetComponent<MeshFilter>().mesh;
         obj.transform.position = terrain.GetMeshIntersection(pos.x, pos.z).point;
@@ -111,13 +115,5 @@ public class ParkGenerator : MonoBehaviour {
         }
 
         return result;
-    }
-
-    public void GeneratePaths(TerrainModel terrain, Plot plot) {
-        GameObject path = new GameObject("Path Generator");
-        path.transform.parent = this.transform;
-        var pg = path.AddComponent<PathGenerator>();
-        pg.road = road;
-        pg.GeneratePlotPath(terrain, plot);
     }
 }

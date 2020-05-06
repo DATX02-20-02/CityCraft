@@ -1415,7 +1415,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mouseSensitivity: 5
-  moveSpeed: 10
+  moveSpeed: 2
   rotationSnapLimit: 45
 --- !u!1001 &964734855
 PrefabInstance:
@@ -5669,10 +5669,20 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1114536822}
     m_Modifications:
+    - target: {fileID: 256622704865095859, guid: c8b2c99084cb928459fbf00902ab0e4d,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 626859456445388276, guid: c8b2c99084cb928459fbf00902ab0e4d,
         type: 3}
       propertyPath: m_Name
       value: Plot Content Generator
+      objectReference: {fileID: 0}
+    - target: {fileID: 3976878019785089125, guid: c8b2c99084cb928459fbf00902ab0e4d,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4171355245269170052, guid: c8b2c99084cb928459fbf00902ab0e4d,
         type: 3}
@@ -5727,6 +5737,16 @@ PrefabInstance:
     - target: {fileID: 4171355245269170052, guid: c8b2c99084cb928459fbf00902ab0e4d,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6208058323207568989, guid: c8b2c99084cb928459fbf00902ab0e4d,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8828833867929398997, guid: c8b2c99084cb928459fbf00902ab0e4d,
+        type: 3}
+      propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

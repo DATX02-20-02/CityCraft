@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Utils.LSystems;
 
-public class RepeatWindowManhattanSegmentsGenerator  : MonoBehaviour, IManhattanWallSegmentsGenerator {
+public class RepeatWindowManhattanSegmentsGenerator : MonoBehaviour, IManhattanWallSegmentsGenerator {
     private LSystem<ManhattanWallSegmentType, ManhattanSegmentsGeneratorData> lSystem;
 
     public void Init(Dictionary<ManhattanWallSegmentType, ManhattanSegmentData> segmentData) {

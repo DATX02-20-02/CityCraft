@@ -32,7 +32,7 @@ namespace Utils.LSystems {
 
         //TODO Validate that all values has a rule
         public List<T> Run(T axiom, U value) {
-            return Run(new List<T>() {axiom}, value);
+            return Run(new List<T>() { axiom }, value);
         }
 
         public List<T> Run(List<T> axioms, U value) {
@@ -46,7 +46,7 @@ namespace Utils.LSystems {
                 }
 
                 //TODO: Should not cast here. Problem is that .Next need to return null or something like that
-                result.Add((T) next);
+                result.Add((T)next);
                 value = rules[result.Last()].update(value);
 
                 if (!shouldContinue(value)) {

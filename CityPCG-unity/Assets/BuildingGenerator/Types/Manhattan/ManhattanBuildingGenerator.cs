@@ -26,8 +26,7 @@ public class ManhattanBuildingGenerator : MonoBehaviour, IBuildingGenerator {
 
         var wallGenerator = new ManhattanBuildingWallGenerator(wallSegmentHeightMeter, floorTypes, floorToSegmentGeneratorDict, segmentToDataDict, buildingObject);
 
-        foreach (var sg in floorToSegmentGeneratorDict.Values)
-        {
+        foreach (var sg in floorToSegmentGeneratorDict.Values) {
             sg.Init(segmentToDataDict);
         }
 

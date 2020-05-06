@@ -113,6 +113,7 @@ public static class MeshCombiner {
                  combineInstance.transform = tto.transform;
                  combineInstance.subMeshIndex = s;
                  combineInstance.mesh = meshFilter.sharedMesh;
+
                  (combineInstanceArrays[materialArrayIndex] as ArrayList).Add(combineInstance);
              }
          }

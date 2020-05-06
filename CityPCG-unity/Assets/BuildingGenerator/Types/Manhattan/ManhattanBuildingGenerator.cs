@@ -39,8 +39,9 @@ public class ManhattanBuildingGenerator : MonoBehaviour, IBuildingGenerator {
         for (var i = relativeVertices.Count - 1; i >= 0; i--) {
             var cur = relativeVertices[i];
             var next = relativeVertices[i == 0 ? relativeVertices.Count - 1 : (i - 1)];
+            wallGenerator.Generate(cur, next, buildingObject);
 
-            ttmSegments.AddRange(wallGenerator.Generate(cur, next));
+            //ttmSegments.AddRange();
         }
 
         var biggestYDifference = 0.0f;
@@ -57,7 +58,6 @@ public class ManhattanBuildingGenerator : MonoBehaviour, IBuildingGenerator {
             biggestYDifference));
 
         MeshCombiner.Combine(buildingObject, ttmSegments);
-
         return buildingObject;
     }
 

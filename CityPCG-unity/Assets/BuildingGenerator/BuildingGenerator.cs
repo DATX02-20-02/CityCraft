@@ -32,6 +32,8 @@ public class BuildingGenerator : MonoBehaviour {
         var highestY = plot.vertices.Aggregate(plot.vertices[0], (v1, v2) => v1.y > v2.y ? v1 : v2).y;
         building.transform.position = new Vector3(plot.vertices[0].x, highestY, plot.vertices[0].z);
 
+        Resources.UnloadUnusedAssets();
+
         return building;
     }
 

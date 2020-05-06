@@ -77,7 +77,7 @@ MonoBehaviour:
     data:
       wallSegmentObject: {fileID: 3113571547305586877, guid: cd0524a9d76b413bb15b991a7ced17ca,
         type: 3}
-      width: 0.2
+      width: 0.4
   - segmentType: 3
     data:
       wallSegmentObject: {fileID: 4554297189403444398, guid: 98b8c6662845ee14bb65bd242a41577e,

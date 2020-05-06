@@ -15,6 +15,8 @@ public class ManhattanBuildingWallGenerator {
     private Dictionary<ManhattanWallSegmentType, ManhattanSegmentData> segmentToData;
     private GameObject buildingObject;
 
+    private List<ManhattanWallSegmentType> normalGenerated;
+
     public ManhattanBuildingWallGenerator(float wallSegmentHeightMeter, List<ManhattanFloorType> floorTypes,
         Dictionary<ManhattanFloorType, IManhattanWallSegmentsGenerator> floorToSegmentGenerator,
         Dictionary<ManhattanWallSegmentType, ManhattanSegmentData> segmentToData, GameObject buildingObject) {
@@ -25,8 +27,10 @@ public class ManhattanBuildingWallGenerator {
         this.buildingObject = buildingObject;
     }
 
-    public List<TemporaryTransformedMesh> Generate(Vector2 start, Vector2 end) {
+    public List<TemporaryTransformedMesh> Generate(Vector2 start, Vector2 end, GameObject parent) {
         var segments = new List<List<ManhattanWallSegmentType>>();
+        var wallObject = new GameObject("Wall");
+        wallObject.transform.parent = parent.transform;
 
         foreach (var floorType in floorTypes) {
             switch (floorType) {
@@ -36,7 +40,11 @@ public class ManhattanBuildingWallGenerator {
                     break;
                 case ManhattanFloorType.Normal:
                     var normalGenerator = floorToSegmentGenerator[ManhattanFloorType.Normal];
-                    segments.Add(normalGenerator.Generate(new ManhattanSegmentsGeneratorData(Vector2.Distance(start, end))));
+                    if (normalGenerated == null) {
+                        normalGenerated = new List<ManhattanWallSegmentType>();
+                        normalGenerated.AddRange(normalGenerator.Generate(new ManhattanSegmentsGeneratorData(Vector2.Distance(start, end))));
+                    }
+                    segments.Add(normalGenerated);
                     break;
                 case ManhattanFloorType.EveryOther:
                     var everyOtherGenerator = floorToSegmentGenerator[ManhattanFloorType.EveryOther];
@@ -69,6 +77,7 @@ public class ManhattanBuildingWallGenerator {
             var u = new Vector3(0, 0, wallSegmentHeightMeter);
 
             var floorPosition = u * (y + 0.5f);
+
             var scl = length / totalSpecifiedWidth;
 
             foreach (var wallSegmentType in floorSegments) {
@@ -78,12 +87,7 @@ public class ManhattanBuildingWallGenerator {
                 var segmentRotation = Quaternion.LookRotation(up);
                 var segmentLocalScale = new Vector3((segmentData.width / 10) * scl, 1, wallSegmentHeightMeter / 10);
 
-                var lookRotation = Quaternion.LookRotation(face);
-                var lookRotationMat =
-                    Equals(lookRotation, zero) ? Matrix4x4.identity : Matrix4x4.Rotate(lookRotation);
-
-                var transform = Matrix4x4.Translate(end3) * lookRotationMat *
-                                Matrix4x4.Rotate(segmentRotation) * Matrix4x4.Translate(segmentPosition) *
+                var transform = Matrix4x4.Rotate(segmentRotation) * Matrix4x4.Translate(segmentPosition) *
                                 Matrix4x4.Scale(segmentLocalScale);
 
                 ttmSegments.Add(new TemporaryTransformedMesh(transform, segmentData.wallSegmentObject));
@@ -91,6 +95,11 @@ public class ManhattanBuildingWallGenerator {
 
             y++;
         }
+
+        wallObject.transform.position = end3;
+        wallObject.transform.rotation = Quaternion.LookRotation(face);
+        MeshCombiner.Combine(wallObject, ttmSegments);
+
 
         return ttmSegments;
     }

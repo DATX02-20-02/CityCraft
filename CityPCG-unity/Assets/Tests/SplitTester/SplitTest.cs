@@ -43,6 +43,6 @@ public class SplitTest : MonoBehaviour {
     private void DrawPolygon(Polygon polygon, Color c, float duration = 0.01f) {
         int count = polygon.points.Count;
         for (int i = 0; i < count; i++)
-            Debug.DrawLine(polygon.points[i], polygon.points[(i+1)%count], c, duration);
+            Debug.DrawLine(polygon.points[i], polygon.points[(i + 1) % count], c, duration);
     }
 }

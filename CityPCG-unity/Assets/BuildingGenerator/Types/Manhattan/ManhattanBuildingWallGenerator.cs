@@ -81,21 +81,19 @@ public class ManhattanBuildingWallGenerator {
             var totalSpecifiedWidth = floorSegments.Aggregate(0f, (prod, next) => prod + segmentToData[next].width);
 
             var x = 0f;
-            var u = new Vector3(0, 0, wallSegmentHeightMeter);
-
-            var floorPosition = u * (y + 0.5f);
-
+            var floorPosition = new Vector3(0, wallSegmentHeightMeter, 0) * (y + 0.5f);
             var scl = length / totalSpecifiedWidth;
 
             foreach (var wallSegmentType in floorSegments) {
                 var segmentData = segmentToData[wallSegmentType];
+
                 var segmentPosition = new Vector3(x + (segmentData.width * scl) / 2, 0, 0) + floorPosition;
                 x += segmentData.width * scl;
-                var segmentRotation = Quaternion.LookRotation(up);
-                var segmentLocalScale = new Vector3((segmentData.width / 10) * scl, 1, wallSegmentHeightMeter / 10);
 
-                var transform = Matrix4x4.Rotate(segmentRotation) * Matrix4x4.Translate(segmentPosition) *
-                                Matrix4x4.Scale(segmentLocalScale);
+                var segmentRotation = Quaternion.LookRotation(up) * Quaternion.Euler(90, 0, 0);
+                var segmentLocalScale = new Vector3(segmentData.width * scl, wallSegmentHeightMeter, 1);
+
+                var transform = Matrix4x4.Translate(segmentPosition) * Matrix4x4.Rotate(segmentRotation) * Matrix4x4.Scale(segmentLocalScale);
 
                 ttmSegments.Add(new TemporaryTransformedMesh(transform, segmentData.wallSegmentObject));
             }

@@ -233,7 +233,6 @@ public class WorldGenerator : MonoBehaviour {
 
             // Split each block into plots
             List<Plot> plots = plotGenerator.Generate(block, terrain, populationNoise);
-            yield return new WaitForSeconds(buildIntervalDelay);
             foreach (var plot in plots) {
                 this.plots.Add(plot);
                 if (plot.type == PlotType.Manhattan) {
@@ -246,11 +245,10 @@ public class WorldGenerator : MonoBehaviour {
                 plotCounter++;
                 if (buildIntervalSize <= plotCounter) {
                     plotCounter = 0;
+                    Resources.UnloadUnusedAssets();
                     yield return new WaitForSeconds(buildIntervalDelay);
                 }
             }
-
-           // MeshCombiner.Combine(blockObject);
         }
 
         if (this.buildingsCallback != null)

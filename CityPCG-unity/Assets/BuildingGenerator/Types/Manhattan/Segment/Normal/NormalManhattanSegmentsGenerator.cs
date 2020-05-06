@@ -34,7 +34,11 @@ public class NormalManhattanSegmentsGenerator : MonoBehaviour, IManhattanWallSeg
     }
 
     public List<ManhattanWallSegmentType> Generate(ManhattanSegmentsGeneratorData data) {
-        var list = lSystem.Run(ManhattanWallSegmentType.Corner, data);
+        var list = lSystem.Run(ManhattanWallSegmentType.Corner, new ManhattanSegmentsGeneratorData(data.widthLeft / 2));
+        var newList = new List<ManhattanWallSegmentType>(list);
+        newList.RemoveAt(0);
+        newList.Reverse();
+        list.AddRange(newList);
         list.Add(ManhattanWallSegmentType.EndCorner);
         return list;
     }

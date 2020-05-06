@@ -28,8 +28,9 @@ public class StraightManhattanFloorsGenerator : MonoBehaviour, IManhattanFloorsG
     }
 
     public List<ManhattanFloorType> Generate(float population) {
-        var floors = (int) Math.Floor(population * 10) - 2;
-        var possibleFloorTypes = new[]{Normal, EveryOther, RepeatWindow};
+        var floors = 6; //(int) Math.Floor(population * 10) - 2;
+        //var possibleFloorTypes = new[]{Normal, EveryOther, RepeatWindow};
+        var possibleFloorTypes = new[]{Normal};
         var index = Random.Range (0, possibleFloorTypes.Length);
 
         return lSystem.Run(new List<ManhattanFloorType>() {First, possibleFloorTypes[index]}, new StraightManhattanFloorsGeneratorData(floors));

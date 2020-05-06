@@ -32,10 +32,10 @@ public class EveryOtherManhattanSegmentsGenerator : MonoBehaviour, IManhattanWal
     }
 
     public List<ManhattanWallSegmentType> Generate(ManhattanSegmentsGeneratorData data) {
-        var possibleStarts = new[]{Corner, Wall};
-        var index = Random.Range (0, possibleStarts.Length);
+        var possibleStarts = new[] { Corner, Wall };
+        var index = Random.Range(0, possibleStarts.Length);
 
-        var list = lSystem.Run(new List<ManhattanWallSegmentType>() {Corner, possibleStarts[index]}, data);
+        var list = lSystem.Run(new List<ManhattanWallSegmentType>() { Corner, possibleStarts[index] }, data);
         list.Add(EndCorner);
         return list;
     }

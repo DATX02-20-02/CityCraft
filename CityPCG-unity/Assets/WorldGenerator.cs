@@ -250,7 +250,7 @@ public class WorldGenerator : MonoBehaviour {
                 }
             }
 
-           // MeshCombiner.Combine(blockObject);
+            // MeshCombiner.Combine(blockObject);
         }
 
         if (this.buildingsCallback != null)

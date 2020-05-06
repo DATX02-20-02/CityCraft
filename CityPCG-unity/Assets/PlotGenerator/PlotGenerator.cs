@@ -44,19 +44,19 @@ public class PlotGenerator : MonoBehaviour {
 
         switch (type) {
             case BlockType.Industrial:
-                return (UnityEngine.Random.value < skyscraperProb) ? PlotType.Skyscraper : PlotType.Apartments;
+                return PlotType.Manhattan;
 
             case BlockType.Suburbs:
                 return PlotType.Apartments;
 
             case BlockType.Downtown:
-                return (UnityEngine.Random.value < skyscraperProb) ? PlotType.Skyscraper : PlotType.Apartments;
+                return PlotType.Manhattan;
 
             case BlockType.Skyscrapers:
-                return PlotType.Skyscraper;
+                return PlotType.Manhattan;
 
             case BlockType.Apartments:
-                return PlotType.Apartments;
+                return PlotType.Manhattan;
 
             case BlockType.Parks:
                 return PlotType.Park;

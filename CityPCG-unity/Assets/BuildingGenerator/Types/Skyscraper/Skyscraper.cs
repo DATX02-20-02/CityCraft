@@ -42,7 +42,7 @@ public class Skyscraper : MonoBehaviour {
 
         var rect = ApproximateLargestRectangle(polygon);
 
-        Debug.Log(rect);
+        // Debug.Log(rect);
 
         if (debug)
             DrawUtil.DebugDrawRectangle(rect, Color.yellow);
@@ -60,7 +60,7 @@ public class Skyscraper : MonoBehaviour {
         this.worldSize.y = Mathf.Max(maxHeight / (1f + basePenality), 2.5f);
         this.worldSize.z = rect.height;
 
-        Debug.Log(this.worldSize.x + "; " + this.worldSize.y + "; " + this.worldSize.z);
+        // Debug.Log(this.worldSize.x + "; " + this.worldSize.y + "; " + this.worldSize.z);
 
         this.sizeX = (int)(2 * this.worldSize.x + 1);
         this.sizeY = (int)(3 * this.worldSize.y + 1);
@@ -70,9 +70,20 @@ public class Skyscraper : MonoBehaviour {
         // NOTE: angle is negated because Unity rotates clockwise.
         transform.localRotation = Quaternion.Euler(0, -rect.angle * Mathf.Rad2Deg, 0);
 
+        AddLOD();
+
         // We don't need this script once the structure is done.
         if (!debug)
             Destroy(this);
+    }
+
+    private void AddLOD() {
+        LODGroup lodGroup = gameObject.AddComponent<LODGroup>();
+        LOD[] lods = new LOD[1];
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        lods[0] = new LOD(0.025f, renderers);
+        lodGroup.SetLODs(lods);
+        lodGroup.RecalculateBounds();
     }
 
     private Rectangle ApproximateLargestRectangle(List<Vector2> polygon) {
@@ -178,7 +189,7 @@ public class Skyscraper : MonoBehaviour {
         mesh.uv = uvs;
         mesh.RecalculateNormals();
 
-        Debug.Log(vertices.Length);
+        // Debug.Log(vertices.Length);
     }
 
     private void Awake() {

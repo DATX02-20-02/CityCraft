@@ -57,7 +57,18 @@ public class ManhattanBuildingGenerator : MonoBehaviour, IBuildingGenerator {
             biggestYDifference));
 
         MeshCombiner.Combine(buildingObject, ttmSegments);
+        AddLOD(buildingObject);
+
         return buildingObject;
+    }
+
+    private void AddLOD(GameObject building) {
+        LODGroup lodGroup = building.AddComponent<LODGroup>();
+        LOD[] lods = new LOD[1];
+        Renderer[] renderers = building.GetComponentsInChildren<Renderer>();
+        lods[0] = new LOD(0.025f, renderers);
+        lodGroup.SetLODs(lods);
+        lodGroup.RecalculateBounds();
     }
 
     [Serializable]

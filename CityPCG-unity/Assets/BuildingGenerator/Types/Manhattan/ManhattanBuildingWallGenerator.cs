@@ -15,8 +15,6 @@ public class ManhattanBuildingWallGenerator {
     private Dictionary<ManhattanWallSegmentType, ManhattanSegmentData> segmentToData;
     private GameObject buildingObject;
 
-    private List<ManhattanWallSegmentType> normalGenerated;
-
     public ManhattanBuildingWallGenerator(float wallSegmentHeightMeter, List<ManhattanFloorType> floorTypes,
         Dictionary<ManhattanFloorType, IManhattanWallSegmentsGenerator> floorToSegmentGenerator,
         Dictionary<ManhattanWallSegmentType, ManhattanSegmentData> segmentToData, GameObject buildingObject) {
@@ -28,6 +26,10 @@ public class ManhattanBuildingWallGenerator {
     }
 
     public List<TemporaryTransformedMesh> Generate(Vector2 start, Vector2 end, GameObject parent) {
+        var everyOtherGenerated = new List<ManhattanWallSegmentType>();
+        var normalGenerated = new List<ManhattanWallSegmentType>();
+        var repeatWindowGenerated = new List<ManhattanWallSegmentType>();
+
         var segments = new List<List<ManhattanWallSegmentType>>();
         var wallObject = new GameObject("Wall");
         wallObject.transform.parent = parent.transform;
@@ -40,19 +42,24 @@ public class ManhattanBuildingWallGenerator {
                     break;
                 case ManhattanFloorType.Normal:
                     var normalGenerator = floorToSegmentGenerator[ManhattanFloorType.Normal];
-                    if (normalGenerated == null) {
-                        normalGenerated = new List<ManhattanWallSegmentType>();
+                    if (normalGenerated.Count == 0) {
                         normalGenerated.AddRange(normalGenerator.Generate(new ManhattanSegmentsGeneratorData(Vector2.Distance(start, end))));
                     }
                     segments.Add(normalGenerated);
                     break;
                 case ManhattanFloorType.EveryOther:
                     var everyOtherGenerator = floorToSegmentGenerator[ManhattanFloorType.EveryOther];
-                    segments.Add(everyOtherGenerator.Generate(new ManhattanSegmentsGeneratorData(Vector2.Distance(start, end))));
+                    if (everyOtherGenerated.Count == 0) {
+                        everyOtherGenerated.AddRange(everyOtherGenerator.Generate(new ManhattanSegmentsGeneratorData(Vector2.Distance(start, end))));
+                    }
+                    segments.Add(everyOtherGenerated);
                     break;
                 case ManhattanFloorType.RepeatWindow:
                     var repeatWindowGenerator = floorToSegmentGenerator[ManhattanFloorType.RepeatWindow];
-                    segments.Add(repeatWindowGenerator.Generate(new ManhattanSegmentsGeneratorData(Vector2.Distance(start, end))));
+                    if (repeatWindowGenerated.Count == 0) {
+                        repeatWindowGenerated.AddRange(repeatWindowGenerator.Generate(new ManhattanSegmentsGeneratorData(Vector2.Distance(start, end))));
+                    }
+                    segments.Add(repeatWindowGenerated);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

@@ -77,7 +77,7 @@ MonoBehaviour:
     data:
       wallSegmentObject: {fileID: 3113571547305586877, guid: cd0524a9d76b413bb15b991a7ced17ca,
         type: 3}
-      width: 0.4
+      width: 0.2
   - segmentType: 3
     data:
       wallSegmentObject: {fileID: 4554297189403444398, guid: 98b8c6662845ee14bb65bd242a41577e,
@@ -87,10 +87,10 @@ MonoBehaviour:
     data:
       wallSegmentObject: {fileID: 6974471603546074942, guid: f314365a25f20134bae4cec77a973e42,
         type: 3}
-      width: 0.4
+      width: 0.2
   - segmentType: 5
     data:
       wallSegmentObject: {fileID: 7298316079725679286, guid: 619c5b9eac17c29449716f73d41bcf28,
         type: 3}
-      width: 0.3
-  wallSegmentHeightMeter: 0.5
+      width: 0.2
+  wallSegmentHeightMeter: 0.25

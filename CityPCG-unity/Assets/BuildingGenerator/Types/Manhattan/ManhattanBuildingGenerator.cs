@@ -25,6 +25,9 @@ public class ManhattanBuildingGenerator : MonoBehaviour, IBuildingGenerator {
         var lod1 = GenerateLOD1(plot, buildingObject, floorTypes);
         SetupLOD(buildingObject, lod0, lod1);
 
+        var highestY = plot.vertices.Aggregate(plot.vertices[0], (v1, v2) => v1.y > v2.y ? v1 : v2).y;
+        buildingObject.transform.position = new Vector3(plot.vertices[0].x, highestY, plot.vertices[0].z);
+
         return buildingObject;
     }
 

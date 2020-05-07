@@ -29,8 +29,6 @@ public class BuildingGenerator : MonoBehaviour {
         var buildingGenerator = buildingGenerators.Find(bg => bg.buildingType == plot.type).buildingGenerator.GetComponent<IBuildingGenerator>();
 
         var building = buildingGenerator.Generate(plot, buildings, population);
-        var highestY = plot.vertices.Aggregate(plot.vertices[0], (v1, v2) => v1.y > v2.y ? v1 : v2).y;
-        building.transform.position = new Vector3(plot.vertices[0].x, highestY, plot.vertices[0].z);
 
         return building;
     }

@@ -87,7 +87,7 @@ public class PathGenerator : MonoBehaviour {
                 Vector3 dir = (p.goals[currGoal] - prev).normalized;
                 float oldAng = Vector3.Angle(tryVec, prev);
                 Vector3 newDir = Quaternion.Euler(0, oldAng - Random.Range(-30f, 30f), 0) * dir;
-                tryVec = prev + newDir * 1f;
+                tryVec = prev + newDir * 0.25f;
 
             }
 
@@ -192,12 +192,13 @@ public class PathGenerator : MonoBehaviour {
         network = new RoadNetwork(terrain,null,terrain.width,terrain.depth);
         Agent Alexander = new Agent(network,Vector3.zero,Vector3.zero,null);
         Alexander.config.snapRadius = 0.2f;
-        foreach(Vector3 point in points) {  
-            prevNode = Alexander.PlaceNode(point,Node.NodeType.ParkPath,ConnectionType.ParkPath);
+        for(int i = 0; i < points.Count; i += 4) {  
+            prevNode = Alexander.PlaceNode(points[i],Node.NodeType.ParkPath,ConnectionType.ParkPath);
             nodes.Add(prevNode);
         }
-
-        for(int i = 1; i < nodes.Count-1; i += nodes.Count/4) {
+        prevNode = Alexander.PlaceNode(points[points.Count-1],Node.NodeType.ParkPath,ConnectionType.ParkPath);
+        nodes.Add(prevNode);
+        for(int i = 1; i < nodes.Count-1; i += 2) {
             Vector2 origin = VectorUtil.Vector3To2(nodes[i].pos);
             Vector3 orgDir = (nodes[i-1].pos-nodes[i+1].pos).normalized;
             Vector3 newDir = -Vector3.Cross(orgDir,Vector3.up);

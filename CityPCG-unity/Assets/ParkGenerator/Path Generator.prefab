@@ -93,7 +93,7 @@ MonoBehaviour:
   maxIterations: 100
   tickInterval: 0.2
   getFirst: 1
-  roadMeshPrefab: {fileID: 5191599167567484708, guid: b2b74e80fddc36b0da92137a6cc549c9,
+  roadMeshPrefab: {fileID: 5685647572109133458, guid: c177c9cff3b594c44b7e9401413301b2,
     type: 3}
   roadIntersectionMeshPrefab: {fileID: 5399122535615417112, guid: 957415ec13e82bddebd8326fd69fdf23,
     type: 3}

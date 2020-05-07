@@ -121,52 +121,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &256549796
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 256549798}
-  - component: {fileID: 256549797}
-  m_Layer: 0
-  m_Name: Parking Generator
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &256549797
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 256549796}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1cfc89b9239534b4bb9e3c6770e98724, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  whiteLine: {fileID: 9211046939822616710, guid: fe218d7e17355854dac4e1fea3525484,
-    type: 3}
-  square: {fileID: 3885278745966290859, guid: 60be8aebf79f1b24ea622f9b7cec9908, type: 3}
---- !u!4 &256549798
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 256549796}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &775807238
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -289,9 +243,8 @@ MonoBehaviour:
     - {x: 8.23, y: 59.13854, z: 2.61}
     - {x: 9.04, y: 58.59714, z: 7.84}
     - {x: 1.86, y: 58.49479, z: 7.84}
-    - {x: 1.09, y: 58.91172, z: 1}
     type: 3
-  parkingGenerator: {fileID: 256549797}
+  parkingGenerator: {fileID: 1161850173}
   terrainGen: {fileID: 834854707}
   generate: 1
 --- !u!4 &1156766845
@@ -309,6 +262,87 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1161850173 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 664780554407602640, guid: 0cef003d56f138649977d34e62b809ac,
+    type: 3}
+  m_PrefabInstance: {fileID: 1306955054}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1cfc89b9239534b4bb9e3c6770e98724, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1001 &1306955054
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 664780554407602641, guid: 0cef003d56f138649977d34e62b809ac,
+        type: 3}
+      propertyPath: m_Name
+      value: Parking Generator
+      objectReference: {fileID: 0}
+    - target: {fileID: 664780554407602647, guid: 0cef003d56f138649977d34e62b809ac,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 664780554407602647, guid: 0cef003d56f138649977d34e62b809ac,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 664780554407602647, guid: 0cef003d56f138649977d34e62b809ac,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 664780554407602647, guid: 0cef003d56f138649977d34e62b809ac,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 664780554407602647, guid: 0cef003d56f138649977d34e62b809ac,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 664780554407602647, guid: 0cef003d56f138649977d34e62b809ac,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 664780554407602647, guid: 0cef003d56f138649977d34e62b809ac,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 664780554407602647, guid: 0cef003d56f138649977d34e62b809ac,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 664780554407602647, guid: 0cef003d56f138649977d34e62b809ac,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 664780554407602647, guid: 0cef003d56f138649977d34e62b809ac,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 664780554407602647, guid: 0cef003d56f138649977d34e62b809ac,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0cef003d56f138649977d34e62b809ac, type: 3}
 --- !u!1 &1347204175
 GameObject:
   m_ObjectHideFlags: 0

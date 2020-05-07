@@ -62,9 +62,9 @@ public class Skyscraper : MonoBehaviour {
 
         // Debug.Log(this.worldSize.x + "; " + this.worldSize.y + "; " + this.worldSize.z);
 
-        this.sizeX = (int)(2 * this.worldSize.x + 1);
-        this.sizeY = (int)(3 * this.worldSize.y + 1);
-        this.sizeZ = (int)(2 * this.worldSize.z + 1);
+        this.sizeX = (int)(0.5f * 2 * this.worldSize.x + 1);
+        this.sizeY = (int)(0.5f * 3 * this.worldSize.y + 1);
+        this.sizeZ = (int)(0.5f * 2 * this.worldSize.z + 1);
         Build();
 
         // NOTE: angle is negated because Unity rotates clockwise.

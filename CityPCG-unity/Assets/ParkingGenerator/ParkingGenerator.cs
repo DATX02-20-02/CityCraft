@@ -7,6 +7,13 @@ using Utils;
 public class ParkingGenerator : MonoBehaviour {
     [SerializeField] private GameObject whiteLine = null;
     [SerializeField] private GameObject square = null;
+    [SerializeField] private GameObject lot = null;
+
+    [SerializeField] private float lotWidth = 0.1f;
+    [SerializeField] private float lotHeight = 0.2f;
+
+    Rectangle rect;
+    TerrainModel model;
 
     public void Reset() {
         foreach (Transform child in transform) {
@@ -15,6 +22,87 @@ public class ParkingGenerator : MonoBehaviour {
     }
 
     public Rectangle Generate(TerrainModel terrain, Plot plot) {
+        List<Vector2> polygon = plot.vertices.Select(VectorUtil.Vector3To2).ToList();
+
+        rect = ApproximateLargestRectangle(polygon);
+        if(rect.height < 0.4f || rect.width < 0.4f)
+            return new Rectangle();
+
+        var c = terrain.GetMeshIntersection(rect.Center.x, rect.Center.y);
+
+        int xResolution = 16;
+        int yResolution = 2;
+
+        GameObject obj = Instantiate(lot, c.point, Quaternion.identity, transform);
+        Mesh mesh = obj.GetComponent<MeshFilter>().mesh;
+        mesh.Clear();
+
+        Vector2 rectRightDir = new Vector2(Mathf.Cos(rect.angle), Mathf.Sin(rect.angle)).normalized;
+        Vector2 rectUpDir = new Vector2(-Mathf.Sin(rect.angle), Mathf.Cos(rect.angle)).normalized;
+
+        float quadWidth = Mathf.Floor(rect.width / lotWidth) * lotWidth;
+        float quadHeight = lotHeight * 2;
+
+        int amountOfLines = (int) Mathf.Max(1, Mathf.Floor(rect.height / (quadHeight * 2)));
+        Debug.Log(quadWidth);
+
+        Vector3[] meshVertices = new Vector3[(xResolution + 1) * (yResolution + 1) * amountOfLines];
+        Vector2[] meshUVs = new Vector2[(xResolution + 1) * (yResolution + 1) * amountOfLines];
+        int[] meshIndices = new int[xResolution * yResolution * 6 * amountOfLines];
+
+        for (int i = 0; i < amountOfLines; i++) {
+            int index = i * meshIndices.Length / amountOfLines;
+            int meshIndexStart = i * meshVertices.Length / amountOfLines;
+
+            Vector2 origin = Vector2.Lerp(rect.botLeft, rect.topLeft, (i + 1) * 1 / (float) (amountOfLines + 1));
+            Debug.DrawLine(VectorUtil.Vector2To3(origin), VectorUtil.Vector2To3(origin) + Vector3.up, Color.green, 10);
+
+            for (int y = 0; y < yResolution + 1; y++) {
+                for (int x = 0; x < xResolution + 1; x++) {
+
+                    Vector2 localPos = origin
+                        + rectRightDir * (x * (quadWidth / xResolution) + rect.width / 2 - quadWidth / 2)
+                        + rectUpDir * (y * (quadHeight / yResolution) - quadHeight / 2);
+
+                    var intersection = terrain.GetMeshIntersection(localPos.x, localPos.y);
+                    Vector3 pos = intersection.point + intersection.normal * 0.01f;
+
+                    meshVertices[meshIndexStart + x + y * (xResolution + 1)] = obj.transform.InverseTransformPoint(pos);
+                    meshUVs[meshIndexStart + x + y * (xResolution + 1)] = new Vector2(x / (float) xResolution * (quadWidth / lotWidth), y / (float) yResolution);
+
+                    if (x < xResolution && y < yResolution)  {
+                        meshIndices[index + 2] = meshIndexStart + x + y * (xResolution + 1);
+                        meshIndices[index + 1] = meshIndexStart + (x + 1) + y * (xResolution + 1);
+                        meshIndices[index + 0] = meshIndexStart + x + (y + 1) * (xResolution + 1);
+
+                        meshIndices[index + 5] = meshIndexStart + (x + 1) + (y + 1) * (xResolution + 1);
+                        meshIndices[index + 4] = meshIndexStart + x + (y + 1) * (xResolution + 1);
+                        meshIndices[index + 3] = meshIndexStart + (x + 1) + y * (xResolution + 1);
+                        index += 6;
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < meshIndices.Length; i+=3) {
+            Debug.DrawLine(meshVertices[meshIndices[i]], meshVertices[meshIndices[i + 1]], Color.green, 10);
+            Debug.DrawLine(meshVertices[meshIndices[i + 1]], meshVertices[meshIndices[i + 2]], Color.green, 10);
+            Debug.DrawLine(meshVertices[meshIndices[i + 2]], meshVertices[meshIndices[i]], Color.green, 10);
+        }
+
+        mesh.vertices = meshVertices;
+        mesh.triangles = meshIndices;
+        mesh.uv = meshUVs;
+
+        mesh.RecalculateNormals();
+        mesh.RecalculateBounds();
+
+        this.model = terrain;
+
+        return rect;
+    }
+
+    public Rectangle Generate2(TerrainModel terrain, Plot plot) {
         List<Vector2> polygon = plot.vertices.Select(VectorUtil.Vector3To2).ToList();
 
         var rect = ApproximateLargestRectangle(polygon);
@@ -97,5 +185,4 @@ public class ParkingGenerator : MonoBehaviour {
     public Rectangle ApproximateLargestRectangle(List<Vector2> polygon) {
         return Utils.PolygonUtil.ApproximateLargestRectangle(polygon, Random.Range(1.0f, 3.0f), 0.1f, 6, 10, 10);
     }
-
 }

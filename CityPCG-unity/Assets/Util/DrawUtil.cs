@@ -33,6 +33,18 @@ public class DrawUtil {
         Debug.DrawLine(VectorUtil.Vector2To3(rect.botLeft), VectorUtil.Vector2To3(rect.topLeft), color);
     }
 
+    public static void DebugDrawRectangle(Rectangle rect, Color color, TerrainModel model) {
+        Vector3 topLeft = model.GetMeshIntersection(rect.topLeft.x, rect.topLeft.y).point;
+        Vector3 topRight = model.GetMeshIntersection(rect.topRight.x, rect.topRight.y).point;
+        Vector3 botLeft = model.GetMeshIntersection(rect.botLeft.x, rect.botLeft.y).point;
+        Vector3 botRight = model.GetMeshIntersection(rect.botRight.x, rect.botRight.y).point;
+
+        Debug.DrawLine(topLeft, topRight, color);
+        Debug.DrawLine(topRight, botRight, color);
+        Debug.DrawLine(botRight, botLeft, color);
+        Debug.DrawLine(botLeft, topLeft, color);
+    }
+
     public static void DebugDrawEnvelope(Envelope bounds, Color color) {
         DebugDrawRectangle((float)bounds.MinX, (float)bounds.MinY, (float)(bounds.MaxX - bounds.MinX), (float)(bounds.MaxY - bounds.MinY), color);
     }

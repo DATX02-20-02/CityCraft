@@ -34,6 +34,8 @@ public class NetworkTest : MonoBehaviour {
         plotGen.Reset();
         plotContentGen.Reset();
 
+        Resources.UnloadUnusedAssets();
+
         blocks = blockGen.Generate(network, population);
         plots = plotGen.Generate(blocks, terrain, population);
         plotContentGen.Generate(plots, terrain, population, () => { });

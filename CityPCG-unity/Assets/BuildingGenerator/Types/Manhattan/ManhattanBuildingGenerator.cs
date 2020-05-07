@@ -21,10 +21,21 @@ public class ManhattanBuildingGenerator : MonoBehaviour, IBuildingGenerator {
         var floorGenerator = floorGenerators.Find(a => a.buildingType == buildingType).floorsGenerator.GetComponent<IManhattanFloorsGenerator>();
         var floorTypes = floorGenerator.Generate(population);
 
+        var lod0 = GenerateLOD0(plot, buildingObject, floorTypes);
+        var lod1 = GenerateLOD1(plot, buildingObject, floorTypes);
+        SetupLOD(buildingObject, lod0, lod1);
+
+        return buildingObject;
+    }
+
+    private GameObject GenerateLOD0(Plot plot, GameObject building, List<ManhattanFloorType> floorTypes) {
+        var lod0 = new GameObject("LOD 0");
+        lod0.transform.parent = building.transform;
+
         var floorToSegmentGeneratorDict = segmentGenerators.ToDictionary(sg => sg.floorType, sg => sg.segmentGenerator.GetComponent<IManhattanWallSegmentsGenerator>());
         var segmentToDataDict = segmentToData.ToDictionary(sto => sto.segmentType, sto => sto.data);
 
-        var wallGenerator = new ManhattanBuildingWallGenerator(wallSegmentHeightMeter, floorTypes, floorToSegmentGeneratorDict, segmentToDataDict, buildingObject);
+        var wallGenerator = new ManhattanBuildingWallGenerator(wallSegmentHeightMeter, floorTypes, floorToSegmentGeneratorDict, segmentToDataDict, lod0);
 
         foreach (var sg in floorToSegmentGeneratorDict.Values) {
             sg.Init(segmentToDataDict);
@@ -38,7 +49,7 @@ public class ManhattanBuildingGenerator : MonoBehaviour, IBuildingGenerator {
         for (var i = relativeVertices.Count - 1; i >= 0; i--) {
             var cur = relativeVertices[i];
             var next = relativeVertices[i == 0 ? relativeVertices.Count - 1 : (i - 1)];
-            wallGenerator.Generate(cur, next, buildingObject);
+            wallGenerator.Generate(cur, next, lod0);
 
             //ttmSegments.AddRange();
         }
@@ -53,20 +64,42 @@ public class ManhattanBuildingGenerator : MonoBehaviour, IBuildingGenerator {
         }
 
         ttmSegments.Add(ManhattanBuildingRoofGenerator.Generate(relativeVertices, roofMaterial, wallSegmentHeightMeter * floorTypes.Count));
-        ttmSegments.Add(ManhattanBuildingBasementGenerator.Generate(relativeVertices, basementMaterial,
-            biggestYDifference));
+        ttmSegments.Add(ManhattanBuildingBasementGenerator.Generate(relativeVertices, basementMaterial, biggestYDifference));
 
-        MeshCombiner.Combine(buildingObject, ttmSegments);
-        AddLOD(buildingObject);
+        MeshCombiner.Combine(lod0, ttmSegments);
 
-        return buildingObject;
+        return lod0;
     }
 
-    private void AddLOD(GameObject building) {
+    private GameObject GenerateLOD1(Plot plot, GameObject building, List<ManhattanFloorType> floorTypes) {
+        var lod1 = new GameObject("LOD 1");
+        lod1.transform.parent = building.transform;
+
+        var zero = VectorUtil.Vector3To2(plot.vertices[0]);
+        var relativeVertices = plot.vertices.ConvertAll(v => VectorUtil.Vector3To2(v) - zero);
+        float height = wallSegmentHeightMeter * floorTypes.Count;
+
+        var ttmSegments = new List<TemporaryTransformedMesh>();
+        ttmSegments.Add(ManhattanBuildingRoofGenerator.Generate(relativeVertices, roofMaterial, height));
+
+        var basement = ManhattanBuildingBasementGenerator.Generate(relativeVertices, basementMaterial, wallSegmentHeightMeter * floorTypes.Count);
+        ttmSegments.Add(new TemporaryTransformedMesh(Matrix4x4.Translate(height * Vector3.up), basement.gameObject));
+
+        MeshCombiner.Combine(lod1, ttmSegments);
+
+        return lod1;
+    }
+
+    private void SetupLOD(GameObject building, GameObject lod0, GameObject lod1) {
         LODGroup lodGroup = building.AddComponent<LODGroup>();
-        LOD[] lods = new LOD[1];
-        Renderer[] renderers = building.GetComponentsInChildren<Renderer>();
-        lods[0] = new LOD(0.025f, renderers);
+        LOD[] lods = new LOD[2];
+
+        Renderer[] renderers = lod0.GetComponentsInChildren<Renderer>();
+        lods[0] = new LOD(0.04f, renderers);
+
+        renderers = lod1.GetComponentsInChildren<Renderer>();
+        lods[1] = new LOD(0.015f, renderers);
+
         lodGroup.SetLODs(lods);
         lodGroup.RecalculateBounds();
     }

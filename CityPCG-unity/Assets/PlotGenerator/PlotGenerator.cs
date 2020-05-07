@@ -41,19 +41,20 @@ public class PlotGenerator : MonoBehaviour {
 
     private PlotType DecidePlotType(BlockType type, float population) {
         float skyscraperProb = skyscraperGradient.Evaluate(population);
+        PlotType blendType = UnityEngine.Random.value < 0.5f ? PlotType.Manhattan : PlotType.Skyscraper;
 
         switch (type) {
             case BlockType.Industrial:
-                return PlotType.Manhattan;
+                return (UnityEngine.Random.value < skyscraperProb) ? PlotType.Skyscraper : PlotType.Manhattan;
 
             case BlockType.Suburbs:
-                return PlotType.Apartments;
-
-            case BlockType.Downtown:
                 return PlotType.Manhattan;
 
+            case BlockType.Downtown:
+                return (UnityEngine.Random.value < skyscraperProb) ? PlotType.Skyscraper : PlotType.Manhattan;
+
             case BlockType.Skyscrapers:
-                return PlotType.Skyscraper;
+                return UnityEngine.Random.value < 0.5f ? PlotType.Manhattan : PlotType.Skyscraper;
 
             case BlockType.Apartments:
                 return PlotType.Manhattan;

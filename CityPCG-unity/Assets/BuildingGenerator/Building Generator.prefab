@@ -47,6 +47,6 @@ MonoBehaviour:
   - buildingType: 0
     buildingGenerator: {fileID: 2962226509299918036, guid: b6a5634686cd04d4894f580cb00d0029,
       type: 3}
-  - buildingType: 4
+  - buildingType: 1
     buildingGenerator: {fileID: 2387288971744128634, guid: f374f82d1386d2b42b9d61ea9a190aa4,
       type: 3}

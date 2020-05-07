@@ -7,10 +7,9 @@ using UnityEngine;
 
 public enum PlotType {
     Manhattan,
+    Skyscraper,
     Park,
-    Empty,
-    Apartments,
-    Skyscraper
+    Empty
 }
 
 public class Plot {

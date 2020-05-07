@@ -16,7 +16,7 @@ class RoadUIHandler : MonoBehaviour {
     [Header("Instantiate parents")]
     [SerializeField] private GameObject ghostParent = null;
 
-    private float radius = 75;
+    private float radius = 25;
     private CityType cityType = CityType.Paris;
     private TerrainModel terrain;
 

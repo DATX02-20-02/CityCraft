@@ -1,0 +1,96 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2962226509299918036
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7072146225221447041}
+  - component: {fileID: -1748457533371852487}
+  m_Layer: 0
+  m_Name: ManhattanBulidingGenerator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7072146225221447041
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2962226509299918036}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-1748457533371852487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2962226509299918036}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 658756d25e2eef1488be2e5542ce0f2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  basementMaterial: {fileID: 2100000, guid: ace3ebcf9bec1084f8387dbe3982d8eb, type: 2}
+  roofMaterial: {fileID: 2100000, guid: ace3ebcf9bec1084f8387dbe3982d8eb, type: 2}
+  floorGenerators:
+  - buildingType: 0
+    floorsGenerator: {fileID: 1192447175841035237, guid: f555c16b377fa1a4c9707e0aa6d4fcc8,
+      type: 3}
+  segmentGenerators:
+  - floorType: 0
+    segmentGenerator: {fileID: 75764628362060216, guid: 390a29a980ec82546835deb7ccee0ce1,
+      type: 3}
+  - floorType: 1
+    segmentGenerator: {fileID: 1794139229004270411, guid: a90b0c45764b3d74482b0602b9051713,
+      type: 3}
+  - floorType: 2
+    segmentGenerator: {fileID: 1794139229004270411, guid: d7b8858154784004adda80ca27bd9d25,
+      type: 3}
+  - floorType: 3
+    segmentGenerator: {fileID: 1794139229004270411, guid: b9ca2a69c68c4e57b8c384b1c9ea9b9c,
+      type: 3}
+  segmentToData:
+  - segmentType: 0
+    data:
+      wallSegmentObject: {fileID: 4554297189403444398, guid: 98b8c6662845ee14bb65bd242a41577e,
+        type: 3}
+      width: 0.1
+  - segmentType: 1
+    data:
+      wallSegmentObject: {fileID: 3210544591993120523, guid: 74d16b743265a1e47a832a7145c0bd04,
+        type: 3}
+      width: 0.2
+  - segmentType: 2
+    data:
+      wallSegmentObject: {fileID: 3113571547305586877, guid: cd0524a9d76b413bb15b991a7ced17ca,
+        type: 3}
+      width: 0.2
+  - segmentType: 3
+    data:
+      wallSegmentObject: {fileID: 4554297189403444398, guid: 98b8c6662845ee14bb65bd242a41577e,
+        type: 3}
+      width: 0.1
+  - segmentType: 4
+    data:
+      wallSegmentObject: {fileID: 6974471603546074942, guid: f314365a25f20134bae4cec77a973e42,
+        type: 3}
+      width: 0.2
+  - segmentType: 5
+    data:
+      wallSegmentObject: {fileID: 7298316079725679286, guid: 619c5b9eac17c29449716f73d41bcf28,
+        type: 3}
+      width: 0.2
+  wallSegmentHeightMeter: 0.25

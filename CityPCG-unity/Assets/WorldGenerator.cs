@@ -223,16 +223,20 @@ public class WorldGenerator : MonoBehaviour {
 
     private IEnumerator GenerateBuildings(List<Block> blocks) {
         this.plots = new List<Plot>();
+        var manhattanBuildings = new GameObject("ManhattanBuildings");
+        manhattanBuildings.transform.parent = buildingGenerator.transform;
 
         int plotCounter = 0;
         foreach (Block block in this.blocks) {
+            var blockObject = new GameObject("Block");
+            blockObject.transform.parent = buildingGenerator.transform;
+
             // Split each block into plots
             List<Plot> plots = plotGenerator.Generate(block, terrain, populationNoise);
             foreach (var plot in plots) {
                 this.plots.Add(plot);
-
-                if (plot.type == PlotType.Apartments || plot.type == PlotType.Skyscraper) {
-                    buildingGenerator.Generate(plot, this.terrain, this.populationNoise);
+                if (plot.type == PlotType.Manhattan || plot.type == PlotType.Skyscraper) {
+                    buildingGenerator.Generate(plot, this.terrain, this.populationNoise, blockObject);
                 }
                 else if (plot.type == PlotType.Park) {
                     parkGenerator.Generate(terrain, plot);
@@ -241,6 +245,7 @@ public class WorldGenerator : MonoBehaviour {
                 plotCounter++;
                 if (buildIntervalSize <= plotCounter) {
                     plotCounter = 0;
+                    Resources.UnloadUnusedAssets();
                     yield return new WaitForSeconds(buildIntervalDelay);
                 }
             }

@@ -17,7 +17,7 @@ using Utils;
 public class BlockGenerator : MonoBehaviour {
     // The distance the blocks should be inset
     [Range(0, 2)]
-    public float inset = 0.05f;
+    public float inset = 0.15f;
 
     // Since ClipperLib only uses IntPoint, we have to scale it first
     // to work with floats, and after Clipper is done, we reverse the scale

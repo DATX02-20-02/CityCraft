@@ -43,7 +43,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2360f3ba3a30c5801af157b621e60584, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  building: {fileID: 7591115104409776841, guid: 77a16410abebefd438bccaa95b3f3688,
-    type: 3}
-  skyscraper: {fileID: 929978230862651424, guid: 297e4c73f2b64ed0fbdcaa067a31732b,
-    type: 3}
+  buildingGenerators:
+  - buildingType: 0
+    buildingGenerator: {fileID: 2962226509299918036, guid: b6a5634686cd04d4894f580cb00d0029,
+      type: 3}
+  - buildingType: 1
+    buildingGenerator: {fileID: 2387288971744128634, guid: f374f82d1386d2b42b9d61ea9a190aa4,
+      type: 3}

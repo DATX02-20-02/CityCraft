@@ -198,7 +198,7 @@ public class PathGenerator : MonoBehaviour {
         }
         prevNode = Alexander.PlaceNode(points[points.Count-1],Node.NodeType.ParkPath,ConnectionType.ParkPath);
         nodes.Add(prevNode);
-        for(int i = 1; i < nodes.Count-1; i += 2) {
+        for(int i = 1; i < nodes.Count-2; i += 2) {
             Vector2 origin = VectorUtil.Vector3To2(nodes[i].pos);
             Vector3 orgDir = (nodes[i-1].pos-nodes[i+1].pos).normalized;
             Vector3 newDir = -Vector3.Cross(orgDir,Vector3.up);

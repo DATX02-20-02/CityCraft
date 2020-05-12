@@ -26,11 +26,10 @@ public class PlotContentGenerator : MonoBehaviour {
     public void Generate(List<Plot> plots, TerrainModel terrain, Noise populationNoise, Action callback) {
         Reset();
 
-        StartCoroutine(Generate(plots, terrain, populationNoise));
-        callback();
+        StartCoroutine(GenerateRoutine(plots, terrain, populationNoise, callback));
     }
 
-    private IEnumerator Generate(List<Plot> plots, TerrainModel terrain, Noise populationNoise) {
+    private IEnumerator GenerateRoutine(List<Plot> plots, TerrainModel terrain, Noise populationNoise, Action callback) {
         int plotCounter = 0;
         foreach (Plot plot in plots) {
             if (plot.type == PlotType.Manhattan || plot.type == PlotType.Skyscraper) {
@@ -52,5 +51,6 @@ public class PlotContentGenerator : MonoBehaviour {
                 yield return new WaitForSeconds(intervalDelay);
             }
         }
+        callback();
     }
 }

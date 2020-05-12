@@ -77,7 +77,7 @@ public class RoadGenerator : MonoBehaviour {
 
     // Generates road meshes
     public void GenerateMesh() {
-        meshGenerator.Generate(network, this.terrainModel, (List<RoadMesh> roads) => { });
+        meshGenerator.Generate(network, this.terrainModel, (List<RoadMesh> roads, Dictionary<Node, RoadIntersectionMesh> intersections) => { });
     }
 
     public void GenerateStreets(TerrainModel terrain, Noise population, Action<RoadNetwork> callback) {
@@ -99,7 +99,7 @@ public class RoadGenerator : MonoBehaviour {
             meshGenerator.Generate(
                 network,
                 this.terrainModel,
-                (List<RoadMesh> roads) => {
+                (List<RoadMesh> roads, Dictionary<Node, RoadIntersectionMesh> intersections) => {
                     if (callback != null) {
                         this.callback(network);
                     }

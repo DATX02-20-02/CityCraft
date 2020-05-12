@@ -8,7 +8,7 @@ public class PathGenerator : MonoBehaviour {
     private Vector2[] polygon;
     private RoadNetwork network;
     [SerializeField] private RoadMeshGenerator meshGenerator = null;
-    
+
     public void Reset() {
         meshGenerator.Reset();
     }
@@ -16,7 +16,7 @@ public class PathGenerator : MonoBehaviour {
         List<Vector2> polygonPlot = new List<Vector2>();
         List<Vector2> goalPoints2D = new List<Vector2>();
         List<Vector3> goalPoints3D = new List<Vector3>();
-        
+
         int stuck = 0;
         Vector3 prev = new Vector3();
         int index = 0;
@@ -32,11 +32,11 @@ public class PathGenerator : MonoBehaviour {
         }
         if (plotArea.GetArea() > 20)
             numberOfPoints = 4;
-        
+
         Vector2 cornerPoint = plotArea.points[Random.Range(0, plotArea.points.Count)];
         goalPoints2D.Add(cornerPoint);
         goalPoints3D.Add(terrain.GetMeshIntersection(goalPoints2D[0].x, goalPoints2D[0].y).point);
-        
+
         for (int i = 0; i < numberOfPoints; i++) {
             Vector2 pointToAdd = getRandomPoint(plotArea, goalPoints2D);
             goalPoints2D.Add(pointToAdd);
@@ -118,7 +118,12 @@ public class PathGenerator : MonoBehaviour {
 
         if (p.goals.Count >= numberOfPoints && p.nodes.Count > 15) {
             AddPathExits(terrain,p.nodes,plot);
-            meshGenerator.Generate(network,terrain,(List<RoadMesh> roads) => { });
+            meshGenerator.Generate(network,terrain, (List<RoadMesh> roads, Dictionary<Node, RoadIntersectionMesh> intersections) => {
+                  foreach (RoadMesh r in roads) {
+                      MeshCollider collider = r.gameObject.AddComponent<MeshCollider>();
+                      collider.sharedMesh = r.RoadMeshFilter.sharedMesh;
+                  }
+            });
         }
     }
     private bool CloseEnough(Vector3 start, Vector3 end) {
@@ -186,14 +191,14 @@ public class PathGenerator : MonoBehaviour {
     }
 
     private void AddPathExits(TerrainModel terrain, List<Vector3> points, Plot plot) {
-        Node prevNode; 
+        Node prevNode;
 
         List<Node> nodes = new List<Node>();
         network = new RoadNetwork(terrain,null,terrain.width,terrain.depth);
         Agent Alexander = new Agent(network,Vector3.zero,Vector3.zero,null);
         Alexander.config.snapRadius = 0.2f;
-        for(int i = 0; i < points.Count; i += 5) {  
-            prevNode = Alexander.PlaceNode(points[i],Node.NodeType.ParkPath,ConnectionType.ParkPath);
+        for(int i = 0; i < points.Count; i += 5) {
+            prevNode = Alexander.PlaceNode(points[i],Node.NodeType.ParkPath, ConnectionType.ParkPath, out ConnectionResult connectionInfo);
             nodes.Add(prevNode);
         }
         prevNode = Alexander.PlaceNode(points[points.Count-1],Node.NodeType.ParkPath,ConnectionType.ParkPath);
@@ -202,7 +207,7 @@ public class PathGenerator : MonoBehaviour {
             Vector2 origin = VectorUtil.Vector3To2(nodes[i].pos);
             Vector3 orgDir = (nodes[i-1].pos-nodes[i+1].pos).normalized;
             Vector3 newDir = -Vector3.Cross(orgDir,Vector3.up);
-            if (Vector3.Dot(newDir, nodes[i-1].pos - nodes[i].pos) > 0) 
+            if (Vector3.Dot(newDir, nodes[i-1].pos - nodes[i].pos) > 0)
                 newDir *= -1;
 
             float minDist = int.MaxValue;
@@ -237,4 +242,3 @@ public class PathGenerator : MonoBehaviour {
             network.DrawDebug(true);
     }
 }
-

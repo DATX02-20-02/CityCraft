@@ -9,7 +9,6 @@ public class ParkGenerator : MonoBehaviour {
     [SerializeField] private GameObject[] trees = null;
     [SerializeField] private GameObject rock = null;
     [SerializeField] private GameObject[] bushes = null;
-    [SerializeField] private RoadMesh road = null;
     [SerializeField] private GameObject objectParent = null;
     [SerializeField] private GameObject pathGeneratorPrefab = null;
     private TerrainModel terrain;

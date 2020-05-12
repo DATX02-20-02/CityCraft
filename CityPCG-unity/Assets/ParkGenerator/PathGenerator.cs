@@ -87,7 +87,7 @@ public class PathGenerator : MonoBehaviour {
                 Vector3 dir = (p.goals[currGoal] - prev).normalized;
                 float oldAng = Vector3.Angle(tryVec, prev);
                 Vector3 newDir = Quaternion.Euler(0, oldAng - Random.Range(-30f, 30f), 0) * dir;
-                tryVec = prev + newDir * 0.25f;
+                tryVec = prev + newDir * 0.20f;
 
             }
 
@@ -116,7 +116,7 @@ public class PathGenerator : MonoBehaviour {
 
         }
 
-        if (p.goals.Count >= numberOfPoints) {
+        if (p.goals.Count >= numberOfPoints && p.nodes.Count > 15) {
             AddPathExits(terrain,p.nodes,plot);
             meshGenerator.Generate(network,terrain,(List<RoadMesh> roads) => { });
         }
@@ -192,7 +192,7 @@ public class PathGenerator : MonoBehaviour {
         network = new RoadNetwork(terrain,null,terrain.width,terrain.depth);
         Agent Alexander = new Agent(network,Vector3.zero,Vector3.zero,null);
         Alexander.config.snapRadius = 0.2f;
-        for(int i = 0; i < points.Count; i += 4) {  
+        for(int i = 0; i < points.Count; i += 5) {  
             prevNode = Alexander.PlaceNode(points[i],Node.NodeType.ParkPath,ConnectionType.ParkPath);
             nodes.Add(prevNode);
         }

@@ -10,6 +10,7 @@ public enum BlockType {
     Skyscrapers,
     Apartments,
     Parks,
+    Parking,
     Empty
 }
 

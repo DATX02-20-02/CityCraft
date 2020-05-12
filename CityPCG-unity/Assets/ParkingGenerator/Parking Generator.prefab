@@ -46,4 +46,7 @@ MonoBehaviour:
   whiteLine: {fileID: 9211046939822616710, guid: fe218d7e17355854dac4e1fea3525484,
     type: 3}
   square: {fileID: 3885278745966290859, guid: 60be8aebf79f1b24ea622f9b7cec9908, type: 3}
-  lot: {fileID: 2974138909540139, guid: 791f6180049a68d4a8db326ee31ca8dd, type: 3}
+  lot: {fileID: 8521226794119317953, guid: ae75a2a4a318bbd4b8f7b24394047a6c, type: 3}
+  ground: {fileID: 2703966783936438188, guid: 1b55bd0944a128d45bde7a710422d2e2, type: 3}
+  lotWidth: 0.1
+  lotHeight: 0.2

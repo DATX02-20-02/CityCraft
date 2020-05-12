@@ -184,6 +184,12 @@ PrefabInstance:
       propertyPath: roadMeshGenerator
       value: 
       objectReference: {fileID: 543274115}
+    - target: {fileID: 213854786114320293, guid: 680a13e90fac6189e88d40ffc9bdf239,
+        type: 3}
+      propertyPath: building
+      value: 
+      objectReference: {fileID: 8917283475658696235, guid: 49ed8b8dafce3394d9259ad3855c1a49,
+        type: 3}
     - target: {fileID: 2663700008211637056, guid: 680a13e90fac6189e88d40ffc9bdf239,
         type: 3}
       propertyPath: m_LocalPosition.x

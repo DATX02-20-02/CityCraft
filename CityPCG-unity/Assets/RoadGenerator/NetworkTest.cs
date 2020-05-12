@@ -13,6 +13,8 @@ public class NetworkTest : MonoBehaviour {
     [SerializeField] private PlotGenerator plotGen = null;
     [SerializeField] private PlotContentGenerator plotContentGen = null;
 
+    [SerializeField] private bool debug = true;
+
     private TerrainModel terrain;
     private Noise population;
     private RoadNetwork network;
@@ -50,8 +52,13 @@ public class NetworkTest : MonoBehaviour {
 
         agent = new Agent(network, new Vector3(10, 0, 10), new Vector3(0, 0, 0), null, 0);
 
-        prevNode = agent.PlaceNode(new Vector3(10, 0, 10), Node.NodeType.Main, ConnectionType.Main);
+        prevNode = agent.PlaceNode(new Vector3(10, 0, 15), Node.NodeType.Main, ConnectionType.Main);
         prevNode = agent.PlaceNode(new Vector3(20, 0, 10), Node.NodeType.Main, ConnectionType.Main);
+        prevNode = agent.PlaceNode(new Vector3(20, 0, 20), Node.NodeType.Main, ConnectionType.Main);
+        prevNode = agent.PlaceNode(new Vector3(10, 0, 15), Node.NodeType.Main, ConnectionType.Main);
+
+        Generate();
+
     }
 
     void Update() {
@@ -64,7 +71,8 @@ public class NetworkTest : MonoBehaviour {
             Vector3 pos = hit.point;
             pos.y = Mathf.Max(terrain.seaLevel, pos.y);
 
-            DrawUtil.DebugDrawCircle(pos, agent.config.snapRadius, Color.yellow, 20);
+            if (debug)
+                DrawUtil.DebugDrawCircle(pos, agent.config.snapRadius, Color.yellow, 20);
 
             if (Input.GetMouseButtonDown(0)) {
                 prevNode = agent.PlaceNode(pos, Node.NodeType.Main, ConnectionType.Main);
@@ -72,7 +80,7 @@ public class NetworkTest : MonoBehaviour {
                 Generate();
             }
 
-            if (prevNode != null) {
+            if (debug && prevNode != null) {
                 Vector3 dir = (pos - prevNode.pos).normalized;
                 Vector3 perp = Vector3.Cross(dir, Vector3.up);
 
@@ -92,7 +100,8 @@ public class NetworkTest : MonoBehaviour {
             }
         }
 
-        network.DrawDebug(true);
+        if (debug)
+            network.DrawDebug(true);
     }
 
     void OnGUI() {
@@ -101,5 +110,4 @@ public class NetworkTest : MonoBehaviour {
             GUI.Label(new Rect(10, 40, 100, 20), "tree count: " + network.Tree.Count);
         }
     }
-
 }

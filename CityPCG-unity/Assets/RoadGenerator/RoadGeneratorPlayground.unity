@@ -1415,7 +1415,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mouseSensitivity: 5
-  moveSpeed: 10
+  moveSpeed: 2
   rotationSnapLimit: 45
 --- !u!1001 &964734855
 PrefabInstance:
@@ -5674,6 +5674,12 @@ PrefabInstance:
       propertyPath: m_Name
       value: Plot Content Generator
       objectReference: {fileID: 0}
+    - target: {fileID: 3512364932389939137, guid: c8b2c99084cb928459fbf00902ab0e4d,
+        type: 3}
+      propertyPath: lot
+      value: 
+      objectReference: {fileID: 8521226794119317953, guid: ae75a2a4a318bbd4b8f7b24394047a6c,
+        type: 3}
     - target: {fileID: 4171355245269170052, guid: c8b2c99084cb928459fbf00902ab0e4d,
         type: 3}
       propertyPath: m_LocalPosition.x

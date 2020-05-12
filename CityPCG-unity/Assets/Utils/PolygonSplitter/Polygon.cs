@@ -83,6 +83,21 @@ namespace Utils.PolygonSplitter {
             return inside;
         }
 
+        public bool Intersects(Polygon otherPolygon) {
+            var p1Segments = GetLineSegments(this);
+            var p2Segments = GetLineSegments(otherPolygon);
+
+            foreach (var ls1 in p1Segments) {
+                foreach (var ls2 in p2Segments) {
+                    if (LineLineIntersection(ls1, ls2)) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         public Polygon Difference(Polygon otherPolygon) {
             var vertices = new List<Vector2>();
 

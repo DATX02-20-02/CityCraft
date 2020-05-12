@@ -13,6 +13,10 @@ public struct TerrainModel {
         get { return noise; }
     }
 
+    public Vector2Int Resolution {
+        get => new Vector2Int(xResolution, zResolution);
+    }
+
     public struct TerrainHit {
         public Vector3 point;
         public Vector3 normal;
@@ -95,7 +99,7 @@ public struct TerrainModel {
         return hit;
     }
 
-    private Vector3 GetTriangleCornerPos(int x, int z) {
+    public Vector3 GetTriangleCornerPos(int x, int z) {
         float xPos = (float)(x / (float)this.xResolution) * this.width;
         float zPos = (float)(z / (float)this.zResolution) * this.depth;
         float yPos = this.GetHeight(xPos, zPos);

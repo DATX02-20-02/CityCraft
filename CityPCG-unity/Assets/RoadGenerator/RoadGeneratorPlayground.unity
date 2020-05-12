@@ -2065,6 +2065,7 @@ MonoBehaviour:
   blockGen: {fileID: 405530043}
   plotGen: {fileID: 937864345}
   plotContentGen: {fileID: 1242967706}
+  debug: 1
   blocks: []
   plots: []
 --- !u!4 &1114536822
@@ -5674,6 +5675,12 @@ PrefabInstance:
       propertyPath: m_Name
       value: Plot Content Generator
       objectReference: {fileID: 0}
+    - target: {fileID: 2162442292008283259, guid: c8b2c99084cb928459fbf00902ab0e4d,
+        type: 3}
+      propertyPath: building
+      value: 
+      objectReference: {fileID: 8917283475658696235, guid: 49ed8b8dafce3394d9259ad3855c1a49,
+        type: 3}
     - target: {fileID: 3512364932389939137, guid: c8b2c99084cb928459fbf00902ab0e4d,
         type: 3}
       propertyPath: lot

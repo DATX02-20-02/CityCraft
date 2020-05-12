@@ -12,7 +12,8 @@ public class PathGenerator : MonoBehaviour {
     public void Reset() {
         meshGenerator.Reset();
     }
-    public void GeneratePlotPath(TerrainModel terrain, Plot plot) {
+
+    public void GeneratePlotPath(TerrainModel terrain, Plot plot, System.Action callback) {
         List<Vector2> polygonPlot = new List<Vector2>();
         List<Vector2> goalPoints2D = new List<Vector2>();
         List<Vector3> goalPoints3D = new List<Vector3>();
@@ -123,9 +124,12 @@ public class PathGenerator : MonoBehaviour {
                       MeshCollider collider = r.gameObject.AddComponent<MeshCollider>();
                       collider.sharedMesh = r.RoadMeshFilter.sharedMesh;
                   }
+
+                  callback();
             });
         }
     }
+
     private bool CloseEnough(Vector3 start, Vector3 end) {
         return (end - start).magnitude < 0.5f;
     }

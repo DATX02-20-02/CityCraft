@@ -19,8 +19,6 @@ public class Plot {
     public PlotType type;
 
     public Plot(List<Vector3> vertices, PlotType type) {
-        var sanitizedVertices = vertices.Distinct().ToList(); // Remove evil duplicate vertices
-
         this.vertices = vertices;
         this.type = type;
     }

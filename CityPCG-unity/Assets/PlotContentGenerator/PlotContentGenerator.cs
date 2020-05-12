@@ -33,8 +33,11 @@ public class PlotContentGenerator : MonoBehaviour {
     private IEnumerator Generate(List<Plot> plots, TerrainModel terrain, Noise populationNoise) {
         int plotCounter = 0;
         foreach (Plot plot in plots) {
-            if (plot.type == PlotType.Apartments || plot.type == PlotType.Skyscraper) {
-                buildingGenerator.Generate(plot, terrain, populationNoise);
+            if (plot.type == PlotType.Manhattan || plot.type == PlotType.Skyscraper) {
+                GameObject blockObject = new GameObject("Block");
+                blockObject.transform.parent = buildingGenerator.transform;
+
+                buildingGenerator.Generate(plot, terrain, populationNoise, blockObject);
             }
             else if (plot.type == PlotType.Park) {
                 parkGenerator.Generate(terrain, plot);

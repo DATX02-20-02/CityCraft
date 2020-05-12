@@ -72,9 +72,6 @@ public class PlotGenerator : MonoBehaviour {
             case BlockType.Downtown:
                 return (UnityEngine.Random.value < skyscraperProb) ? PlotType.Skyscraper : PlotType.Manhattan;
 
-            case BlockType.Suburbs:
-                return PlotType.Apartments;
-
             case BlockType.Skyscrapers:
                 return UnityEngine.Random.value < 0.5f ? PlotType.Manhattan : PlotType.Skyscraper;
 

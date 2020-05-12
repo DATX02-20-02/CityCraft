@@ -29,6 +29,13 @@ public class PlotGenerator : MonoBehaviour {
     }
 
     public List<Plot> Generate(Block block, TerrainModel terrain, Noise populationNoise) {
+
+        // Special cases
+        if (block.type == BlockType.Parks)
+            return new List<Plot>() { new Plot(block.vertices, PlotType.Park) };
+        if (block.type == BlockType.Parking)
+            return new List<Plot>() { new Plot(block.vertices, PlotType.Parking) };
+
         float blockArea = PolygonUtil.PolygonArea(block.vertices);
         int parts = (int)Mathf.Max(Random.Range(0.5f, 1.0f) * blockArea, 1);
 

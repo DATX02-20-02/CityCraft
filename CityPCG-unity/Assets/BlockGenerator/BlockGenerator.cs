@@ -400,7 +400,6 @@ public class BlockGenerator : MonoBehaviour {
         }
 
         Color c = Color.black;
-        Debug.Log(block.type);
         switch (block.type) {
             case BlockType.Industrial:
                 c = Color.white;

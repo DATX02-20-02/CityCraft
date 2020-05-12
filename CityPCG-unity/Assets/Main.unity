@@ -128,68 +128,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: -7889922274085798087, guid: 680a13e90fac6189e88d40ffc9bdf239,
-        type: 3}
-      propertyPath: debug
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: -7889922274085798087, guid: 680a13e90fac6189e88d40ffc9bdf239,
-        type: 3}
-      propertyPath: debugSeed
-      value: 123
-      objectReference: {fileID: 0}
-    - target: {fileID: -7889922274085798087, guid: 680a13e90fac6189e88d40ffc9bdf239,
-        type: 3}
-      propertyPath: buildIntervalSize
-      value: 200
-      objectReference: {fileID: 0}
-    - target: {fileID: -7889922274085798087, guid: 680a13e90fac6189e88d40ffc9bdf239,
-        type: 3}
-      propertyPath: roadUIHandlerPrefab
-      value: 
-      objectReference: {fileID: 9149562300315365737, guid: 887a9299db477a2489df91c9a6e51aa8,
-        type: 3}
-    - target: {fileID: -7889922274085798087, guid: 680a13e90fac6189e88d40ffc9bdf239,
-        type: 3}
-      propertyPath: terrainGenerator
-      value: 
-      objectReference: {fileID: 351685846}
-    - target: {fileID: -7889922274085798087, guid: 680a13e90fac6189e88d40ffc9bdf239,
-        type: 3}
-      propertyPath: roadGenerator
-      value: 
-      objectReference: {fileID: 1022702166}
-    - target: {fileID: -7889922274085798087, guid: 680a13e90fac6189e88d40ffc9bdf239,
-        type: 3}
-      propertyPath: populationGenerator
-      value: 
-      objectReference: {fileID: 914579837}
-    - target: {fileID: -7889922274085798087, guid: 680a13e90fac6189e88d40ffc9bdf239,
-        type: 3}
-      propertyPath: blockGenerator
-      value: 
-      objectReference: {fileID: 1981968218}
-    - target: {fileID: -7889922274085798087, guid: 680a13e90fac6189e88d40ffc9bdf239,
-        type: 3}
-      propertyPath: plotGenerator
-      value: 
-      objectReference: {fileID: 155569249}
-    - target: {fileID: -7889922274085798087, guid: 680a13e90fac6189e88d40ffc9bdf239,
-        type: 3}
-      propertyPath: plotContentGenerator
-      value: 
-      objectReference: {fileID: 1665118362}
-    - target: {fileID: -7889922274085798087, guid: 680a13e90fac6189e88d40ffc9bdf239,
-        type: 3}
-      propertyPath: roadMeshGenerator
-      value: 
-      objectReference: {fileID: 543274115}
-    - target: {fileID: 213854786114320293, guid: 680a13e90fac6189e88d40ffc9bdf239,
-        type: 3}
-      propertyPath: building
-      value: 
-      objectReference: {fileID: 8917283475658696235, guid: 49ed8b8dafce3394d9259ad3855c1a49,
-        type: 3}
     - target: {fileID: 2663700008211637056, guid: 680a13e90fac6189e88d40ffc9bdf239,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -245,11 +183,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4264638739396000544, guid: 680a13e90fac6189e88d40ffc9bdf239,
-        type: 3}
-      propertyPath: seaLevel
-      value: 35
-      objectReference: {fileID: 0}
     - target: {fileID: 5156807774796926740, guid: 680a13e90fac6189e88d40ffc9bdf239,
         type: 3}
       propertyPath: m_Name
@@ -267,30 +200,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e02f2a802eade983fa41a7d4386cc8ae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &155569249 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1442808136336748163, guid: 680a13e90fac6189e88d40ffc9bdf239,
-    type: 3}
-  m_PrefabInstance: {fileID: 9354995}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f1c60bd974b90008828e34703045c4e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &351685846 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4264638739396000544, guid: 680a13e90fac6189e88d40ffc9bdf239,
-    type: 3}
-  m_PrefabInstance: {fileID: 9354995}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ebb4332aed027a3783beea35ae588f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &455800241
@@ -385,42 +294,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!114 &543274115 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2778192467479151875, guid: 680a13e90fac6189e88d40ffc9bdf239,
-    type: 3}
-  m_PrefabInstance: {fileID: 9354995}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 00b2ec2d92d22e585a5b4621c072558c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &914579837 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8472664044290575606, guid: 680a13e90fac6189e88d40ffc9bdf239,
-    type: 3}
-  m_PrefabInstance: {fileID: 9354995}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e797a301bdd38641a87062606437813, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1022702166 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3953143725303128506, guid: 680a13e90fac6189e88d40ffc9bdf239,
-    type: 3}
-  m_PrefabInstance: {fileID: 9354995}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 404b24d32a737b612834e0b7090190d1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1164952524
 GameObject:
   m_ObjectHideFlags: 0
@@ -579,18 +452,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 30, y: 150, z: 0}
---- !u!114 &1665118362 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2776306723445417237, guid: 680a13e90fac6189e88d40ffc9bdf239,
-    type: 3}
-  m_PrefabInstance: {fileID: 9354995}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c05c498c25ba77e4cb2ba60cacff459f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1971479977
 GameObject:
   m_ObjectHideFlags: 0
@@ -690,18 +551,6 @@ MonoBehaviour:
   mouseSensitivity: 2.5
   moveSpeed: 40
   rotationSnapLimit: 50
---- !u!114 &1981968218 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3050475043039757570, guid: 680a13e90fac6189e88d40ffc9bdf239,
-    type: 3}
-  m_PrefabInstance: {fileID: 9354995}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfc52229aec5a401c9bfc71de47d33c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &69592967819174799
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -717,6 +566,18 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 120308230, guid: e68ae49e932553a0d9bebe34e1e15001, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 70
+      objectReference: {fileID: 0}
+    - target: {fileID: 811564180, guid: e68ae49e932553a0d9bebe34e1e15001, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 1052484016, guid: e68ae49e932553a0d9bebe34e1e15001, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 70
+      objectReference: {fileID: 0}
     - target: {fileID: 1603904194, guid: e68ae49e932553a0d9bebe34e1e15001, type: 3}
       propertyPath: m_AnchorMin.x
       value: 0
@@ -748,6 +609,10 @@ PrefabInstance:
     - target: {fileID: 1841206743, guid: e68ae49e932553a0d9bebe34e1e15001, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1960916607, guid: e68ae49e932553a0d9bebe34e1e15001, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 69592967819174802, guid: e68ae49e932553a0d9bebe34e1e15001,
         type: 3}

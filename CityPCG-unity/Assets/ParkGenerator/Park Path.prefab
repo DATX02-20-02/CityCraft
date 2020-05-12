@@ -81,7 +81,7 @@ PrefabInstance:
         type: 3}
       propertyPath: roadLODPrefab
       value: 
-      objectReference: {fileID: 7325311451055839527, guid: 0c50a2896c2150043bbd7d6fde807584,
+      objectReference: {fileID: 4909316999716894882, guid: b497fc322a96b254cb426d235f7f1a69,
         type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b2b74e80fddc36b0da92137a6cc549c9, type: 3}

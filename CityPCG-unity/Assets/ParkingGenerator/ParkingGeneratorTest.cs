@@ -5,7 +5,8 @@ using UnityEngine;
 using Utils;
 
 public class ParkingGeneratorTest : MonoBehaviour {
-    [SerializeField] private Plot plot = new Plot(
+    [SerializeField]
+    private Plot plot = new Plot(
         new List<Vector3>() {
             new Vector3(1, 0, 1),
             new Vector3(2.5f, 0, 1),

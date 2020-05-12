@@ -18,7 +18,7 @@ public class ParkingGenerator : MonoBehaviour {
         List<Vector2> polygon = plot.vertices.Select(VectorUtil.Vector3To2).ToList();
 
         var rect = ApproximateLargestRectangle(polygon);
-        if(rect.height < 0.4f || rect.width < 0.4f)
+        if (rect.height < 0.4f || rect.width < 0.4f)
             return new Rectangle();
         var c = terrain.GetMeshIntersection(rect.Center.x, rect.Center.y);
 
@@ -72,7 +72,7 @@ public class ParkingGenerator : MonoBehaviour {
 
                 GameObject topLeftVertical = Instantiate(whiteLine, v1.point + v1.normal * 0.05f, Quaternion.FromToRotation(whiteLine.transform.up, v1.normal) * rot, this.transform);
                 topLeftVertical.transform.SetParent(area);
-                
+
                 GameObject topRightVertical = Instantiate(whiteLine, v2.point + v2.normal * 0.05f, Quaternion.FromToRotation(whiteLine.transform.up, v2.normal) * rot, this.transform);
                 topRightVertical.transform.SetParent(area);
 
@@ -80,7 +80,7 @@ public class ParkingGenerator : MonoBehaviour {
 
             GameObject botLeftVertical = Instantiate(whiteLine, v3.point + v3.normal * 0.05f, Quaternion.FromToRotation(whiteLine.transform.up, v3.normal) * rot, this.transform);
             botLeftVertical.transform.SetParent(area);
-            
+
             GameObject botRightVertical = Instantiate(whiteLine, v4.point + v4.normal * 0.05f, Quaternion.FromToRotation(whiteLine.transform.up, v4.normal) * rot, this.transform);
             botRightVertical.transform.SetParent(area);
 

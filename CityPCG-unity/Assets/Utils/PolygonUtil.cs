@@ -199,7 +199,7 @@ namespace Utils {
 
             return best;
         }
-        
+
         public static Vector3 PolygonCenter(List<Vector3> vertices) {
             return vertices.Aggregate(Vector3.zero, (s, v) => s + v) / (float)vertices.Count;
         }

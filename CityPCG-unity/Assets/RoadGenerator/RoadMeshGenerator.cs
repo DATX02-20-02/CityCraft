@@ -36,7 +36,7 @@ public class RoadMeshGenerator : MonoBehaviour {
 
     private TerrainModel terrainModel;
     private ProjectOnTerrain projectOnTerrain;
-    private Action<List<RoadMesh>> callback;
+    private Action<List<RoadMesh>, Dictionary<Node, RoadIntersectionMesh>> callback;
 
     public void Reset() {
         // Remove previously generated meshes
@@ -53,7 +53,7 @@ public class RoadMeshGenerator : MonoBehaviour {
         }
     }
 
-    public void Generate(RoadNetwork network, TerrainModel terrainModel, Action<List<RoadMesh>> callback) {
+    public void Generate(RoadNetwork network, TerrainModel terrainModel, Action<List<RoadMesh>, Dictionary<Node, RoadIntersectionMesh>> callback) {
         if (network == null) {
             Debug.LogWarning("Failed to generate road meshes! Given network does not exist.");
             return;
@@ -69,6 +69,7 @@ public class RoadMeshGenerator : MonoBehaviour {
         if (isTraversing) {
             StopCoroutine(GenerateRoadMesh());
         }
+
         StartCoroutine(GenerateRoadMesh());
     }
 
@@ -194,7 +195,7 @@ public class RoadMeshGenerator : MonoBehaviour {
         isTraversing = false;
 
         if (this.callback != null)
-            this.callback(placedRoads);
+            this.callback(placedRoads, intersections);
     }
 
 

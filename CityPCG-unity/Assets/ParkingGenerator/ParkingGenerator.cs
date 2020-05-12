@@ -34,7 +34,7 @@ public class ParkingGenerator : MonoBehaviour {
         List<Vector2> polygon = plot.vertices.Select(VectorUtil.Vector3To2).ToList();
 
         rect = ApproximateLargestRectangle(polygon);
-        if(rect.height < 0.4f || rect.width < 0.4f)
+        if (rect.height < 0.4f || rect.width < 0.4f)
             return new Rectangle();
 
         var c = terrain.GetMeshIntersection(rect.Center.x, rect.Center.y);
@@ -55,7 +55,7 @@ public class ParkingGenerator : MonoBehaviour {
 
         float paddedQuadWidth = quadWidth - padding * 2;
 
-        int amountOfLines = (int) Mathf.Max(1, Mathf.Floor(rect.height / (quadHeight * 1.5f) - 1f));
+        int amountOfLines = (int)Mathf.Max(1, Mathf.Floor(rect.height / (quadHeight * 1.5f) - 1f));
 
         Vector3[] meshVertices = new Vector3[(xResolution + 1) * (yResolution + 1) * amountOfLines];
         Vector2[] meshUVs = new Vector2[(xResolution + 1) * (yResolution + 1) * amountOfLines];
@@ -70,7 +70,7 @@ public class ParkingGenerator : MonoBehaviour {
                 Vector2.Lerp(
                     rect.botLeft + (rect.topLeft - rect.botLeft).normalized * (quadHeight / 2f + padding),
                     rect.topLeft + (rect.botLeft - rect.topLeft).normalized * (quadHeight / 2f + padding),
-                    i / (float) (amountOfLines - 1)
+                    i / (float)(amountOfLines - 1)
                 );
 
             for (int y = 0; y < yResolution + 1; y++) {
@@ -83,9 +83,9 @@ public class ParkingGenerator : MonoBehaviour {
                     Vector3 pos = intersection.point + intersection.normal * 0.02f;
 
                     meshVertices[meshIndexStart + x + y * (xResolution + 1)] = obj.transform.InverseTransformPoint(pos);
-                    meshUVs[meshIndexStart + x + y * (xResolution + 1)] = new Vector2(x / (float) xResolution * (paddedQuadWidth / lotWidth), y / (float) yResolution);
+                    meshUVs[meshIndexStart + x + y * (xResolution + 1)] = new Vector2(x / (float)xResolution * (paddedQuadWidth / lotWidth), y / (float)yResolution);
 
-                    if (x < xResolution && y < yResolution)  {
+                    if (x < xResolution && y < yResolution) {
                         meshIndices[index + 2] = meshIndexStart + x + y * (xResolution + 1);
                         meshIndices[index + 1] = meshIndexStart + (x + 1) + y * (xResolution + 1);
                         meshIndices[index + 0] = meshIndexStart + x + (y + 1) * (xResolution + 1);
@@ -138,7 +138,7 @@ public class ParkingGenerator : MonoBehaviour {
         List<Vector2> polygon = plot.vertices.Select(VectorUtil.Vector3To2).ToList();
 
         var rect = ApproximateLargestRectangle(polygon);
-        if(rect.height < 0.4f || rect.width < 0.4f)
+        if (rect.height < 0.4f || rect.width < 0.4f)
             return new Rectangle();
         var c = terrain.GetMeshIntersection(rect.Center.x, rect.Center.y);
 

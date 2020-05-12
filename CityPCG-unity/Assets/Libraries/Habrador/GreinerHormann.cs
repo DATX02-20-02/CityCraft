@@ -269,23 +269,20 @@ namespace Habrador {
                 resetVertex.nextPoly = null;
 
                 //Dont forget to reset the neighbor
-                if (resetVertex.isIntersection)
-                {
+                if (resetVertex.isIntersection) {
                     resetVertex.neighbor.isTakenByFinalPolygon = false;
                 }
 
                 resetVertex = resetVertex.next;
 
                 //All vertices are reset
-                if (resetVertex.Equals(poly[0]))
-                {
+                if (resetVertex.Equals(poly[0])) {
                     break;
                 }
 
                 safety += 1;
 
-                if (safety > 100000)
-                {
+                if (safety > 100000) {
                     Debug.Log("Endless loop in reset vertices");
 
                     break;

@@ -11,18 +11,21 @@ public class ParkGenerator : MonoBehaviour {
     [SerializeField] private GameObject[] bushes = null;
     [SerializeField] private GameObject objectParent = null;
     [SerializeField] private GameObject pathGeneratorPrefab = null;
+    [SerializeField] private GameObject pathParent = null;
     private TerrainModel terrain;
 
 
     public void Reset() {
         foreach (Transform child in objectParent.transform)
             Destroy(child.gameObject);
+        foreach(Transform p in pathParent.transform) 
+            Destroy(p.gameObject);
     }
 
     // Coordinates calls the Triangulator function in order to divide polygons into triangles
     public void Generate(TerrainModel terrain, Plot plot) {
         this.terrain = terrain;
-        GameObject pathGeneratorObj = Instantiate(pathGeneratorPrefab,this.transform);
+        GameObject pathGeneratorObj = Instantiate(pathGeneratorPrefab,pathParent.transform);
         PathGenerator pathGenerator = pathGeneratorObj.GetComponent<PathGenerator>();
         pathGenerator.GeneratePlotPath(terrain, plot);
         Vector3[] area = plot.vertices.ToArray();
@@ -78,7 +81,7 @@ public class ParkGenerator : MonoBehaviour {
         obj.transform.rotation = rotation;
         float treeRadius = 0.06f;
         float miscRadius = 0.001f;
-        float pathRadius = 0.02f;
+        float pathRadius = 0.1f;
         if (obj.layer == 9) {
             Collider[] miscCollisions = Physics.OverlapSphere(obj.transform.position, miscRadius, 1 << obj.layer);
             if (miscCollisions.Length > 1) {
@@ -94,7 +97,6 @@ public class ParkGenerator : MonoBehaviour {
         Collider[] pathCollisions = Physics.OverlapSphere(obj.transform.position, pathRadius);
         if (pathCollisions.Length > 1)
             Destroy(obj);
-
 
     }
 

@@ -27,24 +27,24 @@ public class ParkGenerator : MonoBehaviour {
         this.terrain = terrain;
         GameObject pathGeneratorObj = Instantiate(pathGeneratorPrefab,pathParent.transform);
         PathGenerator pathGenerator = pathGeneratorObj.GetComponent<PathGenerator>();
-        pathGenerator.GeneratePlotPath(terrain, plot);
-        Vector3[] area = plot.vertices.ToArray();
-        int objectsToPlace = Mathf.RoundToInt(PolygonUtil.PolygonArea(plot.vertices) * objectFrequency);
-        Triangulator triangulator = new Triangulator(area);
-        int[] triangulated = triangulator.Triangulate();
-        Triangle[] triangles = FromTriangulator(area, triangulated);
-        int objectsLeftToPlace = objectsToPlace;
-        int amount = (int)Mathf.Ceil((float)objectsToPlace / (float)triangles.Length);
-        foreach (Triangle triangle in triangles) {
-            for (int i = 0; i < Mathf.Min(objectsLeftToPlace, amount); i++) {
-                Vector3 point = triangle.RandomPoint();
-                Vector3 pos = terrain.GetPosition(point.x, point.z);
-                float seed = Random.Range(0, 10000.0f);
-                PlaceObject(pos, seed);
+        pathGenerator.GeneratePlotPath(terrain, plot, () =>{
+            Vector3[] area = plot.vertices.ToArray();
+            int objectsToPlace = Mathf.RoundToInt(PolygonUtil.PolygonArea(plot.vertices) * objectFrequency);
+            Triangulator triangulator = new Triangulator(area);
+            int[] triangulated = triangulator.Triangulate();
+            Triangle[] triangles = FromTriangulator(area, triangulated);
+            int objectsLeftToPlace = objectsToPlace;
+            int amount = (int)Mathf.Ceil((float)objectsToPlace / (float)triangles.Length);
+            foreach (Triangle triangle in triangles) {
+                for (int i = 0; i < Mathf.Min(objectsLeftToPlace, amount); i++) {
+                    Vector3 point = triangle.RandomPoint();
+                    Vector3 pos = terrain.GetPosition(point.x, point.z);
+                    float seed = Random.Range(0, 10000.0f);
+                    PlaceObject(pos, seed);
+                }
+                objectsLeftToPlace -= amount;
             }
-            objectsLeftToPlace -= amount;
-        }
-
+        });
     }
     // NoiseEvaluate creates a pseudorandom value using Perlin Noise and determines what object to spawn based on it
     void PlaceObject(Vector3 pos, float seed) {

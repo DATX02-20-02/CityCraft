@@ -243,20 +243,4 @@ public class WorldGenerator : MonoBehaviour {
     // void OnEnable() {
     //     AutoStart();
     // }
-
-    [ContextMenu("EnableLodGroupsForChildren")]
-    private void EnableLodGroupsForChildren() {
-        LODGroup[] lodGroups = GetComponentsInChildren<LODGroup>();
-        foreach (LODGroup lodGroup in lodGroups) {
-            lodGroup.enabled = true;
-        }
-    }
-
-    [ContextMenu("DisableLodGroupsForChildren")]
-    private void DisableLodGroupsForChildren() {
-        LODGroup[] lodGroups = GetComponentsInChildren<LODGroup>();
-        foreach (LODGroup lodGroup in lodGroups) {
-            lodGroup.enabled = false;
-        }
-    }
 }

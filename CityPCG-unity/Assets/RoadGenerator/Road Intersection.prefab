@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 231742081879772664}
   m_Layer: 0
-  m_Name: Corners
+  m_Name: LOD 0 Corners
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -42,7 +42,7 @@ GameObject:
   - component: {fileID: 1240450160534176758}
   - component: {fileID: 2076349050320035022}
   m_Layer: 0
-  m_Name: Intersection Mesh
+  m_Name: LOD 0 Intersection Mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

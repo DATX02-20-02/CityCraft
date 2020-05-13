@@ -28,21 +28,25 @@ public class ParkGenerator : MonoBehaviour {
         GameObject pathGeneratorObj = Instantiate(pathGeneratorPrefab, pathParent.transform);
         PathGenerator pathGenerator = pathGeneratorObj.GetComponent<PathGenerator>();
         pathGenerator.GeneratePlotPath(terrain, plot, () => {
+
             Vector3[] area = plot.vertices.ToArray();
             int objectsToPlace = Mathf.RoundToInt(PolygonUtil.PolygonArea(plot.vertices) * objectFrequency);
             Triangulator triangulator = new Triangulator(area);
             int[] triangulated = triangulator.Triangulate();
             Triangle[] triangles = FromTriangulator(area, triangulated);
-            int objectsLeftToPlace = objectsToPlace;
-            int amount = (int)Mathf.Ceil((float)objectsToPlace / (float)triangles.Length);
+
+            float totArea = Mathf.Max(PolygonUtil.PolygonArea(plot.vertices), 0.1f);
+
             foreach (Triangle triangle in triangles) {
-                for (int i = 0; i < Mathf.Min(objectsLeftToPlace, amount); i++) {
+                int amount = (int) (objectsToPlace * triangle.Area() / totArea); // NOTE: avoid division by zero
+
+                for (int i = 0; i < amount; i++) {
                     Vector3 point = triangle.RandomPoint();
                     Vector3 pos = terrain.GetMeshIntersection(point.x, point.z).point;
+
                     float seed = Random.Range(0, 10000.0f);
                     PlaceObject(pos, seed);
                 }
-                objectsLeftToPlace -= amount;
             }
         });
     }
@@ -79,9 +83,9 @@ public class ParkGenerator : MonoBehaviour {
         obj.transform.position = terrain.GetMeshIntersection(pos.x, pos.z).point;
         obj.transform.localScale = new Vector3(scale, scale, scale);
         obj.transform.rotation = rotation;
-        float treeRadius = 0.006f;
-        float miscRadius = 0.001f;
-        float pathRadius = 0.002f;
+        float treeRadius = 0.06f;
+        float miscRadius = 0.002f;
+        float pathRadius = 0.1f;
         if (obj.layer == 9) {
             Collider[] miscCollisions = Physics.OverlapSphere(obj.transform.position, miscRadius, 1 << obj.layer);
             if (miscCollisions.Length > 1) {

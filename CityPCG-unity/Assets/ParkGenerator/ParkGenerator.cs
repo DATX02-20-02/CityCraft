@@ -38,7 +38,7 @@ public class ParkGenerator : MonoBehaviour {
             float totArea = Mathf.Max(PolygonUtil.PolygonArea(plot.vertices), 0.1f);
 
             foreach (Triangle triangle in triangles) {
-                int amount = (int) (objectsToPlace * triangle.Area() / totArea); // NOTE: avoid division by zero
+                int amount = (int)(objectsToPlace * triangle.Area() / totArea); // NOTE: avoid division by zero
 
                 for (int i = 0; i < amount; i++) {
                     Vector3 point = triangle.RandomPoint();

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public enum BlockType {
@@ -18,16 +19,16 @@ public enum BlockType {
 public struct Block {
     public BlockType type;
     public List<Vector3> vertices;
+    private List<Vector2> points;
 
-    public List<Vector2> Vertices2D() {
-        List<Vector2> res = new List<Vector2>();
-        foreach (var v in vertices)
-            res.Add(new Vector2(v.x, v.z));
-        return res;
+    public List<Vector2> Points {
+        get => points;
     }
 
     public Block(List<Vector3> vertices, BlockType type) {
         this.vertices = vertices;
         this.type = type;
+
+        this.points = vertices.Select(VectorUtil.Vector3To2).ToList();
     }
 }

@@ -39,7 +39,7 @@ public class PlotGenerator : MonoBehaviour {
         float blockArea = PolygonUtil.PolygonArea(block.vertices);
         int parts = (int)Mathf.Max(Random.Range(0.5f, 1.0f) * blockArea, 1);
 
-        var plots = Split(CreatePolygon(block.Vertices2D()), parts)
+        var plots = Split(CreatePolygon(block.Points), parts)
             .Where(polygon => polygon != null)
             .ToList()
             .ConvertAll(
@@ -54,9 +54,6 @@ public class PlotGenerator : MonoBehaviour {
                     );
                 }
             );
-
-        //Removes the duplicate point at the end that is created via Split function
-        plots.ForEach(plot => plot.vertices.RemoveAt(plot.vertices.Count - 1));
 
         return plots;
     }

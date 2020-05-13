@@ -4,41 +4,51 @@ using System.Collections.Generic;
 using Utils;
 
 public class ParkGenerator : MonoBehaviour {
-    [Range(0, 1)]
+    [Range(0, 10)]
     [SerializeField] private float objectFrequency = 1;
     [SerializeField] private GameObject[] trees = null;
     [SerializeField] private GameObject rock = null;
     [SerializeField] private GameObject[] bushes = null;
-    [SerializeField] private RoadMesh road = null;
+    [SerializeField] private GameObject objectParent = null;
+    [SerializeField] private GameObject pathGeneratorPrefab = null;
+    [SerializeField] private GameObject pathParent = null;
     private TerrainModel terrain;
 
 
     public void Reset() {
-        foreach (Transform child in transform)
+        foreach (Transform child in objectParent.transform)
             Destroy(child.gameObject);
+        foreach (Transform p in pathParent.transform)
+            Destroy(p.gameObject);
     }
 
     // Coordinates calls the Triangulator function in order to divide polygons into triangles
     public void Generate(TerrainModel terrain, Plot plot) {
         this.terrain = terrain;
-        GeneratePaths(terrain, plot);
-        Vector3[] area = plot.vertices.ToArray();
-        int objectsToPlace = Mathf.RoundToInt(PolygonUtil.PolygonArea(plot.vertices) * objectFrequency);
-        Triangulator triangulator = new Triangulator(area);
-        int[] triangulated = triangulator.Triangulate();
-        Triangle[] triangles = FromTriangulator(area, triangulated);
-        int objectsLeftToPlace = objectsToPlace;
-        int amount = (int)Mathf.Ceil((float)objectsToPlace / (float)triangles.Length);
-        foreach (Triangle triangle in triangles) {
-            for (int i = 0; i < Mathf.Min(objectsLeftToPlace, amount); i++) {
-                Vector3 point = triangle.RandomPoint();
-                Vector3 pos = terrain.GetPosition(point.x, point.z);
-                float seed = Random.Range(0, 10000.0f);
-                PlaceObject(pos, seed);
-            }
-            objectsLeftToPlace -= amount;
-        }
+        GameObject pathGeneratorObj = Instantiate(pathGeneratorPrefab, pathParent.transform);
+        PathGenerator pathGenerator = pathGeneratorObj.GetComponent<PathGenerator>();
+        pathGenerator.GeneratePlotPath(terrain, plot, () => {
 
+            Vector3[] area = plot.vertices.ToArray();
+            int objectsToPlace = Mathf.RoundToInt(PolygonUtil.PolygonArea(plot.vertices) * objectFrequency);
+            Triangulator triangulator = new Triangulator(area);
+            int[] triangulated = triangulator.Triangulate();
+            Triangle[] triangles = FromTriangulator(area, triangulated);
+
+            float totArea = Mathf.Max(PolygonUtil.PolygonArea(plot.vertices), 0.1f);
+
+            foreach (Triangle triangle in triangles) {
+                int amount = (int)(objectsToPlace * triangle.Area() / totArea); // NOTE: avoid division by zero
+
+                for (int i = 0; i < amount; i++) {
+                    Vector3 point = triangle.RandomPoint();
+                    Vector3 pos = terrain.GetMeshIntersection(point.x, point.z).point;
+
+                    float seed = Random.Range(0, 10000.0f);
+                    PlaceObject(pos, seed);
+                }
+            }
+        });
     }
     // NoiseEvaluate creates a pseudorandom value using Perlin Noise and determines what object to spawn based on it
     void PlaceObject(Vector3 pos, float seed) {
@@ -67,15 +77,15 @@ public class ParkGenerator : MonoBehaviour {
 
     // InitMesh is called for spawning Game objects, assigning them a scale, position, and rotation.
     void InitMesh(GameObject g, Vector3 pos, float scale, Quaternion rotation) {
-        GameObject obj = Instantiate(g, transform);
+        GameObject obj = Instantiate(g, objectParent.transform);
         obj.AddComponent<MeshCollider>();
         Mesh mesh = obj.GetComponent<MeshFilter>().mesh;
         obj.transform.position = terrain.GetMeshIntersection(pos.x, pos.z).point;
         obj.transform.localScale = new Vector3(scale, scale, scale);
         obj.transform.rotation = rotation;
         float treeRadius = 0.06f;
-        float miscRadius = 0.001f;
-        float pathRadius = 0.02f;
+        float miscRadius = 0.002f;
+        float pathRadius = 0.1f;
         if (obj.layer == 9) {
             Collider[] miscCollisions = Physics.OverlapSphere(obj.transform.position, miscRadius, 1 << obj.layer);
             if (miscCollisions.Length > 1) {
@@ -88,10 +98,9 @@ public class ParkGenerator : MonoBehaviour {
                 Destroy(obj);
             }
         }
-        Collider[] pathCollisions = Physics.OverlapSphere(obj.transform.position, pathRadius);
-        if (pathCollisions.Length > 1)
+        Collider[] pathCollisions = Physics.OverlapSphere(obj.transform.position, pathRadius, 1 << 10);
+        if (pathCollisions.Length > 0)
             Destroy(obj);
-
 
     }
 
@@ -111,13 +120,5 @@ public class ParkGenerator : MonoBehaviour {
         }
 
         return result;
-    }
-
-    public void GeneratePaths(TerrainModel terrain, Plot plot) {
-        GameObject path = new GameObject("Path Generator");
-        path.transform.parent = this.transform;
-        var pg = path.AddComponent<PathGenerator>();
-        pg.road = road;
-        pg.GeneratePlotPath(terrain, plot);
     }
 }

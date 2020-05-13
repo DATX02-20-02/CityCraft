@@ -29,7 +29,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2162442292008283256}
-  - {fileID: 3848537381852197909}
+  - {fileID: 1809258450665983943}
   - {fileID: 3512364932389939142}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buildingGenerator: {fileID: 2162442292008283259}
-  parkGenerator: {fileID: 3848537381852197908}
+  parkGenerator: {fileID: 1809258450665983942}
   parkingGenerator: {fileID: 3512364932389939137}
   intervalSize: 100
   intervalDelay: 0.1
@@ -225,7 +225,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cfc89b9239534b4bb9e3c6770e98724, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1001 &5334146190343130410
+--- !u!1001 &7383008447579207416
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -294,17 +294,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 260a0700a5adccf9794839ae765ed5c6, type: 3}
---- !u!4 &3848537381852197909 stripped
+--- !u!4 &1809258450665983943 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9182401937566038335, guid: 260a0700a5adccf9794839ae765ed5c6,
     type: 3}
-  m_PrefabInstance: {fileID: 5334146190343130410}
+  m_PrefabInstance: {fileID: 7383008447579207416}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3848537381852197908 stripped
+--- !u!114 &1809258450665983942 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 9182401937566038334, guid: 260a0700a5adccf9794839ae765ed5c6,
     type: 3}
-  m_PrefabInstance: {fileID: 5334146190343130410}
+  m_PrefabInstance: {fileID: 7383008447579207416}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1

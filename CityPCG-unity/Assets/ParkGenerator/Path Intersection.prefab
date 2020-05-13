@@ -10,7 +10,7 @@ PrefabInstance:
     - target: {fileID: -7523729572276346395, guid: 957415ec13e82bddebd8326fd69fdf23,
         type: 3}
       propertyPath: lodTransitionWidth
-      value: 0.01
+      value: 0.005
       objectReference: {fileID: 0}
     - target: {fileID: 788838821168792192, guid: 957415ec13e82bddebd8326fd69fdf23,
         type: 3}

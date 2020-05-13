@@ -100,7 +100,7 @@ public class TerrainProjector {
             List<Vector2> triVertices = new List<Vector2>() { p1, p2, p3, p1 };
             Polygon triPoly = new Polygon(triVertices);
 
-
+            List<IEnumerable<Vector2>> results2D = new List<IEnumerable<Vector2>>();
             if (poly.Intersects(triPoly)) {
                 List<List<Vector2>> diffVerts = Habrador.GreinerHormann.ClipPolygons(
                     poly.points,
@@ -109,32 +109,40 @@ public class TerrainProjector {
                 );
 
                 foreach (List<Vector2> result in diffVerts) {
-                    Vector3[] result3D = result
-                        .Distinct()
-                        .Select(
-                            v => {
-                                var p = terrain.GetMeshIntersection(v.x, v.y);
-                                return p.point + p.normal * 0.01f;
-                            }
-                        )
-                        .ToArray();
-
-                    Triangulator triangulator = new Triangulator(result3D);
-                    int[] triangulated = triangulator.Triangulate();
-
-                    for (int i = 0; i < triangulated.Length; i += 3) {
-                        TryAddTriangle(
-                            new Triangle(
-                                result3D[triangulated[i + 0]],
-                                result3D[triangulated[i + 1]],
-                                result3D[triangulated[i + 2]]
-                            )
-                        );
-                    }
+                    results2D.Add(result);
                 }
             }
+            else if (triPoly.Contains(poly)) {
+                results2D.Add(poly.points);
+            }
             else if (poly.Contains(triPoly)) {
-                TryAddTriangle(tri);
+                results2D.Add(triPoly.points);
+            }
+            else continue;
+
+            foreach (IEnumerable<Vector2> result2D in results2D) {
+                Vector3[] result3D = result2D
+                    .Distinct()
+                    .Select(
+                        v => {
+                            var p = terrain.GetMeshIntersection(v.x, v.y);
+                            return p.point + p.normal * 0.01f;
+                        }
+                    )
+                    .ToArray();
+
+                Triangulator triangulator = new Triangulator(result3D);
+                int[] triangulated = triangulator.Triangulate();
+
+                for (int i = 0; i < triangulated.Length; i += 3) {
+                    TryAddTriangle(
+                        new Triangle(
+                            result3D[triangulated[i + 0]],
+                            result3D[triangulated[i + 1]],
+                            result3D[triangulated[i + 2]]
+                        )
+                    );
+                }
             }
         }
 

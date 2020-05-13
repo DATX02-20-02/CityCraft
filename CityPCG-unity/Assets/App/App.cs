@@ -212,4 +212,20 @@ public class App : MonoBehaviour {
 
         roadUIHandler.enabled = false;
     }
+
+    [ContextMenu("EnableLodGroupsForChildren")]
+    private void EnableLodGroupsForChildren() {
+        LODGroup[] lodGroups = worldGenerator.GetComponentsInChildren<LODGroup>();
+        foreach (LODGroup lodGroup in lodGroups) {
+            lodGroup.enabled = true;
+        }
+    }
+
+    [ContextMenu("DisableLodGroupsForChildren")]
+    private void DisableLodGroupsForChildren() {
+        LODGroup[] lodGroups = worldGenerator.GetComponentsInChildren<LODGroup>();
+        foreach (LODGroup lodGroup in lodGroups) {
+            lodGroup.enabled = false;
+        }
+    }
 }

@@ -67,6 +67,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Park Path
       objectReference: {fileID: 0}
+    - target: {fileID: 5191599167567484708, guid: b2b74e80fddc36b0da92137a6cc549c9,
+        type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 5191599167567484709, guid: b2b74e80fddc36b0da92137a6cc549c9,
         type: 3}
       propertyPath: roadWidth

@@ -38,7 +38,7 @@ public class ParkGenerator : MonoBehaviour {
             foreach (Triangle triangle in triangles) {
                 for (int i = 0; i < Mathf.Min(objectsLeftToPlace, amount); i++) {
                     Vector3 point = triangle.RandomPoint();
-                    Vector3 pos = terrain.GetPosition(point.x, point.z);
+                    Vector3 pos = terrain.GetMeshIntersection(point.x, point.z).point;
                     float seed = Random.Range(0, 10000.0f);
                     PlaceObject(pos, seed);
                 }
@@ -79,9 +79,9 @@ public class ParkGenerator : MonoBehaviour {
         obj.transform.position = terrain.GetMeshIntersection(pos.x, pos.z).point;
         obj.transform.localScale = new Vector3(scale, scale, scale);
         obj.transform.rotation = rotation;
-        float treeRadius = 0.06f;
+        float treeRadius = 0.006f;
         float miscRadius = 0.001f;
-        float pathRadius = 0.1f;
+        float pathRadius = 0.002f;
         if (obj.layer == 9) {
             Collider[] miscCollisions = Physics.OverlapSphere(obj.transform.position, miscRadius, 1 << obj.layer);
             if (miscCollisions.Length > 1) {
@@ -94,8 +94,8 @@ public class ParkGenerator : MonoBehaviour {
                 Destroy(obj);
             }
         }
-        Collider[] pathCollisions = Physics.OverlapSphere(obj.transform.position, pathRadius);
-        if (pathCollisions.Length > 1)
+        Collider[] pathCollisions = Physics.OverlapSphere(obj.transform.position, pathRadius, 1 << 10);
+        if (pathCollisions.Length > 0)
             Destroy(obj);
 
     }

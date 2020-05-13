@@ -59,8 +59,8 @@ public class PathGenerator : MonoBehaviour {
             goalPoints2D.Add(testPoint);
             goalPoints2D = OrderByDistance(goalPoints2D);
         }
-        foreach(Vector2 v in goalPoints2D) {
-            goalPoints3D.Add(terrain.GetMeshIntersection(v.x,v.y).point);
+        foreach (Vector2 v in goalPoints2D) {
+            goalPoints3D.Add(terrain.GetMeshIntersection(v.x, v.y).point);
         }
         prev = goalPoints3D[0];
         int pointsToVisit = goalPoints3D.Count;
@@ -118,14 +118,14 @@ public class PathGenerator : MonoBehaviour {
         }
 
         if (p.goals.Count >= numberOfPoints && p.nodes.Count > 15) {
-            AddPathExits(terrain,p.nodes,plot);
-            meshGenerator.Generate(network,terrain, (List<RoadMesh> roads, Dictionary<Node, RoadIntersectionMesh> intersections) => {
-                  foreach (RoadMesh r in roads) {
-                      MeshCollider collider = r.gameObject.AddComponent<MeshCollider>();
-                      collider.sharedMesh = r.RoadMeshFilter.sharedMesh;
-                  }
+            AddPathExits(terrain, p.nodes, plot);
+            meshGenerator.Generate(network, terrain, (List<RoadMesh> roads, Dictionary<Node, RoadIntersectionMesh> intersections) => {
+                foreach (RoadMesh r in roads) {
+                    MeshCollider collider = r.gameObject.AddComponent<MeshCollider>();
+                    collider.sharedMesh = r.RoadMeshFilter.sharedMesh;
+                }
 
-                  callback();
+                callback();
             });
         }
     }
@@ -198,34 +198,34 @@ public class PathGenerator : MonoBehaviour {
         Node prevNode;
 
         List<Node> nodes = new List<Node>();
-        network = new RoadNetwork(terrain,null,terrain.width,terrain.depth);
-        Agent Alexander = new Agent(network,Vector3.zero,Vector3.zero,null);
+        network = new RoadNetwork(terrain, null, terrain.width, terrain.depth);
+        Agent Alexander = new Agent(network, Vector3.zero, Vector3.zero, null);
         Alexander.config.snapRadius = 0.2f;
-        for(int i = 0; i < points.Count; i += 5) {
-            prevNode = Alexander.PlaceNode(points[i],Node.NodeType.ParkPath, ConnectionType.ParkPath, out ConnectionResult connectionInfo);
+        for (int i = 0; i < points.Count; i += 5) {
+            prevNode = Alexander.PlaceNode(points[i], Node.NodeType.ParkPath, ConnectionType.ParkPath, out ConnectionResult connectionInfo);
             nodes.Add(prevNode);
         }
-        prevNode = Alexander.PlaceNode(points[points.Count-1],Node.NodeType.ParkPath,ConnectionType.ParkPath);
+        prevNode = Alexander.PlaceNode(points[points.Count - 1], Node.NodeType.ParkPath, ConnectionType.ParkPath);
         nodes.Add(prevNode);
-        for(int i = 1; i < nodes.Count-2; i += 2) {
+        for (int i = 1; i < nodes.Count - 2; i += 2) {
             Vector2 origin = VectorUtil.Vector3To2(nodes[i].pos);
-            Vector3 orgDir = (nodes[i-1].pos-nodes[i+1].pos).normalized;
-            Vector3 newDir = -Vector3.Cross(orgDir,Vector3.up);
-            if (Vector3.Dot(newDir, nodes[i-1].pos - nodes[i].pos) > 0)
+            Vector3 orgDir = (nodes[i - 1].pos - nodes[i + 1].pos).normalized;
+            Vector3 newDir = -Vector3.Cross(orgDir, Vector3.up);
+            if (Vector3.Dot(newDir, nodes[i - 1].pos - nodes[i].pos) > 0)
                 newDir *= -1;
 
             float minDist = int.MaxValue;
             bool found = false;
             Vector2 best = new Vector2();
-            for(int j = 0; j < plot.vertices.Count; j++) {
+            for (int j = 0; j < plot.vertices.Count; j++) {
                 Vector2 proj = VectorUtil.GetProjectedPointOnLine(
                     origin,
                     VectorUtil.Vector3To2(plot.vertices[j]),
-                    VectorUtil.Vector3To2(plot.vertices[(j+1) % plot.vertices.Count])
+                    VectorUtil.Vector3To2(plot.vertices[(j + 1) % plot.vertices.Count])
                 );
                 if (proj != Vector2.negativeInfinity) {
                     float d = Vector2.Distance(proj, origin);
-                    if ( d < minDist && d > 0.2f && d < 2) {
+                    if (d < minDist && d > 0.2f && d < 2) {
                         minDist = d;
                         found = true;
                         best = proj;
@@ -234,7 +234,7 @@ public class PathGenerator : MonoBehaviour {
             }
             if (found) {
                 Alexander.PreviousNode = nodes[i];
-                Alexander.PlaceNode(VectorUtil.Vector2To3(best),Node.NodeType.ParkPath,ConnectionType.ParkPath);
+                Alexander.PlaceNode(VectorUtil.Vector2To3(best), Node.NodeType.ParkPath, ConnectionType.ParkPath);
             }
         }
     }
@@ -242,7 +242,7 @@ public class PathGenerator : MonoBehaviour {
         Reset();
     }
     void Update() {
-        if(network != null)
+        if (network != null)
             network.DrawDebug(true);
     }
 }

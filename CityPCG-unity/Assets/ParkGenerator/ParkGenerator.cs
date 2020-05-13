@@ -18,16 +18,16 @@ public class ParkGenerator : MonoBehaviour {
     public void Reset() {
         foreach (Transform child in objectParent.transform)
             Destroy(child.gameObject);
-        foreach(Transform p in pathParent.transform) 
+        foreach (Transform p in pathParent.transform)
             Destroy(p.gameObject);
     }
 
     // Coordinates calls the Triangulator function in order to divide polygons into triangles
     public void Generate(TerrainModel terrain, Plot plot) {
         this.terrain = terrain;
-        GameObject pathGeneratorObj = Instantiate(pathGeneratorPrefab,pathParent.transform);
+        GameObject pathGeneratorObj = Instantiate(pathGeneratorPrefab, pathParent.transform);
         PathGenerator pathGenerator = pathGeneratorObj.GetComponent<PathGenerator>();
-        pathGenerator.GeneratePlotPath(terrain, plot, () =>{
+        pathGenerator.GeneratePlotPath(terrain, plot, () => {
             Vector3[] area = plot.vertices.ToArray();
             int objectsToPlace = Mathf.RoundToInt(PolygonUtil.PolygonArea(plot.vertices) * objectFrequency);
             Triangulator triangulator = new Triangulator(area);

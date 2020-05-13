@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Utils;
 
 public class ParkGenerator : MonoBehaviour {
-    [Range(0, 1)]
+    [Range(0, 10)]
     [SerializeField] private float objectFrequency = 1;
     [SerializeField] private GameObject[] trees = null;
     [SerializeField] private GameObject rock = null;

@@ -131,7 +131,7 @@ PrefabInstance:
     - target: {fileID: 427434030005408792, guid: 680a13e90fac6189e88d40ffc9bdf239,
         type: 3}
       propertyPath: objectFrequency
-      value: 1
+      value: 1.8
       objectReference: {fileID: 0}
     - target: {fileID: 2663700008211637056, guid: 680a13e90fac6189e88d40ffc9bdf239,
         type: 3}
@@ -394,7 +394,7 @@ Light:
   m_Type: 1
   m_Shape: 0
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 0.4
+  m_Intensity: 0.5
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208

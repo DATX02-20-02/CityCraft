@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 19339622}
   - component: {fileID: 3335006}
   - component: {fileID: 2346822}
+  - component: {fileID: 3890622942708489810}
   m_Layer: 8
   m_Name: Tree9_5
   m_TagString: Untagged
@@ -90,6 +91,31 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!205 &3890622942708489810
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 114418}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: -1.9124146, y: 11.788198, z: 2.0718918}
+  m_Size: 23.576397
+  m_FadeMode: 1
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.017405642
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 2346822}
+  - screenRelativeHeight: 0.009131722
+    fadeTransitionWidth: 0
+    renderers: []
+  - screenRelativeHeight: 0.0015329305
+    fadeTransitionWidth: 0
+    renderers: []
+  m_Enabled: 1
 --- !u!21 &2129798
 Material:
   serializedVersion: 6

@@ -82,7 +82,7 @@ Material:
     m_Floats:
     - _BumpPeturb: 82.07547
     - _BumpPeturb2: 0.745283
-    - _BumpScale: 1
+    - _BumpScale: 0.4
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
@@ -108,7 +108,7 @@ Material:
     - BumpParm: {r: 1, g: 1, b: 1, a: 1}
     - WaveSpeed: {r: 9, g: 4.5, b: -8, a: -3.5}
     - _BumpMap_ST: {r: 1, g: 1, b: 0, a: 0}
-    - _Color: {r: 0, g: 0.049505875, b: 0.26299998, a: 1}
+    - _Color: {r: 0.030437877, g: 0.106459744, b: 0.16981131, a: 1}
     - _ColorControlCube_ST: {r: 1, g: 1, b: 0, a: 0}
     - _ColorControl_ST: {r: 1, g: 1, b: 0, a: 0}
     - _EdgeColor: {r: 0, g: 0.1, b: 0, a: 0.1}

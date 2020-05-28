@@ -86,7 +86,7 @@ public class ParkGenerator : MonoBehaviour {
         float treeRadius = 0.06f;
         float miscRadius = 0.002f;
         float pathRadius = 0.1f;
-        
+
         Collider[] treeCollisions = Physics.OverlapSphere(obj.transform.position, treeRadius, 1 << 8);
         Collider[] miscToTreeCollisions = Physics.OverlapSphere(obj.transform.position, miscRadius, 1 << 8);
 
@@ -96,11 +96,11 @@ public class ParkGenerator : MonoBehaviour {
         Collider[] pathCollisions = Physics.OverlapSphere(obj.transform.position, pathRadius, 1 << 10);
 
         if (obj.layer == 9) {
-            if (miscCollisions.Length > 1 || miscToTreeCollisions.Length > 1) 
+            if (miscCollisions.Length > 1 || miscToTreeCollisions.Length > 1)
                 Destroy(obj);
         }
         if (obj.layer == 8) {
-            if (treeCollisions.Length > 1 || treeToMiscCollisions.Length > 1) 
+            if (treeCollisions.Length > 1 || treeToMiscCollisions.Length > 1)
                 Destroy(obj);
         }
         if (pathCollisions.Length > 0)
